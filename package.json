@@ -2,11 +2,31 @@
   "name": "electron-quick-start-typescript",
   "version": "1.0.0",
   "description": "A minimal Electron application written with Typescript",
+  "main": "./build/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p ./tsconfig.e.json",
     "watch": "tsc -w",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
-    "start": "npm run build && electron ./dist/main.js"
+    "start": "npm run build && electron ./build/index.js",
+    "svelte-build": "rollup -c",
+    "dev": "rollup -c -w",
+    "svelte-start": "sirv public",
+    "dist": "electron-builder -w"
+  },
+  "build": {
+    "appId": "com.himyu.tournament",
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "build/**/*",
+      "public/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      "assets/**"
+    ]
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",
   "keywords": [
@@ -20,11 +40,29 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-typescript": "^8.0.0",
+    "@tsconfig/svelte": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
     "@typescript-eslint/parser": "^3.4.0",
-    "eslint": "^7.3.1",
     "electron": "^9.4.0",
+    "electron-builder": "^22.10.5",
+    "eslint": "^7.3.1",
+    "rollup": "^2.3.4",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0",
+    "svelte-check": "^1.0.0",
+    "svelte-preprocess": "4.6.9",
+    "sveltestrap": "^3.14.1",
+    "tslib": "^2.0.0",
     "typescript": "^3.9.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "league-connect": "^5.2.0",
+    "sirv-cli": "^1.0.0"
+  }
 }

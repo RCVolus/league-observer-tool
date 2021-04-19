@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from "electron";
+import { lcuAPI } from "./IPC";
 import * as path from "path";
 
 function createWindow() {
@@ -6,13 +7,15 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     height: 600,
     webPreferences: {
+      nodeIntegration: true,
+      worldSafeExecuteJavaScript: true,
       preload: path.join(__dirname, "preload.js"),
     },
     width: 800,
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, "../index.html"));
+  mainWindow.loadFile(path.join(__dirname, '../public/index.html'));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
@@ -39,6 +42,6 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+lcuAPI();

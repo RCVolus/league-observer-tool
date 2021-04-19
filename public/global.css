@@ -1,0 +1,8 @@
+::root {
+  --primary: #0074d0 !important;
+}
+
+.btn-primary {
+  background-color: #0074d0;
+  border-color: #0074d0;
+}
