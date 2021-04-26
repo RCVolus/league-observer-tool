@@ -5,20 +5,20 @@ import * as path from "path";
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 600,
+    height: 700,
     webPreferences: {
       nodeIntegration: true,
       worldSafeExecuteJavaScript: true,
       preload: path.join(__dirname, "preload.js"),
     },
-    width: 800,
+    width: 400,
   });
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../public/index.html'));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished
@@ -33,6 +33,8 @@ app.on("ready", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+process.env.NODE_ENV="production";
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

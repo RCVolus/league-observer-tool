@@ -10,10 +10,16 @@
     "baseUrl": ".",
     "esModuleInterop": false,
     "skipLibCheck": true,
+    "rootDirs": ["src/electron"],
     "paths": {
       "*": ["node_modules/*"]
     }
   },
+  "files": [
+    "./src/electron/index.ts",
+    "./src/electron/IPC.ts",
+    "./src/electron/preload.ts"
+  ],
   "include": [
     "src/electron/**/*"
   ],

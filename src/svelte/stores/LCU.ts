@@ -1,6 +1,9 @@
 import { writable } from 'svelte/store'
 import { Alert } from './Alert'
 const { ipcRenderer } = window.require("electron");
+import type { Response } from 'league-connect'
+import type { Summoner as SummonerType } from '../../../types/Summoner/Summoner'
+
 
 export const LCUCredentials = function () {
   const { subscribe, set } = writable<boolean>(false);
@@ -39,20 +42,35 @@ export const LCUCredentials = function () {
             heading: "LCU connected",
             text: "The connection was established"
           })
+          set(args)
+          Summoner.getLoggedInUser();
         }
-        set(args)
-        LCUClient.getLoggedInUser();
       })
     }
   }
 }()
 
-export const LCUClient = function () {
-  const { subscribe, set } = writable<any>(null);
+export const Summoner = function () {
+  const { subscribe, set } = writable<SummonerType | undefined>(undefined);
   return {
     subscribe,
     getLoggedInUser: () => {
+      ipcRenderer.send('lcu-request-current-summoner')
 
+      ipcRenderer.once('lcu-response-current-summoner', async (_event, args: Response<SummonerType>) => {
+        console.log(args);
+        if (!args.ok) {
+          Alert.set({
+            show: true,
+            color: "danger",
+            heading: "Summoner not found",
+            text: args.statusText
+          })
+        } else {
+          const json = await args.json()
+          set(json)
+        }
+      })
     }
   }
 }()
