@@ -1,8 +1,6 @@
 import { ipcMain } from 'electron';
 import { authenticate, request, Credentials, LeagueClient } from 'league-connect'
 import type { Summoner } from '../../types/Summoner/Summoner'
-import fetch from 'node-fetch'
-import * as https from 'https';
 
 export function lcuAPI () {
   let credentials : Credentials
@@ -11,18 +9,10 @@ export function lcuAPI () {
   ipcMain.on('lcu-start-connect', async (event) => {
     try {
       credentials = await authenticate();
-      const res = await fetch("https://riot:sfRDljZWzKaO8DgP11Fj3Q@172.17.64.1:65530/lol-summoner/v1/current-summoner", {
-        agent: new https.Agent({
-          rejectUnauthorized: false
-        })
-      })
-      console.log(res)
-      event.sender.send('console', res)
-      event.sender.send('console', credentials)
       handleConnection(credentials, event);
     } catch (e) {
       event.sender.send('console', e)
-      event.sender.send('lcu-connection', false)
+      event.sender.send('lcu-connection', undefined)
     }
   })
 
@@ -48,16 +38,16 @@ export function lcuAPI () {
   })
 
   function handleConnection (credentials:Credentials, event: Electron.IpcMainEvent) {
-    event.sender.send('lcu-connection', true)
+    event.sender.send('lcu-connection', credentials)
     leagueClient = new LeagueClient(credentials);
 
     leagueClient.on('connect', (newCredentials) => {
       credentials = newCredentials
-      event.sender.send('lcu-connection', true)
+      event.sender.send('lcu-connection', credentials)
     })
     
     leagueClient.on('disconnect', () => {
-      event.sender.send('lcu-connection', false)
+      event.sender.send('lcu-connection', undefined)
     })
 
     leagueClient.start()

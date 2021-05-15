@@ -44,6 +44,14 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+// SSL/TSL: this is the self signed certificate support
+app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
+app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+  event.preventDefault();
+  callback(true);
+});
+
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 lcuAPI();

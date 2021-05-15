@@ -6,3 +6,13 @@
   background-color: #0074d0;
   border-color: #0074d0;
 }
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background: #0f2027;
+  background: -webkit-linear-gradient(-15deg, #0f2027, #203a43);
+  background: linear-gradient(-15deg, #0f2027, #203a43);
+}

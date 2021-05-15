@@ -1,73 +1,49 @@
 <script lang="ts">
   const { ipcRenderer } = window.require("electron");
-  import { LCUCredentials, Summoner } from "./stores/LCU";
+  import { LCU } from "./stores/LCU"; 
   import { Alert } from "./stores/Alert";
-  import { onDestroy } from "svelte";
-  import type { DisplayError } from "../../types/DisplayError";
   import { Button, Alert as SSAlert } from "sveltestrap";
-  import type { Summoner as SummonerType } from "../../types/Summoner/Summoner";
+  import User from "./components/User.svelte";
 
-  let isLcuConnectetd: boolean;
-  const unLCU = LCUCredentials.subscribe((v) => (isLcuConnectetd = v));
-  let alert: DisplayError;
-  const unAlert = Alert.subscribe((v) => (alert = v));
+  const {isConnected, summoner} = LCU
 
-  let summoner: SummonerType;
-  const unSummoner = Summoner.subscribe((v) => (summoner = v));
-  $: haveClient = !!summoner;
-
-  onDestroy(() => {
-    unLCU;
-    unAlert;
-    unSummoner;
-  });
+  //$summoner = JSON.parse('{"accountId":208440443,"displayName":"Himyu","internalName":"Himyu","nameChangeFlag":false,"percentCompleteForNextLevel":14,"profileIconId":4832,"puuid":"39e8cf98-7ffa-5641-a234-ef51693b888e","rerollPoints":{"currentPoints":323,"maxRolls":2,"numberOfRolls":1,"pointsCostToRoll":250,"pointsToReroll":177},"summonerId":53342871,"summonerLevel":123,"unnamed":false,"xpSinceLastLevel":527,"xpUntilNextLevel":3648}');
 
   ipcRenderer.on("console", (_event, args: any) => {
     console.log(args);
   });
 </script>
 
-<main>
-  {#if isLcuConnectetd && haveClient}
-    <h5>Welcome</h5>
-    <h1>{summoner.displayName}</h1>
-  {/if}
+{#if $isConnected && $summoner}
+  <User />
+{/if}
+<User />
 
+<main>  
   <SSAlert
-    class="w-100"
-    color={alert.color}
-    isOpen={alert.show}
-    toggle={() => (alert.show = false)}
+    color={$Alert.color}
+    isOpen={$Alert.show}
+    toggle={() => ($Alert.show = false)}
   >
-    <h4 class="alert-heading text-capitalize">{alert.heading}</h4>
-    {alert.text}
+    <h4 class="alert-heading text-capitalize">{$Alert.heading}</h4>
+    {$Alert.text}
   </SSAlert>
-  <Button
-    color={isLcuConnectetd ? "success" : "primary"}
-    block
-    on:click={() => {
-      if (!isLcuConnectetd) {
-        LCUCredentials.connect();
-      } else {
-        LCUCredentials.disconnect();
-      }
-    }}
-  >
-    {isLcuConnectetd ? "disconnect" : "connect"}
-  </Button>
+  
+  {#if !$isConnected || !$summoner}
+    <Button color="success" block size="lg" on:click={() => LCU.connect()}>
+      connect
+    </Button>
+  {/if}
 </main>
 
 <style>
   main {
-    height: 100vh;
-    padding: 2rem;
+    width: 100%;
+    flex-grow: 1;
+    padding: 0 1rem;
     margin: 0 auto;
-    background: #0f2027;
-    background: -webkit-linear-gradient(-15deg, #0f2027, #203a43);
-    background: linear-gradient(-15deg, #0f2027, #203a43);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
   }
 </style>

@@ -5,7 +5,7 @@
   "main": "./build/index.js",
   "scripts": {
     "build": "tsc -p ./tsconfig.e.json",
-    "watch": "tsc -w",
+    "watch": "tsc -w -p ./tsconfig.e.json",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "start": "npm run build && electron ./build/index.js",
     "svelte-build": "rollup -c",
