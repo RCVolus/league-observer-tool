@@ -14,10 +14,9 @@
   });
 </script>
 
-{#if $isConnected && $summoner}
+{#if $summoner}
   <User />
 {/if}
-<User />
 
 <main>  
   <SSAlert
