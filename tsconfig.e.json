@@ -15,11 +15,6 @@
       "*": ["node_modules/*"]
     }
   },
-  "files": [
-    "./src/electron/index.ts",
-    "./src/electron/IPC.ts",
-    "./src/electron/preload.ts"
-  ],
   "include": [
     "src/electron/**/*"
   ],

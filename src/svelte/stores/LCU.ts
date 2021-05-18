@@ -2,37 +2,56 @@ import { Alert } from './Alert'
 const { ipcRenderer } = window.require("electron");
 import type { Credentials } from 'league-connect'
 import type { Summoner as SummonerType } from '../../../types/Summoner/Summoner'
+import type { LCUConnection } from '../../../types/LCUConnection'
 import { writable, Writable } from "svelte/store";
 
 class LcuConnector {
   public isConnected : Writable<boolean> = writable(false)
   public summoner : Writable<SummonerType | undefined> = writable(undefined)
+  public isPending : Writable<boolean> = writable(false)
   private credentials : Credentials | undefined = undefined
 
-  public connect () {
-    ipcRenderer.send('lcu-start-connect')
+  constructor () {
+    this.listenForConnection()
+  }
 
-    ipcRenderer.on('lcu-connection', (_event: any, credentials : Credentials | undefined) => {
-      this.credentials = credentials
+  private listenForConnection () {
+    ipcRenderer.on('lcu-connection', (_event: any, lcuConnection : LCUConnection) => {
+      if (lcuConnection.status == "pending") {
+        this.isPending.set(true)
+        return
+      }
+      else this.isPending.set(false)
+
+      this.credentials = lcuConnection.credentials
       
-      if (!credentials) {
-        Alert.set({
-          show: true,
-          color: "danger",
-          heading: "LCU Connection Failed",
-          text: "The connection to the LCU client failed pleas try again"
-        })
+      if (!lcuConnection.credentials) {
+        this.isConnected.set(false)
+        this.summoner.set(undefined)
+
+        if (lcuConnection.type == "connecting") {
+          Alert.set({
+            show: true,
+            color: "danger",
+            heading: "LCU Connection Failed",
+            text: "The connection to the LCU client failed pleas try again"
+          })
+        }
       } else {
         this.getLoggedInSummoner()
       }
     })
   }
 
+  public connect () {
+    ipcRenderer.send('lcu-start-connection')
+  }
+
   public disconnect () { 
-    ipcRenderer.send('lcu-stop-connect')
+    ipcRenderer.send('lcu-stop-connection')
     this.credentials = undefined
-    this.isConnected.set(false)
     this.summoner.set(undefined)
+    this.isConnected.set(false)
   }
 
   public async getLoggedInSummoner () {
@@ -62,6 +81,7 @@ class LcuConnector {
     endpoint : string,
     data?: B
   ) : Promise<R> {
+    console.log("req")
     if (!this.credentials) return Promise.reject()
 
     let body = undefined
@@ -79,7 +99,6 @@ class LcuConnector {
     })
 
     const json = await res.json()
-    console.log(JSON.stringify(json))
 
     if (res.ok) {
       return json
@@ -91,57 +110,3 @@ class LcuConnector {
 }
 
 export const LCU = new LcuConnector();
-
-
-
-/* class LcuConnector {
-  private handlers : Array<{uri: string, type: string, action: () => void}> = []
-
-  constructor(private credentials : Credentials) {}
-
-  async makeRequest<T = any>(method : 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', endpoint : string, data?: T) {
-    let body = undefined
-    if (data && (method !== 'GET' && method !== 'DELETE')) body = JSON.stringify(data)
-
-    const res = await fetch(`https://127.0.0.1:${this.credentials.port}${endpoint}`, {
-        body: body,
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + Buffer.from('riot:' + this.credentials.password).toString('base64')
-        }
-    })
-
-    const json = await res.json()
-    console.log(json)
-    return json
-  }
-
-  listen() {
-    document.cookie = 'Authorization=Basic ' + btoa(`riot:${this.credentials.password}`);
-    let wsUrl = `wss://riot:${this.credentials.password}@127.0.0.1:${this.credentials.port}/`
-    const ws = new WebSocket(wsUrl, 'wamp')
-    ws.onmessage = function (msg) {
-      console.log(msg)
-        if (msg.('RiotRemoting"]')) return
-
-        const [, , data] = JSON.parse(msg)
-
-        this.handlers.forEach(h => {
-            if ((data.uri.startsWith(h.uri) || h.uri === '*') && (data.eventType === h.type || h.type === '*')) {
-                h.action(data.uri, data.eventType, data.data)
-            }
-        })
-    }
-
-    ws.onopen = function () { ws.send('[5,"OnJsonApiEvent"]') }
-    ws.onerror = function (e) {console.log(e)}
-  }
-
-  addHandler(uri: string, type: string, action: () => void) {
-    let newHandler = { uri, type, action }
-    this.handlers.push(newHandler)
-    return newHandler
-  }
-
-} */

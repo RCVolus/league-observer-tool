@@ -1,7 +1,17 @@
 {
-  "name": "electron-quick-start-typescript",
-  "version": "1.0.0",
-  "description": "A minimal Electron application written with Typescript",
+  "name": "league-prod-observer-tool",
+  "version": "0.1.0",
+  "description": "An addition to the league-prod-toolkit for the observer PC",
+  "author": {
+    "name": "Riot Community Volunteers"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/Himyu/tournament-app",
+  "keywords": [
+    "League",
+    "production",
+    "observer"
+  ],
   "main": "./build/index.js",
   "scripts": {
     "build": "tsc -p ./tsconfig.e.json",
@@ -11,12 +21,25 @@
     "svelte-build": "rollup -c",
     "dev": "rollup -c -w",
     "svelte-start": "sirv public",
-    "dist": "electron-builder -w"
+    "dist": "npm run svelte-build && npm run build && electron-builder -w"
   },
   "build": {
-    "appId": "com.himyu.tournament",
+    "appId": "gg.rcv.league-prod-observer-tool",
+    "productName": "League Production Observer Tool",
+    "copyright": "Copyright © 2021 Riot Community Volunteers",
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "assets/icons/icon.ico"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "installerIcon": "assets/icons/icon.ico",
+      "deleteAppDataOnUninstall": true,
+      "menuCategory": true,
+      "shortcutName": "Observer Tool"
     },
     "files": [
       "build/**/*",
@@ -25,20 +48,9 @@
       "package.json"
     ],
     "extraResources": [
-      "assets/**"
+      "assets/**/*"
     ]
   },
-  "repository": "https://github.com/electron/electron-quick-start-typescript",
-  "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo",
-    "typescript"
-  ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",

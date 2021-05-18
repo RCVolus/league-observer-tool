@@ -2,12 +2,10 @@
   const { ipcRenderer } = window.require("electron");
   import { LCU } from "./stores/LCU"; 
   import { Alert } from "./stores/Alert";
-  import { Button, Alert as SSAlert } from "sveltestrap";
+  import { Button, Alert as SSAlert, Spinner  } from "sveltestrap";
   import User from "./components/User.svelte";
 
-  const {isConnected, summoner} = LCU
-
-  //$summoner = JSON.parse('{"accountId":208440443,"displayName":"Himyu","internalName":"Himyu","nameChangeFlag":false,"percentCompleteForNextLevel":14,"profileIconId":4832,"puuid":"39e8cf98-7ffa-5641-a234-ef51693b888e","rerollPoints":{"currentPoints":323,"maxRolls":2,"numberOfRolls":1,"pointsCostToRoll":250,"pointsToReroll":177},"summonerId":53342871,"summonerLevel":123,"unnamed":false,"xpSinceLastLevel":527,"xpUntilNextLevel":3648}');
+  const {isConnected, summoner, isPending} = LCU
 
   ipcRenderer.on("console", (_event, args: any) => {
     console.log(args);
@@ -27,6 +25,12 @@
     <h4 class="alert-heading text-capitalize">{$Alert.heading}</h4>
     {$Alert.text}
   </SSAlert>
+
+  {#if $isPending}
+    <div class="text-center">
+      <Spinner style="width: 3rem; height: 3rem;" color="primary" />
+    </div>
+  {/if}
   
   {#if !$isConnected || !$summoner}
     <Button color="success" block size="lg" on:click={() => LCU.connect()}>
