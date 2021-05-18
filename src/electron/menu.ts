@@ -98,13 +98,13 @@ export function createMainMenu (lcu: LCU) {
         {
           label: 'Visit GitHub Repo',
           click() {
-            shell.openExternal("https://github.com/Himyu/tournament-app")
+            shell.openExternal("https://github.com/RCVolus/league-prod-observer-tool")
           }
         },
         {
           label: 'Report as Issue',
           click() {
-            shell.openExternal("https://github.com/Himyu/tournament-app/issues")
+            shell.openExternal("https://github.com/RCVolus/league-prod-observer-tool/issues")
           }
         },
         {
