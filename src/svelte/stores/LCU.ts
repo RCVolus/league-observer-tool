@@ -1,31 +1,28 @@
 import { Alert } from './Alert'
 const { ipcRenderer } = window.require("electron");
-import type { Credentials } from 'league-connect'
 import type { Summoner as SummonerType } from '../../../types/Summoner/Summoner'
-import type { LCUConnection } from '../../../types/LCUConnection'
+import type { LCUResponse } from '../../../types/LCUResponse'
 import { writable, Writable } from "svelte/store";
+import type { RequestOptions } from 'league-connect';
 
-class LcuConnector {
+class LCUConnector {
   public isConnected : Writable<boolean> = writable(false)
   public summoner : Writable<SummonerType | undefined> = writable(undefined)
   public isPending : Writable<boolean> = writable(false)
-  private credentials : Credentials | undefined = undefined
 
   constructor () {
     this.listenForConnection()
   }
 
   private listenForConnection () {
-    ipcRenderer.on('lcu-connection', (_event: any, lcuConnection : LCUConnection) => {
+    ipcRenderer.on('lcu-connection', (_e: any, lcuConnection : LCUResponse) => {
       if (lcuConnection.status == "pending") {
         this.isPending.set(true)
         return
       }
       else this.isPending.set(false)
-
-      this.credentials = lcuConnection.credentials
       
-      if (!lcuConnection.credentials) {
+      if (!lcuConnection.data) {
         this.isConnected.set(false)
         this.summoner.set(undefined)
 
@@ -52,7 +49,10 @@ class LcuConnector {
   }
 
   public async getLoggedInSummoner () {
-    const summoner = await this.makeRequest<undefined, SummonerType | undefined>("GET", "/lol-summoner/v1/current-summoner")
+    const summoner = await this.makeRequest<SummonerType>({
+      method: "GET",
+      url: "/lol-summoner/v1/current-summoner"
+    })
 
     if (!summoner) {
       Alert.set({
@@ -73,38 +73,18 @@ class LcuConnector {
     }
   }
 
-  private async makeRequest <B, R> (
-    method : 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-    endpoint : string,
-    data?: B
-  ) : Promise<R> {
-    if (!this.credentials) return Promise.reject()
+  private async makeRequest <R = any> (options: RequestOptions) : Promise<R> {
     this.isPending.set(true)
-
-    let body = undefined
-    if (data && (method !== 'GET' && method !== 'DELETE')) {
-      body = JSON.stringify(data)
-    }
-
-    const res = await fetch(`https://127.0.0.1:${this.credentials.port}${endpoint}`, {
-        body: body,
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + Buffer.from('riot:' + this.credentials.password).toString('base64')
-        }
-    })
-
-    const json = await res.json()
-    this.isPending.set(false)
-
-    if (res.ok) {
-      return json
-    } else {
-      throw new Error(json)
-    }
+    const res = await ipcRenderer.sendSync('lcu-request', options) as LCUResponse<R>;
     
+    if (res.data) {
+      this.isPending.set(false)
+      return res.data as R
+    } else {
+      this.isPending.set(false)
+      throw new Error
+    }
   }
 }
 
-export const LCU = new LcuConnector();
+export const LCU = new LCUConnector();

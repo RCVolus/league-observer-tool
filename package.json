@@ -1,6 +1,6 @@
 {
   "name": "league-prod-observer-tool",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"
@@ -29,7 +29,8 @@
     "copyright": "Copyright © 2021 Riot Community Volunteers",
     "win": {
       "target": "nsis",
-      "icon": "assets/icons/icon.ico"
+      "icon": "assets/icons/icon.ico",
+      "publisherName": "Riot Community Volunteers"
     },
     "nsis": {
       "allowToChangeInstallationDirectory": true,

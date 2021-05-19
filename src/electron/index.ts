@@ -8,6 +8,39 @@ let tray : Tray | null = null
 let mainWindow : BrowserWindow | null = null
 const LcuAPI = new LCU()
 
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore()
+      } else if (!mainWindow.isVisible()) {
+        mainWindow.show()
+      }
+      mainWindow.focus()
+    }
+  })
+
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.on("ready", () => {
+    createWindow();
+    createTray();
+    createMainMenu(LcuAPI);
+
+    app.on("activate", function () {
+      // On macOS it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+  });
+}
+
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -46,6 +79,13 @@ function createTray () {
   const iconPatch = path.join(execPath, "../assets/icons/icon.ico")
   const icon = nativeImage.createFromPath(iconPatch)
   tray = new Tray(icon)
+  tray.setIgnoreDoubleClickEvents(true)
+  tray.on('click', function(e){
+    if (!mainWindow?.isVisible()) {
+      mainWindow?.show()
+    }
+  });
+
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
@@ -64,24 +104,9 @@ function createTray () {
       } 
     }
   ])
-  tray.setToolTip('League production observer tool')
+  tray.setToolTip('Observer Tool')
   tray.setContextMenu(contextMenu)
 }
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on("ready", () => {
-  createWindow();
-  createTray();
-  createMainMenu(LcuAPI);
-
-  app.on("activate", function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
 
 app.on('before-quit', function (e) {
   if (!mainWindow) return

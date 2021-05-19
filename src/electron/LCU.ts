@@ -1,13 +1,13 @@
 import { ipcMain, BrowserWindow, Menu, dialog } from 'electron';
-import { authenticate, Credentials, LeagueClient } from 'league-connect'
-import type { LCUConnection } from '../../types/LCUConnection'
+import { authenticate, Credentials, LeagueClient, request, RequestOptions } from 'league-connect'
+import type { LCUResponse } from '../../types/LCUResponse'
 
 export class LCU {
   public credentials? : Credentials
   public leagueClient? : LeagueClient
   public mainWindow? : BrowserWindow
   public menu? : Menu
-  private msg : LCUConnection = {
+  private msg : LCUResponse = {
     status: "pending",
     type: "connecting"
   }
@@ -20,12 +20,37 @@ export class LCU {
     ipcMain.on('lcu-stop-connection', () => {
       this.disconnect()
     })
-    this.mainWindow?.webContents.send('console', this.menu)
+
+    this.handleRequests()
+  }
+
+  public async handleRequests () {
+    ipcMain.on('lcu-request', async (e, arg: RequestOptions) => {
+      this.msg.type = "response"
+      
+      if (!this.credentials) {
+        this.msg.status = "done"
+        this.msg.data = undefined
+        return e.returnValue = this.msg
+      }
+
+      try {
+        const req = await request(arg, this.credentials) 
+        const json = await req.json();
+        this.msg.status = "done"
+        this.msg.data = json
+      } catch (e) {
+        this.msg.status = "done"
+        this.mainWindow?.webContents.send('console', e)
+      } finally {
+        e.returnValue = this.msg
+      }
+    })
   }
 
   private handleConnection (credentials: Credentials) {
     this.msg.status = "done"
-    this.msg.credentials = credentials
+    this.msg.data = true
 
     this.mainWindow?.webContents.send('lcu-connection', this.msg)
     this.leagueClient = new LeagueClient(credentials);
@@ -34,7 +59,7 @@ export class LCU {
       this.credentials = newCredentials
       this.msg.status = "done"
       this.msg.type = 'connecting'
-      this.msg.credentials = undefined
+      this.msg.data = true
       this.mainWindow?.webContents.send('lcu-connection', this.msg)
     })
     
@@ -42,7 +67,7 @@ export class LCU {
       this.credentials = undefined
       this.msg.status = "done"
       this.msg.type = 'disconnecting'
-      this.msg.credentials = undefined
+      this.msg.data = undefined
       this.mainWindow?.webContents.send('lcu-connection', this.msg)
     })
 
@@ -71,7 +96,7 @@ export class LCU {
 
     this.msg.status = "done"
     this.msg.type = 'disconnecting'
-    this.msg.credentials = undefined
+    this.msg.data = undefined
 
     this.mainWindow?.webContents.send('lcu-connection', this.msg)
 
@@ -84,7 +109,7 @@ export class LCU {
   public async connect () {
     this.msg.status = "pending"
     this.msg.type = 'connecting'
-    this.msg.credentials = undefined
+    this.msg.data = undefined
 
     this.mainWindow?.webContents.send('lcu-connection', this.msg)
 
