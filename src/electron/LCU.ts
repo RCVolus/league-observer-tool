@@ -52,12 +52,12 @@ export class LCU {
   }
 
   private async handleConnection (credentials: Credentials) {
-    if (!this.mainWindow) return
+    if (!this.mainWindow || !this.menu) return
     
     this.leagueClient = new LeagueClient(credentials);
     const ws = await connect(credentials);
     this.ws = ws
-    this.champSelect = new ChampSelect(ws, this.mainWindow)
+    this.champSelect = new ChampSelect(ws, this.mainWindow, this.menu)
 
     this.leagueClient.on('connect', (newCredentials) => {
       this.credentials = newCredentials
@@ -65,6 +65,10 @@ export class LCU {
       this.msg.type = 'connecting'
       this.msg.data = true
       this.mainWindow?.webContents.send('lcu-connection', this.msg)
+      if (this.menu) {
+        this.menu.getMenuItemById('connect').enabled = false
+        this.menu.getMenuItemById('disconnect').enabled = true
+      }
     })
     
     this.leagueClient.on('disconnect', () => {
@@ -73,6 +77,10 @@ export class LCU {
       this.msg.type = 'disconnecting'
       this.msg.data = undefined
       this.mainWindow?.webContents.send('lcu-connection', this.msg)
+      if (this.menu) {
+        this.menu.getMenuItemById('connect').enabled = true
+        this.menu.getMenuItemById('disconnect').enabled = false
+      }
     })
 
     this.leagueClient.start()

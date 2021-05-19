@@ -79,6 +79,7 @@ export function createMainMenu (lcu: LCU) {
           label: 'Champselect',
           type: 'checkbox',
           checked: false,
+          enabled: !!lcu.champSelect,
           click (e) {
             if (e.checked) {
               lcu.champSelect?.connect()
