@@ -23,8 +23,7 @@
 <SSAlert
   color={$Alert.color}
   isOpen={visible}
-  class="my-0"
+  class="my-0 text-center"
 >
-  <h2 class="alert-heading text-capitalize">{$Alert.heading}</h2>
-  {$Alert.text}
+  <h5 class="alert-heading text-capitalize mb-0">{$Alert.text}</h5>
 </SSAlert>

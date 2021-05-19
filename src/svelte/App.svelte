@@ -5,6 +5,7 @@
   import User from "./components/User.svelte";
   import Alert from "./components/Alert.svelte";
   import ChampSelectConnect from "./components/ChampSelectConnect.svelte";
+import EndOfGameConnect from "./components/EndOfGameConnect.svelte";
 
   const {isConnected, summoner, isPending} = LCU
 
@@ -34,6 +35,7 @@
 
   {#if $isConnected}
     <ChampSelectConnect />
+    <EndOfGameConnect />
   {/if}
 </main>
 

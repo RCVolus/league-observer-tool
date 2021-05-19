@@ -5,8 +5,7 @@ export const Alert = function () {
   const { subscribe, set, update } = writable<DisplayError>({
     show: false,
     color: "danger",
-    heading: "Error",
-    text: "",
+    text: "Error",
     timeout: 3000
   });
   return {

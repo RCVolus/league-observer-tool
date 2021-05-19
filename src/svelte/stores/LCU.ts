@@ -30,8 +30,7 @@ class LCUConnector {
           Alert.set({
             show: true,
             color: "danger",
-            heading: "LCU Connection Failed",
-            text: "The connection to the LCU client failed pleas try again"
+            text: "LCU Connection Failed",
           })
         }
       } else {
@@ -58,15 +57,13 @@ class LCUConnector {
       Alert.set({
         show: true,
         color: "danger",
-        heading: "No Summoner logged in",
-        text: "Please log in to continue"
+        text: "No Summoner logged in",
       })
     } else {
       Alert.set({
         show: true,
         color: "success",
-        heading: "LCU connected",
-        text: "The connection was established"
+        text: "LCU connected",
       })
       this.summoner.set(summoner)
       this.isConnected.set(true)

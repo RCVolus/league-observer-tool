@@ -17,7 +17,7 @@
   })
 </script>
 
-<Card class="my-3" inverse style="background: #0f2027">
+<Card class="my-2" inverse style="background: #0f2027">
   <CardHeader class="d-flex justify-content-between align-items-center">
     <b>Champselect</b>
     <small class={`ml-auto ${champselectSync ? 'text-success' : 'text-danger'}`}>{champselectSync ? 'Sync' : 'offline'}</small>
