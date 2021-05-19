@@ -72,6 +72,24 @@ export function createMainMenu (lcu: LCU) {
       ],
     },
     {
+      label: 'Tools',
+      submenu: [
+        {
+          id: 'champselect',
+          label: 'Champselect',
+          type: 'checkbox',
+          checked: false,
+          click (e) {
+            if (e.checked) {
+              lcu.champSelect?.connect()
+            } else {
+              lcu.champSelect?.disconnect()
+            }
+          }
+        }
+      ],
+    },
+    {
       label: 'Window',
       submenu: [
         {

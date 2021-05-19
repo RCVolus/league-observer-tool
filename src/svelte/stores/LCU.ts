@@ -41,11 +41,11 @@ class LCUConnector {
   }
 
   public connect () {
-    ipcRenderer.send('lcu-start-connection')
+    ipcRenderer.send('lcu-connection-start')
   }
 
   public disconnect () { 
-    ipcRenderer.send('lcu-stop-connection')
+    ipcRenderer.send('lcu-connection-stop')
   }
 
   public async getLoggedInSummoner () {

@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow, Menu, dialog } from 'electron';
-import { authenticate, Credentials, LeagueClient, request, RequestOptions } from 'league-connect'
+import { authenticate, connect, Credentials, LeagueClient, LeagueWebSocket, request, RequestOptions } from 'league-connect'
 import type { LCUResponse } from '../../types/LCUResponse'
+import { ChampSelect } from './ChampSelect';
 
 export class LCU {
   public credentials? : Credentials
@@ -11,13 +12,15 @@ export class LCU {
     status: "pending",
     type: "connecting"
   }
+  public champSelect? : ChampSelect
+  private ws? : LeagueWebSocket
 
   constructor () {
-    ipcMain.on('lcu-start-connection', () => {
+    ipcMain.on('lcu-connection-start', () => {
       this.connect()
     })
 
-    ipcMain.on('lcu-stop-connection', () => {
+    ipcMain.on('lcu-connection-stop', () => {
       this.disconnect()
     })
 
@@ -48,12 +51,13 @@ export class LCU {
     })
   }
 
-  private handleConnection (credentials: Credentials) {
-    this.msg.status = "done"
-    this.msg.data = true
-
-    this.mainWindow?.webContents.send('lcu-connection', this.msg)
+  private async handleConnection (credentials: Credentials) {
+    if (!this.mainWindow) return
+    
     this.leagueClient = new LeagueClient(credentials);
+    const ws = await connect(credentials);
+    this.ws = ws
+    this.champSelect = new ChampSelect(ws, this.mainWindow)
 
     this.leagueClient.on('connect', (newCredentials) => {
       this.credentials = newCredentials
@@ -117,10 +121,15 @@ export class LCU {
       const credentials = await authenticate();
       this.credentials = credentials
       this.handleConnection(credentials);
+
+      this.msg.status = "done"
+      this.msg.data = true
     } catch (e) {
       this.mainWindow?.webContents.send('console', e)
       
       this.msg.status = "done"
+      this.mainWindow?.webContents.send('lcu-connection', this.msg)
+    } finally {
       this.mainWindow?.webContents.send('lcu-connection', this.msg)
     }
   }

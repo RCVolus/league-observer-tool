@@ -4,6 +4,7 @@
   import { Alert } from "./stores/Alert";
   import { Button, Alert as SSAlert, Spinner  } from "sveltestrap";
   import User from "./components/User.svelte";
+  import ChampSelectConnect from "./components/ChampSelectConnect.svelte";
 
   const {isConnected, summoner, isPending} = LCU
 
@@ -37,6 +38,10 @@
     <Button color="success" block size="lg" on:click={() => LCU.connect()} disabled={$isPending}>
       connect
     </Button>
+  {/if}
+
+  {#if $isConnected}
+    <ChampSelectConnect />
   {/if}
 </main>
 
