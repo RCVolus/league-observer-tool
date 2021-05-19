@@ -49,9 +49,6 @@ class LcuConnector {
 
   public disconnect () { 
     ipcRenderer.send('lcu-stop-connection')
-    this.credentials = undefined
-    this.summoner.set(undefined)
-    this.isConnected.set(false)
   }
 
   public async getLoggedInSummoner () {
@@ -81,8 +78,8 @@ class LcuConnector {
     endpoint : string,
     data?: B
   ) : Promise<R> {
-    console.log("req")
     if (!this.credentials) return Promise.reject()
+    this.isPending.set(true)
 
     let body = undefined
     if (data && (method !== 'GET' && method !== 'DELETE')) {
@@ -99,6 +96,7 @@ class LcuConnector {
     })
 
     const json = await res.json()
+    this.isPending.set(false)
 
     if (res.ok) {
       return json

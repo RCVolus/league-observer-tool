@@ -21,19 +21,20 @@
     color={$Alert.color}
     isOpen={$Alert.show}
     toggle={() => ($Alert.show = false)}
+    class="mb-5"
   >
     <h4 class="alert-heading text-capitalize">{$Alert.heading}</h4>
     {$Alert.text}
   </SSAlert>
 
   {#if $isPending}
-    <div class="text-center">
+    <div class="text-center mb-5">
       <Spinner style="width: 3rem; height: 3rem;" color="primary" />
     </div>
   {/if}
   
   {#if !$isConnected || !$summoner}
-    <Button color="success" block size="lg" on:click={() => LCU.connect()}>
+    <Button color="success" block size="lg" on:click={() => LCU.connect()} disabled={$isPending}>
       connect
     </Button>
   {/if}

@@ -16,3 +16,7 @@ body {
   background: -webkit-linear-gradient(-15deg, #0f2027, #203a43);
   background: linear-gradient(-15deg, #0f2027, #203a43);
 }
+
+.sr-only {
+  display: none;
+}

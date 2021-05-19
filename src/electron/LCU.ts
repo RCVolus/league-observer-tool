@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, Menu } from 'electron';
+import { ipcMain, BrowserWindow, Menu, dialog } from 'electron';
 import { authenticate, Credentials, LeagueClient } from 'league-connect'
 import type { LCUConnection } from '../../types/LCUConnection'
 
@@ -54,8 +54,17 @@ export class LCU {
     }
   }
 
-  public disconnect () {
+  public async disconnect () {
     if (!this.leagueClient) return
+    if (!this.mainWindow) return
+
+    let options = {
+      buttons: ["Yes","Cancel"],
+      type: "question",
+      message: "Do you really want to disconnect?"
+    }
+    const choice = dialog.showMessageBoxSync(this.mainWindow, options)
+    if (choice == 1) return
 
     this.leagueClient.stop()
     this.credentials = undefined

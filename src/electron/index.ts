@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, Tray, nativeImage } from "electron";
+import { app, BrowserWindow, Menu, Tray, nativeImage, dialog } from "electron";
 import { LCU } from "./LCU";
 import { createMainMenu } from "./menu";
 import * as path from "path";
@@ -83,8 +83,22 @@ app.on("ready", () => {
   });
 });
 
-app.on('before-quit', function () {
-  isQuiting = true;
+app.on('before-quit', function (e) {
+  if (!mainWindow) return
+
+  const choice = dialog.showMessageBoxSync(mainWindow, {
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    title: 'Confirm',
+    message: 'Are you sure you want to quit?'
+  });
+
+  if (choice === 1) {
+    isQuiting = false;
+    e.preventDefault();
+  } else {
+    isQuiting = true;
+  }
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
