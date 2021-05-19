@@ -5,4 +5,5 @@ export type DisplayError = {
   color: Color
   heading: string
   text: string
+  timeout?: number
 }

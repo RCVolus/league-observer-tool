@@ -7,6 +7,7 @@ export const Alert = function () {
     color: "danger",
     heading: "Error",
     text: "",
+    timeout: 3000
   });
   return {
     subscribe,

@@ -23,6 +23,6 @@
     <small class={`ml-auto ${champselectSync ? 'text-success' : 'text-danger'}`}>{champselectSync ? 'Sync' : 'offline'}</small>
   </CardHeader>
   <CardBody>
-    <Button block class="w-100" color={champselectSync ? 'success' : 'secondary'} on:click={syncChampselect}>Sync Champselect</Button>
+    <Button block class="w-100" color={champselectSync ? 'success' : 'secondary'} on:click={syncChampselect}>Sync</Button>
   </CardBody>
 </Card>
