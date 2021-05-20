@@ -4,8 +4,7 @@
   import { Button, Spinner  } from "sveltestrap";
   import User from "./components/User.svelte";
   import Alert from "./components/Alert.svelte";
-  import ChampSelectConnect from "./components/ChampSelectConnect.svelte";
-import EndOfGameConnect from "./components/EndOfGameConnect.svelte";
+  import ProdModule from "./components/ProdModule.svelte";
 
   const {isConnected, summoner, isPending} = LCU
 
@@ -34,8 +33,8 @@ import EndOfGameConnect from "./components/EndOfGameConnect.svelte";
   {/if}
 
   {#if $isConnected}
-    <ChampSelectConnect />
-    <EndOfGameConnect />
+    <ProdModule name="champ-select" ttile="Champselect" />
+    <ProdModule name="end-of-game" ttile="End of Game" />
   {/if}
 </main>
 

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Menu, Tray, nativeImage, dialog } from "electron";
 import { LCU } from "./LCU";
 import { createMainMenu } from "./menu";
+import { createUserTasks } from "./userTasks";
 import * as path from "path";
 
 let isQuiting = false
@@ -8,13 +9,20 @@ let tray : Tray | null = null
 let mainWindow : BrowserWindow | null = null
 const LcuAPI = new LCU()
 
+if (process.platform == "win32") {
+  createUserTasks();
+}
 const gotTheLock = app.requestSingleInstanceLock()
 
 if (!gotTheLock) {
   app.quit()
 } else {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
+    if (commandLine.includes('--quit-app')) {
+      app.quit()
+      return;
+    }
+
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
         mainWindow.restore()

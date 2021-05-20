@@ -75,19 +75,33 @@ export function createMainMenu (lcu: LCU) {
       label: 'Tools',
       submenu: [
         {
-          id: 'champselect',
+          id: 'champ-select',
           label: 'Champselect',
           type: 'checkbox',
           checked: false,
-          enabled: !!lcu.champSelect,
+          enabled: !!lcu.modules.has("champ-select"),
           click (e) {
             if (e.checked) {
-              lcu.champSelect?.connect()
+              lcu.modules.get("champ-select")?.connect()
             } else {
-              lcu.champSelect?.disconnect()
+              lcu.modules.get("champ-select")?.disconnect()
             }
           }
-        }
+        },
+        {
+          id: 'end-of-game',
+          label: 'End of Game',
+          type: 'checkbox',
+          checked: false,
+          enabled: !!lcu.modules.has("end-of-game"),
+          click (e) {
+            if (e.checked) {
+              lcu.modules.get("end-of-game")?.connect()
+            } else {
+              lcu.modules.get("end-of-game")?.disconnect()
+            }
+          }
+        },
       ],
     },
     {

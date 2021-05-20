@@ -6,13 +6,13 @@
 
   function syncChampselect () {
     if (!champselectSync) {
-      ipcRenderer.send('lcu-champselect-start')
+      ipcRenderer.send('lcu-champ-select-start')
     } else {
-      ipcRenderer.send('lcu-champselect-stop')
+      ipcRenderer.send('lcu-champ-select-stop')
     }
   }
 
-  ipcRenderer.on('lcu-champselect', (_e, connstate: boolean) => {
+  ipcRenderer.on('lcu-champ-select', (_e, connstate: boolean) => {
     champselectSync = connstate
   })
 </script>

@@ -1,7 +1,7 @@
 import { ipcMain, BrowserWindow, Menu, dialog } from 'electron';
 import { authenticate, connect, Credentials, LeagueClient, LeagueWebSocket, request, RequestOptions } from 'league-connect'
 import type { LCUResponse } from '../../types/LCUResponse'
-import { ChampSelect } from './ChampSelect';
+import { ProdModule } from './ProdModule';
 
 export class LCU {
   public credentials? : Credentials
@@ -12,7 +12,7 @@ export class LCU {
     status: "pending",
     type: "connecting"
   }
-  public champSelect? : ChampSelect
+  public modules : Map<string, ProdModule> = new Map()
   private ws? : LeagueWebSocket
 
   constructor () {
@@ -53,11 +53,29 @@ export class LCU {
 
   private async handleConnection (credentials: Credentials) {
     if (!this.mainWindow || !this.menu) return
+    this.mainWindow?.webContents.send('lcu-connection', 'handleConnection')
     
     this.leagueClient = new LeagueClient(credentials);
     const ws = await connect(credentials);
     this.ws = ws
-    this.champSelect = new ChampSelect(ws, this.mainWindow, this.menu)
+
+    const champSelect = new ProdModule(
+      ws,
+      this.mainWindow,
+      this.menu,
+      "champ-select",
+      "/lol-champ-select/v1/session"
+    )
+    this.modules.set("champ-select", champSelect)
+
+    const endOfGame = new ProdModule(
+      ws,
+      this.mainWindow,
+      this.menu,
+      "end-of-game",
+      "/lol-end-of-game/v1/eog-stats-block"
+    )
+    this.modules.set("end-of-game", endOfGame)
 
     this.leagueClient.on('connect', (newCredentials) => {
       this.credentials = newCredentials

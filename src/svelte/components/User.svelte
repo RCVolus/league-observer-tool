@@ -12,7 +12,7 @@
   }
 </script>
 
-<Navbar dark expand="md" class="p-2">
+<Navbar dark expand="md" class="py-2 px-3">
   <NavbarBrand>
     <img src={src} width="30" height="30" class="d-inline-block align-top mr-2" alt="">
     {$summoner?.displayName || ""}
