@@ -2,16 +2,19 @@ import { EventResponse, LeagueWebSocket } from 'league-connect'
 import { BrowserWindow, ipcMain, Menu, dialog, app } from 'electron';
 import * as path from "path";
 import * as fs from "fs";
+import WebSocket from "ws";
 
 export class ProdModule {
   private data : Array<any> = []
 
   constructor (
-    private ws: LeagueWebSocket,
+    private lolWS: LeagueWebSocket,
+    private serverWS: WebSocket,
     private mainWindow : BrowserWindow,
     private menu : Menu,
-    private name: string,
-    private lcuURI: string
+    private name : string,
+    private lcuURI : string,
+    private dataPoints? : Array<string>
   ) {
     ipcMain.on(`lcu-${name}-start`, () => {
       this.connect()
@@ -27,20 +30,36 @@ export class ProdModule {
   }
 
   public connect () {
-    this.ws.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
+    this.lolWS.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
     this.mainWindow.webContents.send(`lcu-${this.name}`, true)
     if (this.menu) {
       this.menu.getMenuItemById(this.name).checked = true
     }
   }
 
-  private async handleData(data: any, event: EventResponse) {
+  private async handleData(data: any, event: any) {
     this.data.push({data, event})
-    this.mainWindow.webContents.send('console', {data, event})
+
+    let selectedData : {[n: string]: any} = {}
+    if (!this.dataPoints) selectedData = data
+    else {
+      for (const key of this.dataPoints) {
+        selectedData[key] = data[key]
+      }
+    }
+
+    const obj = {
+      meta: {
+        namespace: "lcu",
+        type: `${this.name}-${event.eventType.toLowerCase()}`
+      },
+      data: event.eventType != "Delete" ? selectedData : undefined
+    }
+    this.serverWS.send(JSON.stringify(obj))
   }
 
   public disconnect () {
-    this.ws.unsubscribe(this.lcuURI);
+    this.lolWS.unsubscribe(this.lcuURI);
     this.mainWindow.webContents.send(`lcu-${this.name}`, false)
     this.menu.getMenuItemById(this.name).checked = false
   }

@@ -102,6 +102,20 @@ export function createMainMenu (lcu: LCU) {
             }
           }
         },
+        {
+          id: 'lobby',
+          label: 'Lobby',
+          type: 'checkbox',
+          checked: false,
+          enabled: !!lcu.modules.has("lobby"),
+          click (e) {
+            if (e.checked) {
+              lcu.modules.get("lobby")?.connect()
+            } else {
+              lcu.modules.get("lobby")?.disconnect()
+            }
+          }
+        },
       ],
     },
     {

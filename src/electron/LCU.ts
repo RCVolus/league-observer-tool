@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow, Menu, dialog } from 'electron';
 import { authenticate, connect, Credentials, LeagueClient, LeagueWebSocket, request, RequestOptions } from 'league-connect'
 import type { LCUResponse } from '../../types/LCUResponse'
 import { ProdModule } from './ProdModule';
+import WebSocket from "ws";
 
 export class LCU {
   public credentials? : Credentials
@@ -13,7 +14,6 @@ export class LCU {
     type: "connecting"
   }
   public modules : Map<string, ProdModule> = new Map()
-  private ws? : LeagueWebSocket
 
   constructor () {
     ipcMain.on('lcu-connection-start', () => {
@@ -56,26 +56,41 @@ export class LCU {
     this.mainWindow?.webContents.send('lcu-connection', 'handleConnection')
     
     this.leagueClient = new LeagueClient(credentials);
-    const ws = await connect(credentials);
-    this.ws = ws
+    
+    const lolWS = await connect(credentials);
+    const severWs = new WebSocket("ws://10.244.69.129:3003/eventbus")
 
-    const champSelect = new ProdModule(
-      ws,
+    this.modules.set("champ-select", new ProdModule(
+      lolWS,
+      severWs,
       this.mainWindow,
       this.menu,
       "champ-select",
-      "/lol-champ-select/v1/session"
-    )
-    this.modules.set("champ-select", champSelect)
-
-    const endOfGame = new ProdModule(
-      ws,
+      "/lol-champ-select/v1/session",
+      [
+        "actions",
+        "bans",
+        "myTeam",
+        "theirTeam",
+        "timer"
+      ]
+    ))
+    this.modules.set("end-of-game", new ProdModule(
+      lolWS,
+      severWs,
       this.mainWindow,
       this.menu,
       "end-of-game",
       "/lol-end-of-game/v1/eog-stats-block"
-    )
-    this.modules.set("end-of-game", endOfGame)
+    ))
+    this.modules.set("lobby", new ProdModule(
+      lolWS,
+      severWs,
+      this.mainWindow,
+      this.menu,
+      "lobby",
+      "/lol-lobby/v2/lobby"
+    ))
 
     this.leagueClient.on('connect', (newCredentials) => {
       this.credentials = newCredentials

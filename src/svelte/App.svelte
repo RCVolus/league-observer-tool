@@ -33,6 +33,7 @@
   {/if}
 
   {#if $isConnected}
+    <ProdModule name="lobby" ttile="Lobby" />
     <ProdModule name="champ-select" ttile="Champselect" />
     <ProdModule name="end-of-game" ttile="End of Game" />
   {/if}

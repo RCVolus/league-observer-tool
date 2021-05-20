@@ -8,7 +8,7 @@
     "sourceMap": true,
     "outDir": "build",
     "baseUrl": ".",
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "rootDirs": ["src/electron"],
     "paths": {
