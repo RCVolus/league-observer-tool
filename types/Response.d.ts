@@ -1,4 +1,4 @@
-export interface LCUResponse <D = any> {
+export interface Response <D = any> {
   status: "pending" | "done"
   type: string
   data?: D

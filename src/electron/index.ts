@@ -1,13 +1,15 @@
 import { app, BrowserWindow, Menu, Tray, nativeImage, dialog } from "electron";
-import { LCU } from "./LCU";
-import { createMainMenu } from "./menu";
 import { createUserTasks } from "./userTasks";
+import { Sender } from "./Sender";
 import * as path from "path";
+import { LCU } from "./LCU";
+import { Server } from "./Server";
+import { MainMenu } from "./Menu";
+import { Modules } from "./Modules";
 
 let isQuiting = false
 let tray : Tray | null = null
 let mainWindow : BrowserWindow | null = null
-const LcuAPI = new LCU()
 
 if (process.platform == "win32") {
   createUserTasks();
@@ -39,7 +41,6 @@ if (!gotTheLock) {
   app.on("ready", () => {
     createWindow();
     createTray();
-    createMainMenu(LcuAPI);
 
     app.on("activate", function () {
       // On macOS it's common to re-create a window in the app when the
@@ -79,7 +80,12 @@ function createWindow() {
     return false;
   });
 
-  LcuAPI.mainWindow = mainWindow
+  Sender.mainWindow = mainWindow
+
+  const lcu = new LCU()
+  const server = new Server()
+  const menu = new MainMenu(lcu, server)
+  const modules = new Modules(lcu, server, menu.mainMenu)
 }
 
 function createTray () {
@@ -131,6 +137,7 @@ app.on('before-quit', function (e) {
     e.preventDefault();
   } else {
     isQuiting = true;
+    Sender.mainWindow = undefined
   }
 });
 

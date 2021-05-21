@@ -1,12 +1,12 @@
 <script lang="ts">
   const { ipcRenderer } = window.require("electron");
-  import { LCU } from "./stores/LCU"; 
+  import { ConnectionStore } from "./stores/Connector"; 
   import { Button, Spinner  } from "sveltestrap";
   import User from "./components/User.svelte";
   import Alert from "./components/Alert.svelte";
   import ProdModule from "./components/ProdModule.svelte";
 
-  const {isConnected, summoner, isPending} = LCU
+  const {isConnected, summoner, isPending} = ConnectionStore
 
   ipcRenderer.on("console", (_event, args: any) => {
     console.log(args);
@@ -26,8 +26,8 @@
     </div>
   {/if}
   
-  {#if !$isConnected || !$summoner}
-    <Button color="success" block size="lg" on:click={() => LCU.connect()} disabled={$isPending}>
+  {#if !$isConnected}
+    <Button color="success" block size="lg" on:click={() => ConnectionStore.connect()} disabled={$isPending}>
       connect
     </Button>
   {/if}

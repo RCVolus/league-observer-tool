@@ -1,14 +1,14 @@
 <script lang="ts">
   import { Navbar, NavbarBrand, Button, Icon, Tooltip } from "sveltestrap";
-  import { LCU } from "../stores/LCU";
+  import { ConnectionStore } from "../stores/Connector";
 
   const gameVersion = "11.10.1"
-  const { summoner } = LCU
+  const { summoner } = ConnectionStore
   const iconId = $summoner?.profileIconId || "404"
   const src = `http://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/profileicon/${iconId}.png`
 
   function disconnect () {
-    LCU.disconnect();
+    ConnectionStore.disconnect();
   }
 </script>
 

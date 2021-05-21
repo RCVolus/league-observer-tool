@@ -1,23 +1,14 @@
-import { writable } from 'svelte/store'
+import { writable, Writable } from 'svelte/store'
 import type { DisplayError } from '../../../types/DisplayError';
+const { ipcRenderer } = window.require("electron");
 
-export const Alert = function () {
-  const { subscribe, set, update } = writable<DisplayError>({
-    show: false,
-    color: "danger",
-    text: "Error",
-    timeout: 3000
-  });
-  return {
-    subscribe,
-    set,
-    show: () => { update(state => {
-      state.show = true
-      return state
-    })},
-    hide: () => { update(state => {
-      state.show = false
-      return state
-    })}
+class Alert {
+  public Alert : Writable<DisplayError | null> = writable(null)
+
+  constructor () {
+    ipcRenderer.on('error', (_e: any, error : DisplayError) => {
+      this.Alert.set(error)
+    })
   }
-}()
+}
+export const AlertStore = new Alert();

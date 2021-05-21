@@ -1,25 +1,18 @@
-import { ipcMain, BrowserWindow, Menu, dialog } from 'electron';
-import { authenticate, connect, Credentials, LeagueClient, LeagueWebSocket, request, RequestOptions } from 'league-connect'
-import type { LCUResponse } from '../../types/LCUResponse'
-import { ProdModule } from './ProdModule';
-import WebSocket from "ws";
+import { ipcMain } from 'electron';
+import { authenticate, connect, Credentials, EventCallback, LeagueClient, LeagueWebSocket, request, RequestOptions } from 'league-connect'
+import { DisplayError } from '../../types/DisplayError';
+import { Sender } from './Sender';
 
 export class LCU {
   public credentials? : Credentials
   public leagueClient? : LeagueClient
-  public mainWindow? : BrowserWindow
-  public menu? : Menu
-  private msg : LCUResponse = {
-    status: "pending",
-    type: "connecting"
-  }
-  public modules : Map<string, ProdModule> = new Map()
+  private lolWs? : LeagueWebSocket
+  private timeout ? : ReturnType<typeof setTimeout>
 
   constructor () {
     ipcMain.on('lcu-connection-start', () => {
       this.connect()
     })
-
     ipcMain.on('lcu-connection-stop', () => {
       this.disconnect()
     })
@@ -28,150 +21,108 @@ export class LCU {
   }
 
   public async handleRequests () {
-    ipcMain.on('lcu-request', async (e, arg: RequestOptions) => {
-      this.msg.type = "response"
-      
+    ipcMain.on('lcu-request', async (e, arg: RequestOptions) => {      
       if (!this.credentials) {
-        this.msg.status = "done"
-        this.msg.data = undefined
-        return e.returnValue = this.msg
+        Sender.send('error', {
+          color: "warning",
+          text: "not connected"
+        } as DisplayError)
       }
 
       try {
         const req = await request(arg, this.credentials) 
         const json = await req.json();
-        this.msg.status = "done"
-        this.msg.data = json
+        e.returnValue = json
       } catch (e) {
-        this.msg.status = "done"
-        this.mainWindow?.webContents.send('console', e)
-      } finally {
-        e.returnValue = this.msg
+        Sender.send('console', e)
+        Sender.send('error', {
+          color: "danger",
+          text: e.message
+        } as DisplayError)
       }
     })
   }
 
-  private async handleConnection (credentials: Credentials) {
-    if (!this.mainWindow || !this.menu) return
-    this.mainWindow?.webContents.send('lcu-connection', 'handleConnection')
-    
+  private handleConnection (credentials: Credentials) {
     this.leagueClient = new LeagueClient(credentials);
-    
-    const lolWS = await connect(credentials);
-    const severWs = new WebSocket("ws://10.244.69.129:3003/eventbus")
-
-    this.modules.set("champ-select", new ProdModule(
-      lolWS,
-      severWs,
-      this.mainWindow,
-      this.menu,
-      "champ-select",
-      "/lol-champ-select/v1/session",
-      [
-        "actions",
-        "bans",
-        "myTeam",
-        "theirTeam",
-        "timer"
-      ]
-    ))
-    this.modules.set("end-of-game", new ProdModule(
-      lolWS,
-      severWs,
-      this.mainWindow,
-      this.menu,
-      "end-of-game",
-      "/lol-end-of-game/v1/eog-stats-block"
-    ))
-    this.modules.set("lobby", new ProdModule(
-      lolWS,
-      severWs,
-      this.mainWindow,
-      this.menu,
-      "lobby",
-      "/lol-lobby/v2/lobby"
-    ))
 
     this.leagueClient.on('connect', (newCredentials) => {
       this.credentials = newCredentials
-      this.msg.status = "done"
-      this.msg.type = 'connecting'
-      this.msg.data = true
-      this.mainWindow?.webContents.send('lcu-connection', this.msg)
-      if (this.menu) {
-        this.menu.getMenuItemById('connect').enabled = false
-        this.menu.getMenuItemById('disconnect').enabled = true
-      }
+      Sender.send('lcu-connection', true)
     })
     
     this.leagueClient.on('disconnect', () => {
       this.credentials = undefined
-      this.msg.status = "done"
-      this.msg.type = 'disconnecting'
-      this.msg.data = undefined
-      this.mainWindow?.webContents.send('lcu-connection', this.msg)
-      if (this.menu) {
-        this.menu.getMenuItemById('connect').enabled = true
-        this.menu.getMenuItemById('disconnect').enabled = false
-      }
+      Sender.send('lcu-connection', false)
     })
 
     this.leagueClient.start()
+  }
 
-    if (this.menu) {
-      this.menu.getMenuItemById('connect').enabled = false
-      this.menu.getMenuItemById('disconnect').enabled = true
+  private async handleWebSockets(credentials: Credentials) {
+    this.lolWs = await connect(credentials);
+    this.lolWs.onopen = () => Sender.send('lcu-connection', true)
+    this.lolWs.onerror = e => {
+      Sender.send('error', {
+        color: "danger",
+        text: e.message,
+      } as DisplayError)
+      Sender.send('lcu-connection', false)
+    }
+    this.lolWs.onclose = () => {
+      Sender.send('lcu-connection', false)
+      this.timeout = setTimeout(() => {this.connect()}, 5000)
     }
   }
 
-  public async disconnect () {
-    if (!this.leagueClient) return
-    if (!this.mainWindow) return
+  /**
+   * subscribe
+   */
+  public subscribe(path: string, effect: EventCallback<any>) {
+    return this.lolWs?.subscribe(path, effect)
+  }
 
+  /**
+   * unsubscribe
+   */
+   public unsubscribe(path: string) {
+    return this.lolWs?.unsubscribe(path)
+  }
+
+  public async disconnect () {
     let options = {
       buttons: ["Yes","Cancel"],
       type: "question",
       message: "Do you really want to disconnect?"
     }
-    const choice = dialog.showMessageBoxSync(this.mainWindow, options)
+    const choice = Sender.showMessageBoxSync(options)
     if (choice == 1) return
 
-    this.leagueClient.stop()
+    this.leagueClient?.stop()
     this.credentials = undefined
 
-    this.msg.status = "done"
-    this.msg.type = 'disconnecting'
-    this.msg.data = undefined
-
-    this.mainWindow?.webContents.send('lcu-connection', this.msg)
-
-    if (this.menu) {
-      this.menu.getMenuItemById('connect').enabled = true
-      this.menu.getMenuItemById('disconnect').enabled = false
+    this.lolWs?.terminate()
+    if (this.timeout) {
+      clearTimeout(this.timeout)
     }
+
+    Sender.send('lcu-connection', false)
   }
 
   public async connect () {
-    this.msg.status = "pending"
-    this.msg.type = 'connecting'
-    this.msg.data = undefined
-
-    this.mainWindow?.webContents.send('lcu-connection', this.msg)
-
     try {
       const credentials = await authenticate();
       this.credentials = credentials
       this.handleConnection(credentials);
 
-      this.msg.status = "done"
-      this.msg.data = true
+      this.handleWebSockets(credentials)
     } catch (e) {
-      this.mainWindow?.webContents.send('console', e)
-      
-      this.msg.status = "done"
-      this.mainWindow?.webContents.send('lcu-connection', this.msg)
-    } finally {
-      this.mainWindow?.webContents.send('lcu-connection', this.msg)
+      Sender.send('console', e)
+      Sender.send('error', {
+        color: "danger",
+        text: e.message
+      } as DisplayError)
+      Sender.send('lcu-connection', false)
     }
   }
 }

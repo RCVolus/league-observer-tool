@@ -1,40 +1,52 @@
-import { EventResponse, LeagueWebSocket } from 'league-connect'
-import { BrowserWindow, ipcMain, Menu, dialog, app } from 'electron';
+import { EventResponse } from 'league-connect'
+import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
 import * as path from "path";
 import * as fs from "fs";
-import WebSocket from "ws";
+import { Sender } from './Sender';
+import { Server } from './Server';
+import { LCU } from './LCU'
 
 export class ProdModule {
   private data : Array<any> = []
 
   constructor (
-    private lolWS: LeagueWebSocket,
-    private serverWS: WebSocket,
-    private mainWindow : BrowserWindow,
-    private menu : Menu,
+    private id : string,
     private name : string,
     private lcuURI : string,
+    private lcu : LCU,
+    private server : Server,
+    private menu : Menu,
     private dataPoints? : Array<string>
   ) {
-    ipcMain.on(`lcu-${name}-start`, () => {
+    ipcMain.on(`lcu-${id}-start`, () => {
       this.connect()
     })
-    ipcMain.on(`lcu-${name}-stop`, () =>{
+    ipcMain.on(`lcu-${id}-stop`, () =>{
       this.disconnect()
     })
-    ipcMain.on(`lcu-${name}-save`, () => {
+    ipcMain.on(`lcu-${id}-save`, () => {
       this.saveData()
     })
 
-    this.menu.getMenuItemById(name).enabled = true
+    this.menu.getMenuItemById('tools').submenu?.append(new MenuItem({
+      id: this.id,
+      label: this.name,
+      type: 'checkbox',
+      checked: false,
+      click : (e) => {
+        if (e.checked) {
+          this.connect()
+        } else {
+          this.disconnect()
+        }
+      }
+    }))
   }
 
   public connect () {
-    this.lolWS.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
-    this.mainWindow.webContents.send(`lcu-${this.name}`, true)
-    if (this.menu) {
-      this.menu.getMenuItemById(this.name).checked = true
-    }
+    this.lcu.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
+    Sender.send(`lcu-${this.id}`, true)
+    this.menu.getMenuItemById(this.id).checked = true
   }
 
   private async handleData(data: any, event: any) {
@@ -55,13 +67,13 @@ export class ProdModule {
       },
       data: event.eventType != "Delete" ? selectedData : undefined
     }
-    this.serverWS.send(JSON.stringify(obj))
+    this.server.send(JSON.stringify(obj))
   }
 
   public disconnect () {
-    this.lolWS.unsubscribe(this.lcuURI);
-    this.mainWindow.webContents.send(`lcu-${this.name}`, false)
-    this.menu.getMenuItemById(this.name).checked = false
+    this.lcu.unsubscribe(this.lcuURI);
+    Sender.send(`lcu-${this.id}`, false)
+    this.menu.getMenuItemById(this.id).checked = false
   }
 
   private async saveData () {
@@ -83,7 +95,7 @@ export class ProdModule {
       const savePath = saveDialog.filePath.toString()
       fs.writeFile(savePath, saveData, (err) => {
           if (err) throw err;
-          this.mainWindow.webContents.send('console', `Saved at ${savePath}`)
+          Sender.send('console', `Saved at ${savePath}`)
       });
     }
   }
