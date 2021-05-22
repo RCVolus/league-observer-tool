@@ -1,11 +1,12 @@
 import { app, Menu, shell } from "electron";
 import { LCU } from './LCU'
 import { Server } from './Server'
+import * as path from 'path';
 
 export class MainMenu {
   public mainMenu : Menu
 
-  constructor (private lcu : LCU, private server : Server) {
+  constructor (lcu : LCU, server : Server) {
     this.mainMenu = Menu.buildFromTemplate([
       {
         label: 'File',
@@ -26,6 +27,15 @@ export class MainMenu {
             click () {
               lcu.disconnect()
               server.disconnect()
+            }
+          },
+          {
+            type: "separator"
+          },
+          {
+            label: 'Open Settings',
+            click () {
+              shell.openExternal(path.join(app.getPath('userData'), 'Settings'))
             }
           },
           {

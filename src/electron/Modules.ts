@@ -11,6 +11,14 @@ export class Modules {
     private server : Server,
     private menu : Menu
   ) {
+    this.modules.set("lobby", new ProdModule(
+      "lobby",
+      "Lobby",
+      "/lol-lobby/v2/lobby",
+      this.lcu,
+      this.server,
+      this.menu
+    ))
     this.modules.set("champ-select", new ProdModule(
       "champ-select",
       "Champselect",

@@ -85,11 +85,11 @@ class Connector {
 
   private async makeRequest <R = any> (options: RequestOptions) : Promise<R> {
     this.lcuPending.set(true)
-    const res = await ipcRenderer.sendSync('lcu-request', options) as Response<R>;
+    const res = await ipcRenderer.sendSync('lcu-request', options) as R;
     
-    if (res.data) {
+    if (res) {
       this.lcuPending.set(false)
-      return res.data as R
+      return res
     } else {
       this.lcuPending.set(false)
       throw new Error

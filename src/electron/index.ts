@@ -7,6 +7,7 @@ import { Server } from "./Server";
 import { MainMenu } from "./Menu";
 import { Modules } from "./Modules";
 
+
 let isQuiting = false
 let tray : Tray | null = null
 let mainWindow : BrowserWindow | null = null
