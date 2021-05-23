@@ -32,7 +32,9 @@
     </Button>
   {/if}
 
-  <Modules />
+  {#if $isConnected}
+    <Modules />
+  {/if}
 </main>
 
 <style>

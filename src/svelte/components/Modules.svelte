@@ -1,20 +1,30 @@
 <script lang="ts">
   const { ipcRenderer } = window.require("electron");
+  import { onMount } from 'svelte';
   import Module from "./Module.svelte";
-  import { ConnectionStore } from "../stores/Connector"; 
-  const modules : Map<string, string> = new Map()
+  let modules : Array<{
+      id: string
+      name: string
+  }> = []
 
-  ipcRenderer.on('module-ready', (_e, {id, name}) => {
-    modules.set(id, name)
+  onMount(async () => {
+    const res = await ipcRenderer.sendSync('modules-ready') as Array<{
+      id: string
+      name: string
+    }>
+
+    if (res) {
+      res.forEach(resModul => {
+        if (!modules.find(m => m.id == resModul.name)) {
+          modules = [...modules, {id: resModul.id, name: resModul.name}]
+        }
+      })
+    }
   })
 </script>
 
-{#if ConnectionStore.isConnected}
-  {#if modules}
-    <div class="my-2">
-      {#each [...modules] as [id, name]}
-        <Module {id} {name} />
-      {/each}
-    </div>
-  {/if}
-{/if}
+<div class="my-2">
+  {#each modules as {id, name}}
+    <Module {id} {name} />
+  {/each}
+</div>

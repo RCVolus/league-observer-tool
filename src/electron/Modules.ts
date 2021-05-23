@@ -1,8 +1,9 @@
 import { LCUModule } from './LCUModule'
 import { ServerModule } from './ServerModule'
-import { Menu } from 'electron';
+import { Menu, ipcMain } from 'electron';
 import { Server } from './Server';
 import { LCU } from './LCU'
+import { Sender } from './Sender';
 
 export class Modules {
   public modules : Map<string, LCUModule | ServerModule> = new Map()
@@ -12,7 +13,7 @@ export class Modules {
     private server : Server,
     private menu : Menu
   ) {
-    this.modules.set("lobby", new LCUModule(
+    this.modules.set("lcu-lobby", new LCUModule(
       "lcu-lobby",
       "Lobby",
       "/lol-lobby/v2/lobby",
@@ -21,7 +22,7 @@ export class Modules {
       this.menu,
       ["members"]
     ))
-    this.modules.set("champ-select", new LCUModule(
+    this.modules.set("lcu-champ-select", new LCUModule(
       "lcu-champ-select",
       "Champselect",
       "/lol-champ-select/v1/session",
@@ -36,7 +37,7 @@ export class Modules {
         "timer"
       ]
     ))
-    this.modules.set("end-of-game", new LCUModule(
+    this.modules.set("lcu-end-of-game", new LCUModule(
       "lcu-end-of-game",
       "End of Game",
       "/lol-end-of-game/v1/eog-stats-block",
@@ -45,7 +46,7 @@ export class Modules {
       this.menu,
       []
     ))
-    this.modules.set("request", new ServerModule(
+    this.modules.set("server-lcu-request", new ServerModule(
       "server-lcu-request",
       "LCU Request",
       "/request",
@@ -53,5 +54,14 @@ export class Modules {
       this.server,
       this.menu
     ))
+
+    ipcMain.on('modules-ready', async (e) => {
+      e.returnValue = [...this.modules].map(([_k, m]) => {
+        return {
+          id: m.id,
+          name: m.name
+        }
+      })
+    })
   }
 }

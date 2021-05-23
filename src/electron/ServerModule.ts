@@ -10,8 +10,8 @@ export class ServerModule {
   private data : Array<any> = []
 
   constructor (
-    private id : string,
-    private name : string,
+    public id : string,
+    public name : string,
     private serverURI : string,
     private lcu : LCU,
     private server : Server,
@@ -40,8 +40,6 @@ export class ServerModule {
         }
       }
     }))
-
-    Sender.send('module-ready', {id: this.id, name: this.name})
   }
 
   public connect () {
