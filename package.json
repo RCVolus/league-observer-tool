@@ -1,6 +1,6 @@
 {
   "name": "league-prod-observer-tool",
-  "version": "0.5.0",
+  "version": "0.5.4",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"

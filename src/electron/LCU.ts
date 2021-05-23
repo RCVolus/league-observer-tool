@@ -8,6 +8,7 @@ export class LCU {
   public leagueClient? : LeagueClient
   private lolWs? : LeagueWebSocket
   private timeout ? : ReturnType<typeof setTimeout>
+  private isClosing : boolean = false
 
   constructor () {
     ipcMain.on('lcu-connection-start', () => {
@@ -22,25 +23,30 @@ export class LCU {
 
   public async handleRequests () {
     ipcMain.on('lcu-request', async (e, arg: RequestOptions) => {      
-      if (!this.credentials) {
-        Sender.send('error', {
-          color: "warning",
-          text: "not connected"
-        } as DisplayError)
-      }
-
-      try {
-        const req = await request(arg, this.credentials) 
-        const json = await req.json();
-        e.returnValue = json
-      } catch (e) {
-        Sender.send('console', e)
-        Sender.send('error', {
-          color: "danger",
-          text: e.message
-        } as DisplayError)
-      }
+      e.returnValue = await this.request(arg)
     })
+  }
+
+  public async request (arg: RequestOptions) {
+    if (!this.credentials) {
+      Sender.send('error', {
+        color: "warning",
+        text: "not connected"
+      } as DisplayError)
+    }
+
+    try {
+      const req = await request(arg, this.credentials) 
+      const json = await req.json();
+      return json
+    } catch (e) {
+      Sender.send('console', e)
+      Sender.send('error', {
+        color: "danger",
+        text: e.message
+      } as DisplayError)
+      throw e
+    }
   }
 
   private handleConnection (credentials: Credentials) {
@@ -61,7 +67,10 @@ export class LCU {
 
   private async handleWebSockets(credentials: Credentials) {
     this.lolWs = await connect(credentials);
-    this.lolWs.onopen = () => Sender.send('lcu-connection', true)
+    this.lolWs.onopen = () => {
+      this.isClosing = false
+      Sender.send('lcu-connection', true)
+    }
     this.lolWs.onerror = e => {
       Sender.send('error', {
         color: "danger",
@@ -71,7 +80,9 @@ export class LCU {
     }
     this.lolWs.onclose = () => {
       Sender.send('lcu-connection', false)
-      this.timeout = setTimeout(() => {this.connect()}, 5000)
+      if (!this.isClosing) {
+        this.timeout = setTimeout(() => {this.connect()}, 5000)
+      }
     }
   }
 
@@ -101,7 +112,9 @@ export class LCU {
     this.leagueClient?.stop()
     this.credentials = undefined
 
-    this.lolWs?.terminate()
+    this.isClosing = true
+    this.lolWs?.close()
+    
     if (this.timeout) {
       clearTimeout(this.timeout)
     }

@@ -4,7 +4,7 @@
   import { Button, Spinner  } from "sveltestrap";
   import User from "./components/User.svelte";
   import Alert from "./components/Alert.svelte";
-  import ProdModule from "./components/ProdModule.svelte";
+  import Modules from "./components/Modules.svelte";
 
   const {isConnected, summoner, isPending} = ConnectionStore
 
@@ -15,7 +15,7 @@
 
 <Alert />
 
-{#if $summoner}
+{#if $isConnected && $summoner}
   <User />
 {/if}
 
@@ -32,11 +32,7 @@
     </Button>
   {/if}
 
-  {#if $isConnected}
-    <ProdModule name="lobby" ttile="Lobby" />
-    <ProdModule name="champ-select" ttile="Champselect" />
-    <ProdModule name="end-of-game" ttile="End of Game" />
-  {/if}
+  <Modules />
 </main>
 
 <style>

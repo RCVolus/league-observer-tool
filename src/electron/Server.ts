@@ -1,13 +1,17 @@
 import WebSocket from "ws";
 import { ipcMain } from 'electron';
 import { Sender } from './Sender';
+import { trim } from './trim';
 import { DisplayError } from '../../types/DisplayError';
 import settings from 'electron-app-settings';
+import { ServerRequest } from "../../types/ServerRequest";
 
 export class Server {
   private ws ? : WebSocket
   private timeout ? : ReturnType<typeof setTimeout>
   private serverIP : string
+  private isClosing : boolean = false
+  private subscriptions: Map<string, ((req : ServerRequest) => void)[]> = new Map()
 
   constructor () {
     this.serverIP = settings.get("server-ip") || "10.244.69.129"
@@ -27,7 +31,21 @@ export class Server {
   public connect () {
     const wsURI = `ws://${this.serverIP}:3003/eventbus`
     this.ws = new WebSocket(wsURI)
-    this.ws.onopen = () => Sender.send('server-connection', true)
+
+    this.ws.onopen = () => {
+      this.isClosing = false
+      Sender.send('server-connection', true)
+    }
+
+    this.ws.onmessage = (content) => {
+      const json = JSON.parse(content.data.toString()) as ServerRequest
+      if (this.subscriptions.has(json.meta.type)) {
+        this.subscriptions.get(json.meta.type)?.forEach((cb) => {
+          cb(json)
+        })
+      }
+    }
+
     this.ws.onerror = e => {
       Sender.send('error', {
         color: "danger",
@@ -35,16 +53,36 @@ export class Server {
       } as DisplayError)
       Sender.send('server-connection', false)
     }
+
     this.ws.onclose = () => {
       Sender.send('server-connection', false)
-      this.timeout = setTimeout(() => {this.connect()}, 5000)
+      if (!this.isClosing) {
+        this.timeout = setTimeout(() => {this.connect()}, 5000)
+      }
     }
+  }
+
+  public subscribe(path: string, effect: (req: ServerRequest) => void) {
+    const p = `/${trim(path)}`
+
+    if (!this.subscriptions.has(p)) {
+      this.subscriptions.set(p, [effect])
+    } else {
+      this.subscriptions.get(p)?.push(effect)
+    }
+  }
+
+  public unsubscribe(path: string) {
+    const p = `/${trim(path)}`
+
+    this.subscriptions.delete(p)
   }
 
   /**
    * disconnect
   */
   public disconnect() {
+    this.isClosing = true
     this.ws?.close()
     if (this.timeout) {
       clearTimeout(this.timeout)

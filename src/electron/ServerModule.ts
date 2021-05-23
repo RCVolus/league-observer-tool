@@ -1,30 +1,29 @@
-import { EventResponse } from 'league-connect'
 import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
 import * as path from "path";
 import * as fs from "fs";
 import { Sender } from './Sender';
 import { Server } from './Server';
 import { LCU } from './LCU'
+import type { ServerRequest } from '../../types/ServerRequest'
 
-export class ProdModule {
+export class ServerModule {
   private data : Array<any> = []
 
   constructor (
     private id : string,
     private name : string,
-    private lcuURI : string,
+    private serverURI : string,
     private lcu : LCU,
     private server : Server,
     private menu : Menu,
-    private dataPoints? : Array<string>
   ) {
-    ipcMain.on(`lcu-${id}-start`, () => {
+    ipcMain.on(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.on(`lcu-${id}-stop`, () =>{
+    ipcMain.on(`${id}-stop`, () =>{
       this.disconnect()
     })
-    ipcMain.on(`lcu-${id}-save`, () => {
+    ipcMain.on(`${id}-save`, () => {
       this.saveData()
     })
 
@@ -41,38 +40,38 @@ export class ProdModule {
         }
       }
     }))
+
+    Sender.send('module-ready', {id: this.id, name: this.name})
   }
 
   public connect () {
-    this.lcu.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
-    Sender.send(`lcu-${this.id}`, true)
+    this.server.subscribe(this.serverURI, (data: ServerRequest) => this.handleData(data))
+    Sender.send(this.id, true)
     this.menu.getMenuItemById(this.id).checked = true
   }
 
-  private async handleData(data: any, event: any) {
-    this.data.push({data, event})
+  private async handleData(data: ServerRequest) {
+    const res = await this.lcu.request(data.request)
 
-    let selectedData : {[n: string]: any} = {}
-    if (!this.dataPoints) selectedData = data
-    else {
-      for (const key of this.dataPoints) {
-        selectedData[key] = data[key]
-      }
-    }
+    this.data.push({
+      meta: data.meta,
+      data: res
+    })
 
     const obj = {
       meta: {
-        namespace: "lcu",
-        type: `${this.name}-${event.eventType.toLowerCase()}`
+        namespace: data.meta.namespace,
+        type: `${this.id}-response`,
       },
-      data: event.eventType != "Delete" ? selectedData : undefined
+      data: res
     }
+    Sender.send(`console`, obj)
     this.server.send(JSON.stringify(obj))
   }
 
   public disconnect () {
-    this.lcu.unsubscribe(this.lcuURI);
-    Sender.send(`lcu-${this.id}`, false)
+    this.lcu.unsubscribe(this.serverURI);
+    Sender.send(this.id, false)
     this.menu.getMenuItemById(this.id).checked = false
   }
 

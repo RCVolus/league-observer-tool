@@ -19,6 +19,7 @@ class Connector {
       } else {
         this.lcuPending.set(false)
         this.lcuConnected.set(false)
+        this.summoner.set(undefined)
       }
     })
     ipcRenderer.on('server-connection', (_e: any, state : boolean) => {
@@ -55,8 +56,6 @@ class Connector {
   }
 
   public disconnect () {
-    this.lcuPending.set(true)
-    this.severPending.set(true)
     ipcRenderer.send('lcu-connection-stop')
     ipcRenderer.send('server-connection-stop')
   }

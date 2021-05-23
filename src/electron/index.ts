@@ -54,8 +54,8 @@ if (!gotTheLock) {
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    height: 700,
-    width: 400,
+    height: 800,
+    width: 450,
     title: "League production observer tool",
     webPreferences: {
       nodeIntegration: true,
