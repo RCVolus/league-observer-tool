@@ -11,6 +11,7 @@ export class Server {
   private timeout ? : ReturnType<typeof setTimeout>
   private serverIP : string
   private isClosing : boolean = false
+  private InitConnection : boolean = true
   private subscriptions: Map<string, ((req : ServerRequest) => void)[]> = new Map()
 
   constructor () {
@@ -34,6 +35,7 @@ export class Server {
 
     this.ws.onopen = () => {
       this.isClosing = false
+      this.InitConnection = false
       Sender.send('server-connection', true)
     }
 
@@ -56,7 +58,7 @@ export class Server {
 
     this.ws.onclose = () => {
       Sender.send('server-connection', false)
-      if (!this.isClosing) {
+      if (!this.isClosing && !this.InitConnection) {
         this.timeout = setTimeout(() => {this.connect()}, 5000)
       }
     }
@@ -83,6 +85,7 @@ export class Server {
   */
   public disconnect() {
     this.isClosing = true
+    this.InitConnection = true
     this.ws?.close()
     if (this.timeout) {
       clearTimeout(this.timeout)

@@ -1,8 +1,7 @@
 import { AlertStore } from './Alert'
 const { ipcRenderer } = window.require("electron");
 import type { Summoner as SummonerType } from '../../../types/Summoner/Summoner'
-import type { Response } from '../../../types/Response'
-import { writable, Writable, derived } from "svelte/store";
+import { writable, Writable, derived, get } from "svelte/store";
 import type { RequestOptions } from 'league-connect';
 
 class Connector {
@@ -49,15 +48,23 @@ class Connector {
   }
 
   public connect () {
-    this.lcuPending.set(true)
-    this.severPending.set(true)
-    ipcRenderer.send('lcu-connection-start')
-    ipcRenderer.send('server-connection-start')
+    if (!get(this.lcuConnected)) {
+      this.lcuPending.set(true)
+      ipcRenderer.send('lcu-connection-start')
+    }
+    if (!get(this.serverConnected)) {
+      this.severPending.set(true)
+      ipcRenderer.send('server-connection-start')
+    }
   }
 
   public disconnect () {
-    ipcRenderer.send('lcu-connection-stop')
-    ipcRenderer.send('server-connection-stop')
+    if (get(this.lcuConnected)) {
+      ipcRenderer.send('lcu-connection-stop')
+    }
+    if (get(this.serverConnected)) {
+      ipcRenderer.send('server-connection-stop')
+    }
   }
 
   public async getLoggedInSummoner () {
@@ -83,6 +90,13 @@ class Connector {
   }
 
   private async makeRequest <R = any> (options: RequestOptions) : Promise<R> {
+    if (!get(this.lcuConnected)) {
+      AlertStore.Alert.set({
+        color: "danger",
+        text: "LCU is not connected"
+      })
+    }
+
     this.lcuPending.set(true)
     const res = await ipcRenderer.sendSync('lcu-request', options) as R;
     

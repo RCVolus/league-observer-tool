@@ -1,10 +1,12 @@
 <script lang="ts">
   import { Alert as SSAlert  } from "sveltestrap";
   import { AlertStore } from "../stores/Alert";
+  import { ConnectionStore } from "../stores/Connector"; 
   import type { DisplayError } from "../../../types/DisplayError";
   import { onDestroy } from "svelte";
 
   const { Alert } = AlertStore
+  const { lcuConnected, serverConnected, isConnected } = ConnectionStore
 
   let visible: boolean;
   let timeout: ReturnType<typeof setTimeout>;
@@ -18,6 +20,27 @@
   $: onMessageChange($Alert);
   onDestroy(() => clearTimeout(timeout));
 </script>
+
+
+{#if !$isConnected}
+  <SSAlert
+    color="danger"
+    class="my-0 text-center"
+    >
+    <h5 class="alert-heading text-capitalize mb-0">
+      Not connected to
+      {#if !$lcuConnected}
+        LCU
+      {/if}
+      {#if !$lcuConnected && !$serverConnected}
+        &
+      {/if}
+      {#if !$serverConnected}
+        Server
+      {/if}
+    </h5>
+  </SSAlert>
+{/if}
 
 {#if $Alert}
 <SSAlert

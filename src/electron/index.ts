@@ -57,6 +57,7 @@ function createWindow() {
     height: 800,
     width: 450,
     title: "League production observer tool",
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       worldSafeExecuteJavaScript: true,
@@ -80,6 +81,10 @@ function createWindow() {
   
     return false;
   });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow?.show()
+  })
 
   Sender.mainWindow = mainWindow
 

@@ -23,7 +23,7 @@
   })
 </script>
 
-<div class="my-2">
+<div class="my-3">
   {#each modules as {id, name}}
     <Module {id} {name} />
   {/each}

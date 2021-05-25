@@ -9,6 +9,7 @@ export class LCU {
   private lolWs? : LeagueWebSocket
   private timeout ? : ReturnType<typeof setTimeout>
   private isClosing : boolean = false
+  private InitConnection : boolean = true
 
   constructor () {
     ipcMain.on('lcu-connection-start', () => {
@@ -67,10 +68,13 @@ export class LCU {
 
   private async handleWebSockets(credentials: Credentials) {
     this.lolWs = await connect(credentials);
+    
     this.lolWs.onopen = () => {
       this.isClosing = false
+      this.InitConnection = false
       Sender.send('lcu-connection', true)
     }
+
     this.lolWs.onerror = e => {
       Sender.send('error', {
         color: "danger",
@@ -78,9 +82,10 @@ export class LCU {
       } as DisplayError)
       Sender.send('lcu-connection', false)
     }
+
     this.lolWs.onclose = () => {
       Sender.send('lcu-connection', false)
-      if (!this.isClosing) {
+      if (!this.isClosing && !this.InitConnection) {
         this.timeout = setTimeout(() => {this.connect()}, 5000)
       }
     }
@@ -113,6 +118,7 @@ export class LCU {
     this.credentials = undefined
 
     this.isClosing = true
+    this.InitConnection = true
     this.lolWs?.close()
     
     if (this.timeout) {
