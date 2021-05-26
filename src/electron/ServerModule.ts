@@ -5,6 +5,7 @@ import { Sender } from './Sender';
 import { Server } from './Server';
 import { LCU } from './LCU'
 import type { ServerRequest } from '../../types/ServerRequest'
+import type { ServerResponse } from '../../types/ServerResponse'
 
 export class ServerModule {
   private data : Array<any> = []
@@ -56,10 +57,11 @@ export class ServerModule {
       data: res
     })
 
-    const obj = {
+    const obj : ServerResponse = {
       meta: {
-        namespace: data.meta.namespace,
-        type: `${this.id}-response`,
+        namespace: "reply",
+        type: data.meta.reply,
+        version: data.meta.version
       },
       data: res
     }

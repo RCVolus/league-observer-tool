@@ -49,7 +49,7 @@ export class Modules {
     this.modules.set("server-lcu-request", new ServerModule(
       "server-lcu-request",
       "LCU Request",
-      "/request",
+      "http-request",
       this.lcu,
       this.server,
       this.menu

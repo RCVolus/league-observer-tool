@@ -41,6 +41,9 @@ export class Server {
 
     this.ws.onmessage = (content) => {
       const json = JSON.parse(content.data.toString()) as ServerRequest
+
+      if (json.meta.namespace != "lcu") return
+      
       if (this.subscriptions.has(json.meta.type)) {
         this.subscriptions.get(json.meta.type)?.forEach((cb) => {
           cb(json)
@@ -65,7 +68,7 @@ export class Server {
   }
 
   public subscribe(path: string, effect: (req: ServerRequest) => void) {
-    const p = `/${trim(path)}`
+    const p = `${trim(path)}`
 
     if (!this.subscriptions.has(p)) {
       this.subscriptions.set(p, [effect])
@@ -75,7 +78,7 @@ export class Server {
   }
 
   public unsubscribe(path: string) {
-    const p = `/${trim(path)}`
+    const p = `${trim(path)}`
 
     this.subscriptions.delete(p)
   }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Card, CardBody, CardHeader } from "sveltestrap";
+  import { Button, Card, CardBody, CardHeader, Icon } from "sveltestrap";
   const { ipcRenderer } = window.require("electron");
 
   export let id : string
@@ -23,13 +23,15 @@
   })
 </script>
 
-<Card class="my-2" inverse style="background: #0f2027">
+<Card class={`my-3 ${isSync ? 'border-success' : ''}`} color="dark">
   <CardHeader class="d-flex justify-content-between align-items-center">
-    <b>{name}</b>
-    <small class={`ml-auto ${isSync ? 'text-success' : 'text-danger'}`}>{isSync ? 'Sync' : 'offline'}</small>
+    <small class={isSync ? 'text-success' : 'text-danger'}>{isSync ? 'Sync' : 'Offline'}</small>
+    <Button block class="ml-auto" size="sm" color="dark" on:click={save}>
+      <Icon name="file-earmark-post-fill" />
+    </Button>
   </CardHeader>
   <CardBody>
-    <Button block class="w-100 mb-2" color={isSync ? 'success' : 'secondary'} on:click={sync}>Sync</Button>
-    <Button block class="w-100" size="sm" color="dark" on:click={save}>Save</Button>
+    <h3 class="mb-3 text-center">{name}</h3>
+    <Button block class="w-100 mb-2" color={isSync ? 'success' : 'primary'} on:click={sync}>Sync</Button>
   </CardBody>
 </Card>

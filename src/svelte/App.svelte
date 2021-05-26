@@ -14,6 +14,7 @@
 </script>
 
 <Alert />
+<User />
 
 {#if $isConnected && $summoner}
   <User />
