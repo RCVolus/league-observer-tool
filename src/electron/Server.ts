@@ -47,7 +47,7 @@ export class Server {
     this.ws.onopen = () => {
       this.isClosing = false
       this.InitConnection = false
-      this.ws?.send(Server.msg)
+      this.ws?.send(JSON.stringify(Server.msg))
       Sender.send('server-connection', true)
     }
 
