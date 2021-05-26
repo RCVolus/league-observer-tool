@@ -14,6 +14,17 @@ export class Server {
   private InitConnection : boolean = true
   private subscriptions: Map<string, ((req : ServerRequest) => void)[]> = new Map()
 
+  static msg = {
+    "meta": {
+      "namespace": "lpte",
+      "type": "subscribe"
+    },
+    "to": {
+      "namespace": "lcu",
+      "type": "http-request"
+    }
+  }
+
   constructor () {
     this.serverIP = settings.get("server-ip") || "10.244.69.129"
     settings.set("server-ip", this.serverIP)
@@ -36,6 +47,7 @@ export class Server {
     this.ws.onopen = () => {
       this.isClosing = false
       this.InitConnection = false
+      this.ws?.send(Server.msg)
       Sender.send('server-connection', true)
     }
 
