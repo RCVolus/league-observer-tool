@@ -55,7 +55,7 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     height: 800,
-    width: 450,
+    width: 400,
     title: "League production observer tool",
     show: false,
     webPreferences: {
