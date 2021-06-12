@@ -1,4 +1,6 @@
-export interface ServerRequest {
+import type { ServerMsg } from './ServerMsg'
+
+export interface ServerRequest extends ServerMsg {
   meta: {
     namespace: string,
     type: string,

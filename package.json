@@ -1,6 +1,6 @@
 {
   "name": "league-prod-observer-tool",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"
@@ -77,6 +77,7 @@
   "dependencies": {
     "electron-app-settings": "^1.2.2",
     "league-connect": "^5.2.0",
+    "node-fetch": "^2.6.1",
     "sirv-cli": "^1.0.0",
     "ws": "^7.4.5"
   }

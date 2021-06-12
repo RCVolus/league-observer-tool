@@ -4,7 +4,7 @@ import { Sender } from './Sender';
 import { trim } from './trim';
 import { DisplayError } from '../../types/DisplayError';
 import settings from 'electron-app-settings';
-import { ServerRequest } from "../../types/ServerRequest";
+import type { ServerMsg } from "../../types/ServerMsg";
 
 export class Server {
   private ws ? : WebSocket
@@ -12,18 +12,7 @@ export class Server {
   private serverIP : string
   private isClosing : boolean = false
   private InitConnection : boolean = true
-  private subscriptions: Map<string, ((req : ServerRequest) => void)[]> = new Map()
-
-  static msg = {
-    "meta": {
-      "namespace": "lpte",
-      "type": "subscribe"
-    },
-    "to": {
-      "namespace": "lcu",
-      "type": "http-request"
-    }
-  }
+  private subscriptions: Map<string, ((data : ServerMsg) => void)[]> = new Map()
 
   constructor () {
     this.serverIP = settings.get("server-ip") || "10.244.69.129"
@@ -47,12 +36,11 @@ export class Server {
     this.ws.onopen = () => {
       this.isClosing = false
       this.InitConnection = false
-      this.ws?.send(JSON.stringify(Server.msg))
       Sender.send('server-connection', true)
     }
 
     this.ws.onmessage = (content) => {
-      const json = JSON.parse(content.data.toString()) as ServerRequest
+      const json = JSON.parse(content.data.toString()) as ServerMsg
 
       if (json.meta.namespace != "lcu") return
       
@@ -79,10 +67,21 @@ export class Server {
     }
   }
 
-  public subscribe(path: string, effect: (req: ServerRequest) => void) {
+  public subscribe(path: string, effect: (data: ServerMsg) => void) {
     const p = `${trim(path)}`
 
     if (!this.subscriptions.has(p)) {
+      const msg : ServerMsg = {
+        meta: {
+          namespace: "lpte",
+          type: "subscribe"
+        },
+        to: {
+          namespace: p,
+          type: "http-request"
+        }
+      }
+      this.send(msg)
       this.subscriptions.set(p, [effect])
     } else {
       this.subscriptions.get(p)?.push(effect)
@@ -111,8 +110,8 @@ export class Server {
   /**
    * send
   */
-  public send<T = any>(data : T) {
-    this.ws?.send(data, (err) => {
+  public send(data : ServerMsg) {
+    this.ws?.send(JSON.stringify(data), (err) => {
       if (err) throw err
     })
   }

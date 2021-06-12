@@ -4,6 +4,7 @@
 
   export let id : string
   export let name : string
+  export let actions : [string, string][]
   let isSync = false
 
   function sync () {
@@ -16,6 +17,10 @@
 
   function save () {
     ipcRenderer.send(`${id}-save`)
+  }
+
+  function callAction (action: string) {
+    ipcRenderer.send(`${id}-${action}`)
   }
 
   ipcRenderer.on(`${id}`, (_e, connstate: boolean) => {
@@ -33,5 +38,10 @@
   <CardBody>
     <h3 class="mb-3 text-center">{name}</h3>
     <Button block class="w-100 mb-2" color={isSync ? 'success' : 'primary'} on:click={sync}>Sync</Button>
+    {#each actions as action}
+      <Button block class="w-100 mb-2" color='secondary' on:click={() => {
+        callAction(action[0])
+      }}>{action[1]}</Button>
+    {/each}
   </CardBody>
 </Card>

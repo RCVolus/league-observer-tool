@@ -5,9 +5,11 @@ import * as fs from "fs";
 import { Sender } from './Sender';
 import { Server } from './Server';
 import { LCU } from './LCU'
+import type { ServerMsg } from "../../types/ServerMsg";
 
 export class LCUModule {
   private data : Array<any> = []
+  public actions : [string, string][] = []
 
   constructor (
     public id : string,
@@ -60,7 +62,7 @@ export class LCUModule {
       }
     }
 
-    const obj = {
+    const obj : ServerMsg = {
       meta: {
         namespace: "lcu",
         type: `${this.id}-${event.eventType.toLowerCase()}`, 
@@ -69,7 +71,7 @@ export class LCUModule {
       data: event.eventType != "Delete" ? selectedData : undefined
     }
     Sender.send(`console`, obj)
-    this.server.send(JSON.stringify(obj))
+    this.server.send(obj)
   }
 
   public disconnect () {

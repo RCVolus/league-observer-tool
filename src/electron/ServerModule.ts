@@ -5,15 +5,16 @@ import { Sender } from './Sender';
 import { Server } from './Server';
 import { LCU } from './LCU'
 import type { ServerRequest } from '../../types/ServerRequest'
-import type { ServerResponse } from '../../types/ServerResponse'
+import type { ServerMsg } from '../../types/ServerMsg'
 
 export class ServerModule {
   private data : Array<any> = []
+  public actions : [string, string][] = []
 
   constructor (
     public id : string,
     public name : string,
-    private serverURI : string,
+    private namespace : string,
     private lcu : LCU,
     private server : Server,
     private menu : Menu,
@@ -44,20 +45,21 @@ export class ServerModule {
   }
 
   public connect () {
-    this.server.subscribe(this.serverURI, (data: ServerRequest) => this.handleData(data))
+    this.server.subscribe(this.namespace, (data) => this.handleData(data))
     Sender.send(this.id, true)
     this.menu.getMenuItemById(this.id).checked = true
   }
 
-  private async handleData(data: ServerRequest) {
-    const res = await this.lcu.request(data.request)
+  private async handleData(data: ServerMsg) {
+    const req = data as ServerRequest
+    const res = await this.lcu.request(req.request)
 
     this.data.push({
-      meta: data.meta,
+      meta: req.meta,
       data: res
     })
 
-    const obj : ServerResponse = {
+    const obj : ServerMsg = {
       meta: {
         namespace: "reply",
         type: data.meta.reply,
@@ -66,11 +68,11 @@ export class ServerModule {
       data: res
     }
     Sender.send(`console`, obj)
-    this.server.send(JSON.stringify(obj))
+    this.server.send(obj)
   }
 
   public disconnect () {
-    this.lcu.unsubscribe(this.serverURI);
+    this.lcu.unsubscribe(this.namespace);
     Sender.send(this.id, false)
     this.menu.getMenuItemById(this.id).checked = false
   }

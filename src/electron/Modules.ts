@@ -1,12 +1,12 @@
 import { LCUModule } from './LCUModule'
 import { ServerModule } from './ServerModule'
+import { ReplayModule } from './ReplayModule'
 import { Menu, ipcMain } from 'electron';
 import { Server } from './Server';
 import { LCU } from './LCU'
-import { Sender } from './Sender';
 
 export class Modules {
-  public modules : Map<string, LCUModule | ServerModule> = new Map()
+  public modules : Map<string, LCUModule | ServerModule | ReplayModule> = new Map()
 
   constructor (
     private lcu : LCU,
@@ -49,8 +49,16 @@ export class Modules {
     this.modules.set("server-lcu-request", new ServerModule(
       "server-lcu-request",
       "LCU Request",
-      "http-request",
+      "lcu",
       this.lcu,
+      this.server,
+      this.menu
+    ))
+
+    this.modules.set("replay", new ReplayModule(
+      "replay",
+      "Replay",
+      "league-replay",
       this.server,
       this.menu
     ))
@@ -59,7 +67,8 @@ export class Modules {
       e.returnValue = [...this.modules].map(([_k, m]) => {
         return {
           id: m.id,
-          name: m.name
+          name: m.name,
+          actions: m.actions
         }
       })
     })
