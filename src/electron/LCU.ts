@@ -7,9 +7,9 @@ export class LCU {
   public credentials? : Credentials
   public leagueClient? : LeagueClient
   private lolWs? : LeagueWebSocket
-  private timeout ? : ReturnType<typeof setTimeout>
-  private isClosing : boolean = false
-  private InitConnection : boolean = true
+  private interval ? : ReturnType<typeof setInterval>
+  private isClosing = false
+  private InitConnection = true
 
   constructor () {
     ipcMain.on('lcu-connection-start', () => {
@@ -86,7 +86,7 @@ export class LCU {
     this.lolWs.onclose = () => {
       Sender.send('lcu-connection', false)
       if (!this.isClosing && !this.InitConnection) {
-        this.timeout = setTimeout(() => {this.connect()}, 5000)
+        this.interval = setInterval(() => {this.connect()}, 5000)
       }
     }
   }
@@ -101,12 +101,12 @@ export class LCU {
   /**
    * unsubscribe
    */
-   public unsubscribe(path: string) {
+  public unsubscribe(path: string) {
     return this.lolWs?.unsubscribe(path)
   }
 
   public async disconnect () {
-    let options = {
+    const options = {
       buttons: ["Yes","Cancel"],
       type: "question",
       message: "Do you really want to disconnect?"
@@ -121,8 +121,8 @@ export class LCU {
     this.InitConnection = true
     this.lolWs?.close()
     
-    if (this.timeout) {
-      clearTimeout(this.timeout)
+    if (this.interval) {
+      clearInterval(this.interval)
     }
 
     Sender.send('lcu-connection', false)

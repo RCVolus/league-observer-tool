@@ -8,14 +8,14 @@ import type { ServerMsg } from "../../types/ServerMsg";
 
 export class Server {
   private ws ? : WebSocket
-  private timeout ? : ReturnType<typeof setTimeout>
+  private interval ? : ReturnType<typeof setInterval>
   private serverIP : string
-  private isClosing : boolean = false
-  private InitConnection : boolean = true
+  private isClosing = false
+  private InitConnection = true
   private subscriptions: Map<string, ((data : ServerMsg) => void)[]> = new Map()
 
   constructor () {
-    this.serverIP = settings.get("server-ip") || "10.244.69.129"
+    this.serverIP = settings.get("server-ip") || "localhost" //"10.244.69.129"
     settings.set("server-ip", this.serverIP)
 
     ipcMain.on('server-connection-start', () => {
@@ -62,12 +62,12 @@ export class Server {
     this.ws.onclose = () => {
       Sender.send('server-connection', false)
       if (!this.isClosing && !this.InitConnection) {
-        this.timeout = setTimeout(() => {this.connect()}, 5000)
+        this.interval = setInterval(() => {this.connect()}, 5000)
       }
     }
   }
 
-  public subscribe(path: string, effect: (data: ServerMsg) => void) {
+  public subscribe(path: string, effect: (data: ServerMsg) => void) : void {
     const p = `${trim(path)}`
 
     if (!this.subscriptions.has(p)) {
@@ -88,7 +88,7 @@ export class Server {
     }
   }
 
-  public unsubscribe(path: string) {
+  public unsubscribe(path: string) : void {
     const p = `${trim(path)}`
 
     this.subscriptions.delete(p)
@@ -97,12 +97,12 @@ export class Server {
   /**
    * disconnect
   */
-  public disconnect() {
+  public disconnect() : void {
     this.isClosing = true
     this.InitConnection = true
     this.ws?.close()
-    if (this.timeout) {
-      clearTimeout(this.timeout)
+    if (this.interval) {
+      clearInterval(this.interval)
     }
     Sender.send('server-connection', false)
   }
@@ -110,7 +110,7 @@ export class Server {
   /**
    * send
   */
-  public send(data : ServerMsg) {
+  public send(data : ServerMsg) : void {
     this.ws?.send(JSON.stringify(data), (err) => {
       if (err) throw err
     })
