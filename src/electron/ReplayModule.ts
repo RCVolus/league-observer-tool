@@ -78,14 +78,18 @@ export class ReplayModule {
           id: this.id + "_send_playback",
           label: "Send Information",
           type: "radio",
-          click: this.sendPlayback,
-          checked: true
+          checked: true,
+          click: () => {
+            this.sendPlayback()
+          }
         },
         {
           id: this.id + "_get_playback",
-          label: "Send Information",
+          label: "Get Information",
           type: "radio",
-          click: this.getPlayback
+          click: () => {
+            this.getPlayback()
+          }
         }
       ]
     }))
@@ -106,9 +110,9 @@ export class ReplayModule {
       this.sendPlayback()
     }
 
-    this.renderInterval = setInterval(async () => {
+    /* this.renderInterval = setInterval(async () => {
       await this.handleRenderer()
-    }, 5000)
+    }, 5000) */
   }
 
   private sendPlayback () {
@@ -135,7 +139,6 @@ export class ReplayModule {
         savedAt: new Date().getTime(),
         time: json.time
       }
-      Sender.send('console', this.playbackData)
       this.server.send({
         meta: {
           namespace: "league-replay",
@@ -169,7 +172,6 @@ export class ReplayModule {
         ...option
       })
     } catch (e) {
-      console.log(e)
       Sender.send('console', e)
     }
   }
@@ -196,7 +198,7 @@ export class ReplayModule {
     }
   }
 
-  private async getPlayback () {
+  private getPlayback () {
     this.menu.getMenuItemById(this.id + "_get_playback").checked = true
     settings.set("replay-sync-mode", "get")
     if (!this.menu.getMenuItemById(this.id).checked) return

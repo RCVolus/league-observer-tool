@@ -8,8 +8,8 @@
 
   const {isConnected, summoner, isPending} = ConnectionStore
 
-  ipcRenderer.on("console", (_event, args: any) => {
-    console.log(args);
+  ipcRenderer.on("console", (_event, ...args: any) => {
+    console.log(...args);
   });
 </script>
 

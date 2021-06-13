@@ -7,14 +7,14 @@ import type { ServerMsg } from "../../types/ServerMsg";
 
 export class Server {
   private ws ? : WebSocket
-  private interval ? : ReturnType<typeof setInterval>
+  private timeout ? : ReturnType<typeof setTimeout>
   private serverIP : string
   private isClosing = false
   private InitConnection = true
-  private subscriptions: Map<[string, string], ((data : ServerMsg) => void)[]> = new Map()
+  private subscriptions: Map<string, ((data : ServerMsg) => void)[]> = new Map()
 
   constructor () {
-    this.serverIP = settings.get("server-ip") || "localhost" //"10.244.69.129"
+    this.serverIP = settings.get("server-ip") || "10.244.69.129"
     settings.set("server-ip", this.serverIP)
 
     ipcMain.on('server-connection-start', () => {
@@ -41,8 +41,8 @@ export class Server {
     this.ws.onmessage = (content) => {
       const json = JSON.parse(content.data.toString()) as ServerMsg
       
-      if (this.subscriptions.has([json.meta.namespace, json.meta.type])) {
-        this.subscriptions.get([json.meta.namespace, json.meta.type])?.forEach((cb) => {
+      if (this.subscriptions.has(`${json.meta.namespace}-${json.meta.type}`)) {
+        this.subscriptions.get(`${json.meta.namespace}-${json.meta.type}`)?.forEach((cb) => {
           cb(json)
         })
       }
@@ -59,14 +59,14 @@ export class Server {
     this.ws.onclose = () => {
       Sender.send('server-connection', false)
       if (!this.isClosing && !this.InitConnection) {
-        this.interval = setInterval(() => {this.connect()}, 5000)
+        this.timeout = setTimeout(() => {this.connect()}, 5000)
       }
     }
   }
 
   public subscribe(namespace: string, type: string, effect: (data: ServerMsg) => void) : void {
 
-    if (!this.subscriptions.has([namespace, type])) {
+    if (!this.subscriptions.has(`${namespace}-${type}`)) {
       const msg : ServerMsg = {
         meta: {
           namespace: "lpte",
@@ -78,14 +78,14 @@ export class Server {
         }
       }
       this.send(msg)
-      this.subscriptions.set([namespace, type], [effect])
+      this.subscriptions.set(`${namespace}-${type}`, [effect])
     } else {
-      this.subscriptions.get([namespace, type])?.push(effect)
+      this.subscriptions.get(`${namespace}-${type}`)?.push(effect)
     }
   }
 
   public unsubscribe(namespace: string, type: string) : void {
-    this.subscriptions.delete([namespace, type])
+    this.subscriptions.delete(`${namespace}-${type}`)
   }
 
   /**
@@ -95,8 +95,8 @@ export class Server {
     this.isClosing = true
     this.InitConnection = true
     this.ws?.close()
-    if (this.interval) {
-      clearInterval(this.interval)
+    if (this.timeout) {
+      clearTimeout(this.timeout)
     }
     Sender.send('server-connection', false)
   }

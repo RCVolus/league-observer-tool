@@ -7,7 +7,7 @@ export class LCU {
   public credentials? : Credentials
   public leagueClient? : LeagueClient
   private lolWs? : LeagueWebSocket
-  private interval ? : ReturnType<typeof setInterval>
+  private timeout ? : ReturnType<typeof setTimeout>
   private isClosing = false
   private InitConnection = true
 
@@ -86,7 +86,7 @@ export class LCU {
     this.lolWs.onclose = () => {
       Sender.send('lcu-connection', false)
       if (!this.isClosing && !this.InitConnection) {
-        this.interval = setInterval(() => {this.connect()}, 5000)
+        this.timeout = setTimeout(() => {this.connect()}, 5000)
       }
     }
   }
@@ -121,8 +121,8 @@ export class LCU {
     this.InitConnection = true
     this.lolWs?.close()
     
-    if (this.interval) {
-      clearInterval(this.interval)
+    if (this.timeout) {
+      clearTimeout(this.timeout)
     }
 
     Sender.send('lcu-connection', false)

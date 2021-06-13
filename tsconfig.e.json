@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "lib": ["es6", "dom"],
-    "target": "ES6",
+    "target": "es6",
     "strict": true,
     "noImplicitAny": true,
     "sourceMap": true,
@@ -10,6 +9,7 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "downlevelIteration": true,
     "rootDirs": ["src/electron"],
     "paths": {
       "*": ["node_modules/*"]
