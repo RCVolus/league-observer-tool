@@ -1,7 +1,6 @@
 import WebSocket from "ws";
 import { ipcMain } from 'electron';
 import { Sender } from './Sender';
-import { trim } from './trim';
 import { DisplayError } from '../../types/DisplayError';
 import settings from 'electron-app-settings';
 import type { ServerMsg } from "../../types/ServerMsg";
@@ -12,7 +11,7 @@ export class Server {
   private serverIP : string
   private isClosing = false
   private InitConnection = true
-  private subscriptions: Map<string, ((data : ServerMsg) => void)[]> = new Map()
+  private subscriptions: Map<[string, string], ((data : ServerMsg) => void)[]> = new Map()
 
   constructor () {
     this.serverIP = settings.get("server-ip") || "localhost" //"10.244.69.129"
@@ -29,7 +28,7 @@ export class Server {
   /**
    * connect
   */
-  public connect () {
+  public connect () : void {
     const wsURI = `ws://${this.serverIP}:3003/eventbus`
     this.ws = new WebSocket(wsURI)
 
@@ -41,11 +40,9 @@ export class Server {
 
     this.ws.onmessage = (content) => {
       const json = JSON.parse(content.data.toString()) as ServerMsg
-
-      if (json.meta.namespace != "lcu") return
       
-      if (this.subscriptions.has(json.meta.type)) {
-        this.subscriptions.get(json.meta.type)?.forEach((cb) => {
+      if (this.subscriptions.has([json.meta.namespace, json.meta.type])) {
+        this.subscriptions.get([json.meta.namespace, json.meta.type])?.forEach((cb) => {
           cb(json)
         })
       }
@@ -67,31 +64,28 @@ export class Server {
     }
   }
 
-  public subscribe(path: string, effect: (data: ServerMsg) => void) : void {
-    const p = `${trim(path)}`
+  public subscribe(namespace: string, type: string, effect: (data: ServerMsg) => void) : void {
 
-    if (!this.subscriptions.has(p)) {
+    if (!this.subscriptions.has([namespace, type])) {
       const msg : ServerMsg = {
         meta: {
           namespace: "lpte",
           type: "subscribe"
         },
         to: {
-          namespace: p,
-          type: "http-request"
+          namespace: namespace,
+          type: type
         }
       }
       this.send(msg)
-      this.subscriptions.set(p, [effect])
+      this.subscriptions.set([namespace, type], [effect])
     } else {
-      this.subscriptions.get(p)?.push(effect)
+      this.subscriptions.get([namespace, type])?.push(effect)
     }
   }
 
-  public unsubscribe(path: string) : void {
-    const p = `${trim(path)}`
-
-    this.subscriptions.delete(p)
+  public unsubscribe(namespace: string, type: string) : void {
+    this.subscriptions.delete([namespace, type])
   }
 
   /**

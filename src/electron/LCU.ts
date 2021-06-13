@@ -22,13 +22,13 @@ export class LCU {
     this.handleRequests()
   }
 
-  public async handleRequests () {
+  private async handleRequests () {
     ipcMain.on('lcu-request', async (e, arg: RequestOptions) => {      
       e.returnValue = await this.request(arg)
     })
   }
 
-  public async request (arg: RequestOptions) {
+  public async request (arg: RequestOptions) : Promise<any> {
     if (!this.credentials) {
       Sender.send('error', {
         color: "warning",
@@ -94,18 +94,18 @@ export class LCU {
   /**
    * subscribe
    */
-  public subscribe(path: string, effect: EventCallback<any>) {
-    return this.lolWs?.subscribe(path, effect)
+  public subscribe(path: string, effect: EventCallback<any>) : void {
+    this.lolWs?.subscribe(path, effect)
   }
 
   /**
    * unsubscribe
    */
-  public unsubscribe(path: string) {
-    return this.lolWs?.unsubscribe(path)
+  public unsubscribe(path: string) : void {
+    this.lolWs?.unsubscribe(path)
   }
 
-  public async disconnect () {
+  public disconnect () : void {
     const options = {
       buttons: ["Yes","Cancel"],
       type: "question",
@@ -128,7 +128,7 @@ export class LCU {
     Sender.send('lcu-connection', false)
   }
 
-  public async connect () {
+  public async connect () : Promise<void> {
     try {
       const credentials = await authenticate();
       this.credentials = credentials

@@ -7,14 +7,15 @@ import { LCU } from './LCU'
 import type { ServerRequest } from '../../types/ServerRequest'
 import type { ServerMsg } from '../../types/ServerMsg'
 
-export class ServerModule {
+export class LCURequestModule {
   private data : Array<any> = []
   public actions : [string, string][] = []
 
   constructor (
     public id : string,
     public name : string,
-    private namespace : string,
+    public namespace : string,
+    public type : string,
     private lcu : LCU,
     private server : Server,
     private menu : Menu,
@@ -44,8 +45,8 @@ export class ServerModule {
     }))
   }
 
-  public connect () {
-    this.server.subscribe(this.namespace, (data) => this.handleData(data))
+  public connect () : void {
+    this.server.subscribe(this.namespace, this.type, (data) => this.handleData(data))
     Sender.send(this.id, true)
     this.menu.getMenuItemById(this.id).checked = true
   }
@@ -71,8 +72,8 @@ export class ServerModule {
     this.server.send(obj)
   }
 
-  public disconnect () {
-    this.lcu.unsubscribe(this.namespace);
+  public disconnect () : void {
+    this.server.unsubscribe(this.namespace, this.type);
     Sender.send(this.id, false)
     this.menu.getMenuItemById(this.id).checked = false
   }

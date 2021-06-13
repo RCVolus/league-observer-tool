@@ -12,20 +12,27 @@ const option = {
     rejectUnauthorized: false
   })
 }
+
 export class ReplayModule {
   static replayUrl = "https://localhost:2999/replay/"
   private playbackInterval ? : ReturnType<typeof setInterval>
   private renderInterval ? : ReturnType<typeof setInterval>
-  private playbackData : any[] = []
-  private renderData : any[] = []
+  private playbackData ? : {
+    savedAt: number
+    time: number
+  }
+  private renderData : any = {}
   public actions : [string, string][] = [
-    ["sync-replay", "Sync to first Operator"]
+    ["sync-replay", "Sync to first Operator"],
+    ["sync-replay-5", "Sync to first Operator (-5 sec)"],
+    ["sync-replay-10", "Sync to first Operator (-10 sec)"],
   ]
 
   constructor (
     public id : string,
     public name : string,
-    private namespace : string,
+    public namespace : string,
+    public type : string,
     private server : Server,
     private menu : Menu,
   ) {
@@ -40,6 +47,12 @@ export class ReplayModule {
     })
     ipcMain.on(`${id}-sync-replay`, () => {
       this.syncReplay()
+    })
+    ipcMain.on(`${id}-sync-replay-5`, () => {
+      this.syncReplay(5)
+    })
+    ipcMain.on(`${id}-sync-replay-10`, () => {
+      this.syncReplay(10)
     })
 
     this.menu.getMenuItemById('tools').submenu?.append(new MenuItem({
@@ -95,22 +108,22 @@ export class ReplayModule {
 
     this.renderInterval = setInterval(async () => {
       await this.handleRenderer()
-    }, 10000)
+    }, 5000)
   }
 
-  private sendPlayback() {
+  private sendPlayback () {
     this.menu.getMenuItemById(this.id + "_send_playback").checked = true
     settings.set("replay-sync-mode", "send")
     if (!this.menu.getMenuItemById(this.id).checked) return
 
-    this.server.unsubscribe(this.namespace)
+    this.server.unsubscribe(this.namespace, this.type)
     this.playbackInterval = setInterval(async () => {
-      await this.handleSanding()
-    }, 7500)
-    this.handleSanding()
+      await this.handleSandingPlayback()
+    }, 5000)
+    this.handleSandingPlayback()
   }
 
-  private async handleSanding () {
+  private async handleSandingPlayback () {
     try {
       const uri = ReplayModule.replayUrl + "playback"
       const res = await fetch(uri, option)
@@ -118,23 +131,31 @@ export class ReplayModule {
       if (!res.ok) return
   
       const json = await res.json()
-      this.playbackData.push(json)
+      this.playbackData = {
+        savedAt: new Date().getTime(),
+        time: json.time
+      }
+      Sender.send('console', this.playbackData)
       this.server.send({
         meta: {
           namespace: "league-replay",
           type: "set-playback",
-          version: 1,
-          timestamp: new Date().getTime()
+          version: 1
         },
-        data: json
+        time: json.time
       })
     } catch (e) {
       Sender.send('console', e)
     }
   }
 
-  private syncReplay () {
+  private syncReplay (delay = 0) {
+    if (!this.playbackData) return
+
     try {
+      const diff = (this.playbackData.savedAt - new Date().getTime()) / 1000
+      const time = this.playbackData.time + diff - delay
+
       const uri = ReplayModule.replayUrl + "playback"
       fetch(uri, {
         method: "POST",
@@ -142,7 +163,7 @@ export class ReplayModule {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          time: this.playbackData[this.playbackData.length - 1].time
+          time: time >= 0 ? time : 0
         }),
         redirect: 'follow',
         ...option
@@ -161,13 +182,12 @@ export class ReplayModule {
       if (!res.ok) return
   
       const json = await res.json()
-      this.renderData.push(json)
+      this.renderData = json
       this.server.send({
         meta: {
           namespace: "league-replay",
           type: "set-render",
-          version: 1,
-          timestamp: new Date().getTime()
+          version: 1
         },
         data: json
       })
@@ -185,15 +205,18 @@ export class ReplayModule {
       clearInterval(this.playbackInterval)
     }
 
-    this.server.subscribe(this.namespace, (data) => {
-      this.playbackData.push(data.data)
+    this.server.subscribe(this.namespace, this.type, (data) => {
+      this.playbackData = {
+        savedAt: new Date().getTime(),
+        time: data.time
+      }
     })
   }
 
   public disconnect () : void {
     Sender.send(this.id, false)
     this.menu.getMenuItemById(this.id).checked = false
-    this.server.unsubscribe(this.namespace)
+    this.server.unsubscribe(this.namespace, this.type)
     if (this.playbackInterval) {
       clearInterval(this.playbackInterval)
     }

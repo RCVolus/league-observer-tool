@@ -7,8 +7,6 @@
   export let actions : [string, string][]
   let isSync = false
 
-  console.log(actions)
-
   function sync () {
     if (!isSync) {
       ipcRenderer.send(`${id}-start`)

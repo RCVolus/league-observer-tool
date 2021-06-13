@@ -1,12 +1,12 @@
 import { LCUModule } from './LCUModule'
-import { ServerModule } from './ServerModule'
+import { LCURequestModule } from './LCURequestModule'
 import { ReplayModule } from './ReplayModule'
 import { Menu, ipcMain } from 'electron';
 import { Server } from './Server';
 import { LCU } from './LCU'
 
 export class Modules {
-  public modules : Map<string, LCUModule | ServerModule | ReplayModule> = new Map()
+  public modules : Map<string, LCUModule | LCURequestModule | ReplayModule> = new Map()
 
   constructor (
     private lcu : LCU,
@@ -46,10 +46,11 @@ export class Modules {
       this.menu,
       []
     ))
-    this.modules.set("server-lcu-request", new ServerModule(
+    this.modules.set("server-lcu-request", new LCURequestModule(
       "server-lcu-request",
       "LCU Request",
       "lcu",
+      "http-request",
       this.lcu,
       this.server,
       this.menu
@@ -59,6 +60,7 @@ export class Modules {
       "replay",
       "Replay",
       "league-replay",
+      "set-playback",
       this.server,
       this.menu
     ))

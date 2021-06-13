@@ -1,6 +1,6 @@
 import { app } from 'electron'
 
-export function createUserTasks() {
+export function createUserTasks() : void {
   app.setUserTasks([
     {
       program: process.execPath,
