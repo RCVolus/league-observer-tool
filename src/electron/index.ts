@@ -55,7 +55,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     height: 800,
     width: 400,
-    title: "League production observer tool",
+    title: "League Production Observer Tool",
     show: false,
     webPreferences: {
       nodeIntegration: true,
