@@ -94,7 +94,7 @@ export class ReplayModule {
       ]
     }))
 
-    const syncMode = settings.get("replay-sync-mode") || "send"
+    const syncMode = settings.get("replay-sync-mode") || "get"
     settings.set("replay-sync-mode", syncMode)
     if (syncMode == "send") this.sendPlayback()
     else if (syncMode == "get") this.getPlayback()
