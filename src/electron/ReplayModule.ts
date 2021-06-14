@@ -24,8 +24,8 @@ export class ReplayModule {
   private renderData : any = {}
   public actions : [string, string][] = [
     ["sync-replay", "Sync to first Operator"],
-    ["sync-replay-5", "Sync to first Operator (-5 sec)"],
-    ["sync-replay-10", "Sync to first Operator (-10 sec)"],
+    ["sync-replay-minus-5", "Sync to first Operator (-5 sec)"],
+    ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
   ]
 
   constructor (
@@ -48,11 +48,11 @@ export class ReplayModule {
     ipcMain.on(`${id}-sync-replay`, () => {
       this.syncReplay()
     })
-    ipcMain.on(`${id}-sync-replay-5`, () => {
-      this.syncReplay(5)
+    ipcMain.on(`${id}-sync-replay-minus-5`, () => {
+      this.syncReplay(-5)
     })
-    ipcMain.on(`${id}-sync-replay-10`, () => {
-      this.syncReplay(10)
+    ipcMain.on(`${id}-sync-replay-plus-5`, () => {
+      this.syncReplay(5)
     })
 
     this.menu.getMenuItemById('tools').submenu?.append(new MenuItem({
@@ -156,8 +156,8 @@ export class ReplayModule {
     if (!this.playbackData) return
 
     try {
-      const diff = (this.playbackData.savedAt - new Date().getTime()) / 1000
-      const time = this.playbackData.time + diff - delay
+      const diff = (new Date().getTime() - this.playbackData.savedAt) / 1000
+      const time = this.playbackData.time + diff + 1.75 + delay
 
       const uri = ReplayModule.replayUrl + "playback"
       fetch(uri, {

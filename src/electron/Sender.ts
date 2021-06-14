@@ -6,8 +6,8 @@ export class Sender {
   /**
   * sendMsg
   */
-  static send <T = any>(channel : string, data : T) : void {
-    this.mainWindow?.webContents.send(channel, data)
+  static send <T = any>(channel : string, ...data : T[]) : void {
+    this.mainWindow?.webContents.send(channel, ...data)
   }
 
   static showMessageBoxSync (options : MessageBoxOptions) : number | void {
