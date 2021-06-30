@@ -1,12 +1,13 @@
 import { LCUModule } from './LCUModule'
 import { LCURequestModule } from './LCURequestModule'
 import { ReplayModule } from './ReplayModule'
+import { LiveEventsModule } from './LiveEventsModule'
 import { Menu, ipcMain } from 'electron';
 import { Server } from './Server';
 import { LCU } from './LCU'
 
 export class Modules {
-  public modules : Map<string, LCUModule | LCURequestModule | ReplayModule> = new Map()
+  public modules : Map<string, LCUModule | LCURequestModule | ReplayModule | LiveEventsModule> = new Map()
 
   constructor (
     private lcu : LCU,
@@ -46,8 +47,8 @@ export class Modules {
       this.menu,
       []
     ))
-    this.modules.set("server-lcu-request", new LCURequestModule(
-      "server-lcu-request",
+    this.modules.set("lcu-request", new LCURequestModule(
+      "lcu-request",
       "LCU Request",
       "lcu",
       "http-request",
@@ -56,11 +57,20 @@ export class Modules {
       this.menu
     ))
 
-    this.modules.set("replay", new ReplayModule(
-      "replay",
+    this.modules.set("in-game-replay", new ReplayModule(
+      "in-game-replay",
       "Replay",
       "league-replay",
       "set-playback",
+      this.server,
+      this.menu
+    ))
+
+    this.modules.set("in-game-live-events", new LiveEventsModule(
+      "in-game-live-events",
+      "Live Events",
+      "league-live-events",
+      "send",
       this.server,
       this.menu
     ))

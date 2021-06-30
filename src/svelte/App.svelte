@@ -1,50 +1,59 @@
 <script lang="ts">
   const { ipcRenderer } = window.require("electron");
-  import { ConnectionStore } from "./stores/Connector"; 
-  import { Button, Spinner  } from "sveltestrap";
-  import User from "./components/User.svelte";
   import Alert from "./components/Alert.svelte";
-  import Modules from "./components/Modules.svelte";
-
-  const {isConnected, summoner, isPending} = ConnectionStore
+  import Client from "./components/Client.svelte";
+  import Navigation from "./components/nav/Navigation.svelte";
+  import { currentPage, availableModules } from "./stores/Stores"; 
+  import { onMount } from 'svelte';
+  import Game from "./components/Game.svelte";
+  import Profile from "./components/Profile.svelte";
 
   ipcRenderer.on("console", (_event, ...args: any) => {
     console.log(...args);
   });
+
+  onMount(async () => {
+    const res = await ipcRenderer.sendSync('modules-ready') as Array<{
+      id: string
+      name: string,
+      actions: [string, string][]
+    }>
+
+    if (res) {
+      res.forEach(resModul => {
+        if ($availableModules.find(m => m.id == resModul.name)) return
+        
+        availableModules.set([...$availableModules, {
+          id: resModul.id,
+          name: resModul.name,
+          actions: resModul.actions
+        }])
+      })
+    }
+  })
 </script>
 
 <Alert />
 
-{#if $isConnected && $summoner}
-  <User />
-{/if}
-
 <main>
-  {#if $isPending}
-    <div class="text-center mb-5">
-      <Spinner style="width: 3rem; height: 3rem;" color="primary" />
-    </div>
-  {/if}
-  
-  {#if !$isConnected}
-    <Button color="success" block size="lg" on:click={() => ConnectionStore.connect()} disabled={$isPending}>
-      connect
-    </Button>
-  {/if}
-
-  {#if $isConnected}
-    <Modules />
+  {#if $currentPage == "client"}
+    <Client />
+  {:else if $currentPage == "in-game"}
+    <Game />
+  {:else if $currentPage == "profile"}
+    <Profile />
   {/if}
 </main>
+
+<Navigation></Navigation>
 
 <style>
   main {
     width: 100%;
-    flex-grow: 1;
-    padding: 0 1rem;
-    margin: 0 auto;
+    margin-bottom: 75px;
+    height: calc(100vh - 75px);
+    overflow: auto;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: center;
   }
 </style>

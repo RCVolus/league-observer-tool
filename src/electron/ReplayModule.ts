@@ -1,4 +1,4 @@
-import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
+import { ipcMain, dialog, app, MenuItem, Menu, globalShortcut } from 'electron';
 import * as path from "path";
 import * as fs from "fs";
 import { Sender } from './Sender';
@@ -93,6 +93,16 @@ export class ReplayModule {
         }
       ]
     }))
+
+    /* globalShortcut.register('CommandOrControl+Y', () => {
+      this.syncReplay()
+    })
+    globalShortcut.register('CommandOrControl+X', () => {
+      this.syncReplay(-5)
+    })
+    globalShortcut.register('CommandOrControl+C', () => {
+      this.syncReplay(5)
+    }) */
 
     const syncMode = settings.get("replay-sync-mode") || "get"
     settings.set("replay-sync-mode", syncMode)

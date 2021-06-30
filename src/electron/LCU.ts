@@ -7,7 +7,7 @@ export class LCU {
   public credentials? : Credentials
   public leagueClient? : LeagueClient
   private lolWs? : LeagueWebSocket
-  private timeout ? : ReturnType<typeof setTimeout>
+  private timeout ? : NodeJS.Timeout
   private isClosing = false
   private InitConnection = true
 

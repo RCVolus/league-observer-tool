@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, Tray, nativeImage, dialog } from "electron";
+import { app, BrowserWindow, Menu, Tray, nativeImage, dialog, globalShortcut } from "electron";
 import { createUserTasks } from "./userTasks";
 import { Sender } from "./Sender";
 import * as path from "path";
@@ -142,6 +142,7 @@ app.on('before-quit', function (e) {
     e.preventDefault();
   } else {
     isQuiting = true;
+    globalShortcut.unregisterAll()
     Sender.mainWindow = undefined
   }
 });

@@ -7,7 +7,7 @@ import type { ServerMsg } from "../../types/ServerMsg";
 
 export class Server {
   private ws ? : WebSocket
-  private timeout ? : ReturnType<typeof setTimeout>
+  private timeout ? : NodeJS.Timeout
   private serverIP : string
   private isClosing = false
   private InitConnection = true
