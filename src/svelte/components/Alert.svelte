@@ -64,8 +64,8 @@
 
 <style>
   .alert-box {
-    position: -webkit-sticky;
-    position: sticky;
+    position: absolute;
+    width: 100%;
     top: 0;
     z-index: 100;
   }

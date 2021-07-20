@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import { authenticate, connect, Credentials, EventCallback, LeagueClient, LeagueWebSocket, request, RequestOptions } from 'league-connect'
-import { DisplayError } from '../../types/DisplayError';
+import type { DisplayError } from '../../types/DisplayError';
 import { Sender } from './Sender';
 
 export class LCU {
@@ -14,9 +14,6 @@ export class LCU {
   constructor () {
     ipcMain.on('lcu-connection-start', () => {
       this.connect()
-    })
-    ipcMain.on('lcu-connection-stop', () => {
-      this.disconnect()
     })
 
     this.handleRequests()
@@ -106,14 +103,6 @@ export class LCU {
   }
 
   public disconnect () : void {
-    const options = {
-      buttons: ["Yes","Cancel"],
-      type: "question",
-      message: "Do you really want to disconnect?"
-    }
-    const choice = Sender.showMessageBoxSync(options)
-    if (choice == 1) return
-
     this.leagueClient?.stop()
     this.credentials = undefined
 

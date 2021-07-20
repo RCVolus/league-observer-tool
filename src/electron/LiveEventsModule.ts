@@ -69,19 +69,28 @@ export class LiveEventsModule {
   }
 
   private handleData (data: Buffer) {
+    const dataString = data.toString()
+
+    let newDataSting = dataString.replace(/(\\r\\n\\t|\n|\r|\\|\r\n|\t)/gm, "")
+    newDataSting = newDataSting.replace(/(}{)/gm, "},{")
+    const parsedData : Array<any> = JSON.parse(`[${newDataSting}]`)
+
     const obj : ServerMsg = {
       meta: {
         namespace: this.namespace,
         type: this.type,
         version: 1
       },
-      data: data.toString()
+      data: parsedData
     }
     this.server.send(obj)
+    this.data.push(parsedData)
     
-    const string = data.toString()
-    const dataString = string.replace(/\n/g, '');
-    Sender.send(`console`, JSON.parse(dataString))
+    const filtered = parsedData.filter(e => e.eventname !== "OnNeutralMinionKill" && e.eventname !== "OnMinionKill")
+
+    if (filtered.length > 0) {
+      Sender.send(`console`, filtered)
+    }
   }
 
   public disconnect () : void {

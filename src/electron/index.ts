@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, Tray, nativeImage, dialog, globalShortcut } from "electron";
+import { app, BrowserWindow, Menu, Tray, nativeImage, dialog, globalShortcut, ipcMain } from "electron";
 import { createUserTasks } from "./userTasks";
 import { Sender } from "./Sender";
 import * as path from "path";
@@ -53,9 +53,9 @@ if (!gotTheLock) {
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    height: 800,
+    height: 900,
     width: 400,
-    title: "League Production Observer Tool",
+    title: "League Observer Tool",
     show: false,
     webPreferences: {
       nodeIntegration: true,
@@ -91,6 +91,19 @@ function createWindow() {
   const server = new Server()
   const menu = new MainMenu(lcu, server)
   const modules = new Modules(lcu, server, menu.mainMenu)
+
+  ipcMain.on('connection-stop', () => {
+    const options = {
+      buttons: ["Yes","Cancel"],
+      type: "question",
+      message: "Do you really want to disconnect?"
+    }
+    const choice = dialog.showMessageBoxSync(options)
+    if (choice == 1) return
+
+    lcu.disconnect()
+    server.disconnect()
+  })
 }
 
 function createTray () {

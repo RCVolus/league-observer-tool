@@ -43,4 +43,9 @@
   p {
     margin-bottom: 0;
   }
+
+  .rounded-circle {
+    object-fit: cover;
+    object-position: center;
+  }
 </style>

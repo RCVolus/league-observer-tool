@@ -1,6 +1,6 @@
 {
-  "name": "league-prod-observer-tool",
-  "version": "0.6.6",
+  "name": "league-observer-tool",
+  "version": "0.7.0",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"
@@ -24,8 +24,8 @@
     "dist": "npm run svelte-build && npm run build && electron-builder -w"
   },
   "build": {
-    "appId": "gg.rcv.league-prod-observer-tool",
-    "productName": "League Production Observer Tool",
+    "appId": "gg.rcv.league-observer-tool",
+    "productName": "League Observer Tool",
     "copyright": "Copyright © 2021 Riot Community Volunteers",
     "win": {
       "target": "nsis",
@@ -40,7 +40,7 @@
       "installerIcon": "assets/icons/icon.ico",
       "deleteAppDataOnUninstall": true,
       "menuCategory": true,
-      "shortcutName": "Observer Tool"
+      "shortcutName": "League Observer Tool"
     },
     "files": [
       "build/**/*",

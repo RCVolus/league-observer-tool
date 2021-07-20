@@ -59,12 +59,7 @@ class Connector {
   }
 
   public disconnect () {
-    if (get(this.lcuConnected)) {
-      ipcRenderer.send('lcu-connection-stop')
-    }
-    if (get(this.serverConnected)) {
-      ipcRenderer.send('server-connection-stop')
-    }
+    ipcRenderer.send('connection-stop')
   }
 
   public async getLoggedInSummoner () {

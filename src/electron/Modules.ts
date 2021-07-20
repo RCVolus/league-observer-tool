@@ -5,9 +5,10 @@ import { LiveEventsModule } from './LiveEventsModule'
 import { Menu, ipcMain } from 'electron';
 import { Server } from './Server';
 import { LCU } from './LCU'
+import { InGameApi } from './InGameApi'
 
 export class Modules {
-  public modules : Map<string, LCUModule | LCURequestModule | ReplayModule | LiveEventsModule> = new Map()
+  public modules : Map<string, LCUModule | LCURequestModule | ReplayModule | LiveEventsModule | InGameApi> = new Map()
 
   constructor (
     private lcu : LCU,
@@ -66,11 +67,22 @@ export class Modules {
       this.menu
     ))
 
-    this.modules.set("in-game-live-events", new LiveEventsModule(
+    /**
+     * @deprecated for now since not useful
+    */
+    /* this.modules.set("in-game-live-events", new LiveEventsModule(
       "in-game-live-events",
       "Live Events",
       "league-live-events",
       "send",
+      this.server,
+      this.menu
+    )) */
+
+    this.modules.set("in-game-api", new InGameApi(
+      "in-game-api",
+      "InGame",
+      "league-in-game",
       this.server,
       this.menu
     ))
