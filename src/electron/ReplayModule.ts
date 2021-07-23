@@ -6,15 +6,16 @@ import { Server } from './Server';
 import fetch from 'node-fetch'
 import settings from 'electron-app-settings';
 import https from "https";
+import type { DisplayError } from '../../types/DisplayError';
 
-const option = {
+const fetchOption = {
   agent: new https.Agent({
     rejectUnauthorized: false
   })
 }
 
 export class ReplayModule {
-  static replayUrl = "https://localhost:2999/replay/"
+  static replayUrl = "https://127.0.0.1:2999/replay/"
   private playbackInterval ? : ReturnType<typeof setInterval>
   private renderInterval ? : ReturnType<typeof setInterval>
   private playbackData ? : {
@@ -81,6 +82,7 @@ export class ReplayModule {
           checked: true,
           click: () => {
             this.sendPlayback()
+            settings.set("replay-sync-mode", "send")
           }
         },
         {
@@ -89,36 +91,67 @@ export class ReplayModule {
           type: "radio",
           click: () => {
             this.getPlayback()
+            settings.set("replay-sync-mode", "get")
+          }
+        },
+        {
+          type: "separator"
+        },
+        {
+          type: 'normal',
+          label: 'Sync to first Operator',
+          accelerator: 'CommandOrControl+J',
+          click: () => {
+            this.syncReplay()
+          }
+        },
+        {
+          type: 'normal',
+          label: 'Sync to first Operator (-5 sec)',
+          accelerator: 'CommandOrControl+K',
+          click: () => {
+            this.syncReplay(-5)
+          }
+        },
+        {
+          type: 'normal',
+          label: 'Sync to first Operator (+5 sec)',
+          accelerator: 'CommandOrControl+L',
+          click: () => {
+            this.syncReplay(5)
           }
         }
       ]
     }))
 
-    /* globalShortcut.register('CommandOrControl+Y', () => {
-      this.syncReplay()
-    })
-    globalShortcut.register('CommandOrControl+X', () => {
-      this.syncReplay(-5)
-    })
-    globalShortcut.register('CommandOrControl+C', () => {
-      this.syncReplay(5)
-    }) */
-
     const syncMode = settings.get("replay-sync-mode") || "get"
     settings.set("replay-sync-mode", syncMode)
-    if (syncMode == "send") this.sendPlayback()
-    else if (syncMode == "get") this.getPlayback()
   }
 
   public connect () : void {
-    Sender.send(this.id, true)
     this.menu.getMenuItemById(this.id).checked = true
+    Sender.send(this.id, 1)
 
-    if (this.menu.getMenuItemById(this.id + "_get_playback").checked) {
-      this.getPlayback()
-    } else if (this.menu.getMenuItemById(this.id + "_send_playback").checked) {
-      this.sendPlayback()
+    const syncMode = settings.get("replay-sync-mode") || "get"
+    if (syncMode == "get") {
+      setTimeout(() => {
+        this.getPlayback()
+      }, 0)
+    } else if (syncMode == "send") {
+      setTimeout(() => {
+        this.sendPlayback()
+      }, 0)
     }
+
+    globalShortcut.register('CommandOrControl+J', () => {
+      this.syncReplay()
+    })
+    globalShortcut.register('CommandOrControl+K', () => {
+      this.syncReplay(-5)
+    })
+    globalShortcut.register('CommandOrControl+L', () => {
+      this.syncReplay(5)
+    })
 
     /* this.renderInterval = setInterval(async () => {
       await this.handleRenderer()
@@ -126,28 +159,29 @@ export class ReplayModule {
   }
 
   private sendPlayback () {
-    this.menu.getMenuItemById(this.id + "_send_playback").checked = true
-    settings.set("replay-sync-mode", "send")
     if (!this.menu.getMenuItemById(this.id).checked) return
 
     this.server.unsubscribe(this.namespace, this.type)
-    this.playbackInterval = setInterval(async () => {
-      await this.handleSandingPlayback()
+    this.playbackInterval = setInterval(() => {
+      this.handleSandingPlayback()
     }, 5000)
     this.handleSandingPlayback()
   }
 
   private async handleSandingPlayback () {
+    const fetchUri = ReplayModule.replayUrl + "playback"
+
     try {
-      const uri = ReplayModule.replayUrl + "playback"
-      const res = await fetch(uri, option)
+      const res = await fetch(fetchUri, fetchOption)
   
       if (!res.ok) return
   
       const json = await res.json()
+      const savedAt = new Date().getTime() + this.server.prodTimeOffset
+      const time = json.time
       this.playbackData = {
-        savedAt: new Date().getTime(),
-        time: json.time
+        savedAt,
+        time
       }
       this.server.send({
         meta: {
@@ -155,10 +189,23 @@ export class ReplayModule {
           type: "set-playback",
           version: 1
         },
-        time: json.time
+        savedAt,
+        time
       })
+
+      Sender.send(this.id, 2)
     } catch (e) {
-      Sender.send('console', e)
+      Sender.send('console', JSON.stringify(e))
+
+      if (e.code && e.code === "ECONNREFUSED") {
+        Sender.send(this.id, 1)
+      } else {
+        this.disconnect()
+        Sender.send('error', {
+          color: "danger",
+          text: e.message || 'error while fetching live-game data'
+        } as DisplayError)
+      }
     }
   }
 
@@ -166,8 +213,8 @@ export class ReplayModule {
     if (!this.playbackData) return
 
     try {
-      const diff = (new Date().getTime() - this.playbackData.savedAt) / 1000
-      const time = this.playbackData.time + diff + 1.75 + delay
+      const diff = ((new Date().getTime() + this.server.prodTimeOffset) - this.playbackData.savedAt) / 1000
+      const time = this.playbackData.time + diff + delay
 
       const uri = ReplayModule.replayUrl + "playback"
       fetch(uri, {
@@ -179,14 +226,14 @@ export class ReplayModule {
           time: time >= 0 ? time : 0
         }),
         redirect: 'follow',
-        ...option
+        ...fetchOption
       })
     } catch (e) {
       Sender.send('console', e)
     }
   }
 
-  private async handleRenderer () {
+  /* private async handleRenderer () {
     try {
       const uri = ReplayModule.replayUrl + "render"
       const res = await fetch(uri, option)
@@ -206,11 +253,9 @@ export class ReplayModule {
     } catch (e) {
       Sender.send('console', e)
     }
-  }
+  } */
 
   private getPlayback () {
-    this.menu.getMenuItemById(this.id + "_get_playback").checked = true
-    settings.set("replay-sync-mode", "get")
     if (!this.menu.getMenuItemById(this.id).checked) return
 
     if (this.playbackInterval) {
@@ -219,15 +264,14 @@ export class ReplayModule {
 
     this.server.subscribe(this.namespace, this.type, (data) => {
       this.playbackData = {
-        savedAt: new Date().getTime(),
+        savedAt: data.savedAt,
         time: data.time
       }
     })
+    Sender.send(this.id, 2)
   }
 
   public disconnect () : void {
-    Sender.send(this.id, false)
-    this.menu.getMenuItemById(this.id).checked = false
     this.server.unsubscribe(this.namespace, this.type)
     if (this.playbackInterval) {
       clearInterval(this.playbackInterval)
@@ -235,6 +279,12 @@ export class ReplayModule {
     if (this.renderInterval) {
       clearInterval(this.renderInterval)
     }
+    Sender.send(this.id, 0)
+    this.menu.getMenuItemById(this.id).checked = false
+
+    globalShortcut.unregister('CommandOrControl+J')
+    globalShortcut.unregister('CommandOrControl+K')
+    globalShortcut.unregister('CommandOrControl+L')
   }
 
   private async saveData () {

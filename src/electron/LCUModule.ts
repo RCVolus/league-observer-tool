@@ -46,8 +46,9 @@ export class LCUModule {
   }
 
   public connect () : void {
+    Sender.send(this.id, 1)
     this.lcu.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
-    Sender.send(this.id, true)
+    Sender.send(this.id, 2)
     this.menu.getMenuItemById(this.id).checked = true
   }
 
@@ -76,7 +77,7 @@ export class LCUModule {
 
   public disconnect () : void {
     this.lcu.unsubscribe(this.lcuURI);
-    Sender.send(this.id, false)
+    Sender.send(this.id, 0)
     this.menu.getMenuItemById(this.id).checked = false
   }
 

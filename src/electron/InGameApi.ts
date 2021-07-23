@@ -13,8 +13,8 @@ const httpsAgent = new https.Agent({
 });
 
 export class InGameApi {
+  static url = "https://127.0.0.1:2999/liveclientdata/"
   private data : Array<any> = []
-  private url = "https://127.0.0.1:2999/liveclientdata"
   public actions : [string, string][] = []
   private interval ? : NodeJS.Timeout
 
@@ -56,61 +56,29 @@ export class InGameApi {
    * if live-game is not available, sends and error to the frontend 
   */
   public async connect () : Promise<void> {
-    const fetchUrl = this.url + "/gamestats"
-    Sender.send('console', fetchUrl)
-
-    try {
-      const gameInfo = await fetch(fetchUrl, {
-        agent: httpsAgent,
-      })
-      const data = await gameInfo.json()
-
-      const obj : ServerMsg = {
-        meta: {
-          namespace: this.namespace,
-          type: 'gamestats',
-          version: 1
-        },
-        data: data
-      }
-      this.server.send(obj)
-      this.data.push(data)
-
-      // get live-game data every 1s
-      this.interval = setInterval(() => {
-        this.getData()
-      }, 1000)
-
-      this.menu.getMenuItemById(this.id).checked = true
-      Sender.send(this.id, true)
-    } catch (e) {
-      Sender.send('console', e)
-      if (e.code && e.code === "ECONNREFUSED") {
-        return Sender.send('error', {
-          color: "danger",
-          text: 'There is no live game available'
-        } as DisplayError)
-      } else {
-        Sender.send('error', {
-          color: "danger",
-          text: e.message || 'error while fetching live-game data'
-        } as DisplayError)
-      }
-    }
+    Sender.send(this.id, 1)
+    this.menu.getMenuItemById(this.id).checked = true
+    // get live-game data every 1s
+    this.interval = setInterval(() => {
+      this.getData()
+    }, 1000)
   }
 
   /**
    * Gets data from the live-game api
   */
   private async getData () : Promise<void> {
-    const fetchUrl = this.url + "/allgamedata"
-    Sender.send('console', fetchUrl)
+    const fetchUrl = InGameApi.url + "allgamedata"
 
     try {
-      const gameInfo = await fetch(fetchUrl, {
+      const res = await fetch(fetchUrl, {
         agent: httpsAgent,
       })
-      const data = await gameInfo.json()
+
+      if (!res.ok) return
+
+      const data = await res.json()
+      this.data.push(data)
 
       const obj : ServerMsg = {
         meta: {
@@ -121,16 +89,13 @@ export class InGameApi {
         data: data
       }
       this.server.send(obj)
-      this.data.push(data)
+
+      Sender.send(this.id, 2)
     } catch (e) {
-      this.disconnect()
-      Sender.send('console', e)
       if (e.code && e.code === "ECONNREFUSED") {
-        return Sender.send('error', {
-          color: "danger",
-          text: 'There is no live game available'
-        } as DisplayError)
+        Sender.send(this.id, 1)
       } else {
+        this.disconnect()
         Sender.send('error', {
           color: "danger",
           text: e.message || 'error while fetching live-game data'
@@ -143,7 +108,7 @@ export class InGameApi {
    * Clears timeout to stop requesting live-game data
   */
   public disconnect () : void {
-    Sender.send(this.id, false)
+    Sender.send(this.id, 0)
     this.menu.getMenuItemById(this.id).checked = false
     if (this.interval) {
       clearInterval(this.interval)

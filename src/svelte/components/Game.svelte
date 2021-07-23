@@ -4,9 +4,9 @@
 </script>
 
 <div class="my-auto p-3 w-100">
-  {#each $availableModules as {id, name, actions}}
-    {#if id.startsWith('in-game')}
-      <Module {id} {name} {actions} />
+  {#each Array.from($availableModules) as [_id, module]}
+    {#if module.id.startsWith('in-game')}
+      <Module {...module} />
     {/if}
   {/each}
 </div>

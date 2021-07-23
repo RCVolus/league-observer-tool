@@ -92,7 +92,8 @@ export class Modules {
         return {
           id: m.id,
           name: m.name,
-          actions: m.actions
+          actions: m.actions,
+          status: 0
         }
       })
     })

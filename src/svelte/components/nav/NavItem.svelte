@@ -1,11 +1,13 @@
 <script lang="ts">
   import { Icon } from "sveltestrap"
   import { currentPage } from "../../stores/Stores"; 
+  const { ipcRenderer } = window.require("electron");
 
   export let icon : string = ""
   export let name : string = ""
   export let href : string = ""
   export let type : "link" | "timer" = "link"
+  let timer = "-- : -- : --"
 
   let active = $currentPage == href
   function checkActiv (page: string) {
@@ -15,6 +17,20 @@
 
   function setPage () {
     currentPage.set(href)
+  }
+
+  if (type === "timer") {
+    let offset = 0
+
+    ipcRenderer.on('server-prod-clock', (_e: any, newOffset : number) => {
+      offset = newOffset
+    })
+
+    setInterval(() => {
+      const time = new Date().getTime()
+      const newTime = new Date(time + offset)
+      timer = `${('0' + newTime.getHours()).slice(-2)} : ${('0' + newTime.getMinutes()).slice(-2)} : ${('0' + newTime.getSeconds()).slice(-2)}`
+    }, 200)
   }
 </script>
 
@@ -27,7 +43,7 @@
   </li>
 {:else if type == "timer"}
   <li class="navitem timer">
-    <p class="time">-- : --</p>
+    <p class="time">{timer}</p>
   </li>
 {/if}
 
@@ -47,7 +63,7 @@
   }
 
   .time {
-    margin-top: 1rem;
+    margin-top: 1.53rem;
   }
 
   .navitem:hover .icon {

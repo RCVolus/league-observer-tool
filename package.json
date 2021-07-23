@@ -1,6 +1,6 @@
 {
   "name": "league-observer-tool",
-  "version": "0.7.0",
+  "version": "0.7.2",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"
@@ -59,6 +59,7 @@
     "@tsconfig/svelte": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
     "@typescript-eslint/parser": "^3.4.0",
+    "@types/uniqid": "^5.3.1",
     "electron": "^9.4.0",
     "electron-builder": "^22.10.5",
     "eslint": "^7.3.1",
@@ -79,6 +80,7 @@
     "league-connect": "^5.2.0",
     "node-fetch": "^2.6.1",
     "sirv-cli": "^1.0.0",
+    "uniqid": "^5.3.0",
     "ws": "^7.4.5"
   }
 }

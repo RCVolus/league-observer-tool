@@ -7,27 +7,25 @@
   import { onMount } from 'svelte';
   import Game from "./components/Game.svelte";
   import Profile from "./components/Profile.svelte";
+  import type { Module } from  '../../types/Module'
 
   ipcRenderer.on("console", (_event, ...args: any) => {
     console.log(...args);
   });
 
   onMount(async () => {
-    const res = await ipcRenderer.sendSync('modules-ready') as Array<{
-      id: string
-      name: string,
-      actions: [string, string][]
-    }>
+    const res = await ipcRenderer.sendSync('modules-ready') as Array<Module>
 
     if (res) {
       res.forEach(resModul => {
-        if ($availableModules.find(m => m.id == resModul.name)) return
+        if ($availableModules.get(resModul.id)) return
         
-        availableModules.set([...$availableModules, {
+        availableModules.set($availableModules.set(resModul.id, {
           id: resModul.id,
           name: resModul.name,
-          actions: resModul.actions
-        }])
+          actions: resModul.actions,
+          status: resModul.status
+        }))
       })
     }
   })

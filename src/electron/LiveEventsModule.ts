@@ -6,7 +6,6 @@ import { Server } from './Server';
 import settings from 'electron-app-settings';
 import net from 'net';
 import type { ServerMsg } from '../../types/ServerMsg'
-import { MessageBuffer } from './MessageBuffer'
 
 export class LiveEventsModule {
   private data : Array<any> = []
@@ -55,7 +54,7 @@ export class LiveEventsModule {
     this.menu.getMenuItemById(this.id).checked = true
 
     this.netClient = net.connect({port: this.port, host: "127.0.0.1"}, () => {
-      Sender.send(this.id, true)
+      Sender.send(this.id, 2)
     });
     this.netClient?.on('data', (data) => {
       this.handleData(data)
@@ -64,7 +63,7 @@ export class LiveEventsModule {
       Sender.send('console', err)
     })
     this.netClient?.on('end', () => {
-      Sender.send(this.id, false)
+      Sender.send(this.id, 0)
     });
   }
 
@@ -94,7 +93,7 @@ export class LiveEventsModule {
   }
 
   public disconnect () : void {
-    Sender.send(this.id, false)
+    Sender.send(this.id, 0)
     this.menu.getMenuItemById(this.id).checked = false
     this.netClient?.destroy();
   }

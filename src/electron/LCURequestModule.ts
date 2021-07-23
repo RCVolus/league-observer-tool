@@ -46,8 +46,9 @@ export class LCURequestModule {
   }
 
   public connect () : void {
+    Sender.send(this.id, 1)
     this.server.subscribe(this.namespace, this.type, (data) => this.handleData(data))
-    Sender.send(this.id, true)
+    Sender.send(this.id, 2)
     this.menu.getMenuItemById(this.id).checked = true
   }
 
@@ -74,7 +75,7 @@ export class LCURequestModule {
 
   public disconnect () : void {
     this.server.unsubscribe(this.namespace, this.type);
-    Sender.send(this.id, false)
+    Sender.send(this.id, 0)
     this.menu.getMenuItemById(this.id).checked = false
   }
 
