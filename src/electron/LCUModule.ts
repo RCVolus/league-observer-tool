@@ -67,7 +67,7 @@ export class LCUModule {
       meta: {
         namespace: "lcu",
         type: `${this.id}-${event.eventType.toLowerCase()}`, 
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime() + this.server.prodTimeOffset
       },
       data: event.eventType != "Delete" ? selectedData : undefined
     }
