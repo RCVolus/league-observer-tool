@@ -9,7 +9,7 @@
   export let id : string
   export let name : string
   export let actions : [string, string][]
-  export let status : 0 | 1 | 2
+  export let status = $availableModules.get(id).status || 0
 
   function sync () {
     if (status === 0) {
