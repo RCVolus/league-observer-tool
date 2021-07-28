@@ -95,7 +95,6 @@ export class InGameApi {
       if (e.code && e.code === "ECONNREFUSED") {
         Sender.send(this.id, 1)
       } else {
-        this.disconnect()
         Sender.send('error', {
           color: "danger",
           text: e.message || 'error while fetching live-game data'
