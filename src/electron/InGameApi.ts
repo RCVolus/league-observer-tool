@@ -3,7 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { Sender } from './Sender';
 import { Server } from './Server';
-import type { ServerMsg } from '../../types/ServerMsg'
+import type { LPTEvent } from '../../types/LPTE'
 import fetch from 'node-fetch'
 import type { DisplayError } from '../../types/DisplayError';
 import https from 'https';
@@ -80,7 +80,7 @@ export class InGameApi {
       const data = await res.json()
       this.data.push(data)
 
-      const obj : ServerMsg = {
+      const obj : LPTEvent = {
         meta: {
           namespace: this.namespace,
           type: 'allgamedata',

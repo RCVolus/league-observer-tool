@@ -1,6 +1,6 @@
-import type { ServerMsg } from './ServerMsg'
+import type { LPTEvent } from './LPTE'
 
-export interface ServerRequest extends ServerMsg {
+export interface ServerRequest<T = any> extends LPTEvent {
   meta: {
     namespace: string,
     type: string,
@@ -10,6 +10,6 @@ export interface ServerRequest extends ServerMsg {
   request: {
     url: string,
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-    body?: any
+    body?: T
   }
 }

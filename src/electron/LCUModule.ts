@@ -5,7 +5,7 @@ import * as fs from "fs";
 import { Sender } from './Sender';
 import { Server } from './Server';
 import { LCU } from './LCU'
-import type { ServerMsg } from "../../types/ServerMsg";
+import type { LPTEvent } from "../../types/LPTE";
 
 export class LCUModule {
   private data : Array<any> = []
@@ -63,7 +63,7 @@ export class LCUModule {
       }
     }
 
-    const obj : ServerMsg = {
+    const obj : LPTEvent = {
       meta: {
         namespace: "lcu",
         type: `${this.id}-${event.eventType.toLowerCase()}`, 

@@ -5,7 +5,7 @@ import { Sender } from './Sender';
 import { Server } from './Server';
 import settings from 'electron-app-settings';
 import net from 'net';
-import type { ServerMsg } from '../../types/ServerMsg'
+import type { LPTEvent } from '../../types/LPTE'
 
 export class LiveEventsModule {
   private data : Array<any> = []
@@ -74,7 +74,7 @@ export class LiveEventsModule {
     newDataSting = newDataSting.replace(/(}{)/gm, "},{")
     const parsedData : Array<any> = JSON.parse(`[${newDataSting}]`)
 
-    const obj : ServerMsg = {
+    const obj : LPTEvent = {
       meta: {
         namespace: this.namespace,
         type: this.type,

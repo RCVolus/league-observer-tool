@@ -3,7 +3,6 @@ import { ipcMain } from 'electron';
 import { Sender } from './Sender';
 import { DisplayError } from '../../types/DisplayError';
 import settings from 'electron-app-settings';
-import type { ServerMsg } from "../../types/ServerMsg";
 import type { LPTEvent } from '../../types/LPTE'
 import uniqid from 'uniqid'
 
@@ -78,7 +77,7 @@ export class Server {
   public subscribe(namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
 
     if (!this.subscriptions.has(`${namespace}-${type}`)) {
-      const msg : ServerMsg = {
+      const msg : LPTEvent = {
         meta: {
           namespace: "lpte",
           type: "subscribe"
@@ -103,7 +102,7 @@ export class Server {
     }
 
     if (!this.subscriptions.has(`${namespace}-${type}`)) {
-      const msg : ServerMsg = {
+      const msg : LPTEvent = {
         meta: {
           namespace: "lpte",
           type: "subscribe"
@@ -143,7 +142,7 @@ export class Server {
   /**
    * send
   */
-  public send(data : ServerMsg) : void {
+  public send(data : LPTEvent) : void {
     this.ws?.send(JSON.stringify(data), (err) => {
       if (err) throw err
     })

@@ -5,7 +5,7 @@ import { Sender } from './Sender';
 import { Server } from './Server';
 import { LCU } from './LCU'
 import type { ServerRequest } from '../../types/ServerRequest'
-import type { ServerMsg } from '../../types/ServerMsg'
+import type { LPTEvent } from '../../types/LPTE'
 
 export class LCURequestModule {
   private data : Array<any> = []
@@ -52,7 +52,7 @@ export class LCURequestModule {
     this.menu.getMenuItemById(this.id).checked = true
   }
 
-  private async handleData(data: ServerMsg) {
+  private async handleData(data: LPTEvent) {
     const req = data as ServerRequest
     const res = await this.lcu.request(req.request)
 
@@ -61,10 +61,10 @@ export class LCURequestModule {
       data: res
     })
 
-    const obj : ServerMsg = {
+    const obj : LPTEvent = {
       meta: {
         namespace: "reply",
-        type: data.meta.reply,
+        type: data.meta.reply as string,
         version: data.meta.version
       },
       data: res

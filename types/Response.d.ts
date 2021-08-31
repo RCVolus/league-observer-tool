@@ -1,5 +1,5 @@
-export interface Response <D = any> {
+export interface Response <T = any> {
   status: "pending" | "done"
   type: string
-  data?: D
+  data?: T
 }
