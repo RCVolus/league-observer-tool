@@ -1,12 +1,12 @@
 {
   "name": "league-observer-tool",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"
   },
   "license": "MIT",
-  "repository": "https://github.com/RCVolus/league-prod-observer-tool",
+  "repository": "https://github.com/RCVolus/league-observer-tool",
   "keywords": [
     "League",
     "production",
