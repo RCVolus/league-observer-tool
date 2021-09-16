@@ -224,11 +224,15 @@ export class Server {
     return localOffset;
   }
 
-  private syncProdClock () {
+  private async syncProdClock () {
+    const offset = await this.getLocalTimeOffset()
+    this.prodTimeOffset = offset
+    Sender.send('server-prod-clock', offset)
+
     this.prodClockInterval = setInterval(async () => {
       const offset = await this.getLocalTimeOffset()
       this.prodTimeOffset = offset
       Sender.send('server-prod-clock', offset)
-    }, 1000 * 60 * 60)
+    }, 1000 * 60)
   }
 }

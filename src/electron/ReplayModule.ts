@@ -56,6 +56,9 @@ export class ReplayModule {
       this.syncReplay(5)
     })
 
+    const syncMode = settings.get("replay-sync-mode") || "get"
+    settings.set("replay-sync-mode", syncMode)
+
     this.menu.getMenuItemById('tools').submenu?.append(new MenuItem({
       label: this.name,
       submenu: [
@@ -79,7 +82,7 @@ export class ReplayModule {
           id: this.id + "_send_playback",
           label: "Send Information",
           type: "radio",
-          checked: true,
+          checked: syncMode === 'send',
           click: () => {
             this.sendPlayback()
             settings.set("replay-sync-mode", "send")
@@ -89,6 +92,7 @@ export class ReplayModule {
           id: this.id + "_get_playback",
           label: "Get Information",
           type: "radio",
+          checked: syncMode === 'get',
           click: () => {
             this.getPlayback()
             settings.set("replay-sync-mode", "get")
@@ -100,7 +104,7 @@ export class ReplayModule {
         {
           type: 'normal',
           label: 'Sync to first Operator',
-          accelerator: 'CommandOrControl+J',
+          accelerator: 'Ctrl+J',
           click: () => {
             this.syncReplay()
           }
@@ -108,7 +112,7 @@ export class ReplayModule {
         {
           type: 'normal',
           label: 'Sync to first Operator (-5 sec)',
-          accelerator: 'CommandOrControl+K',
+          accelerator: 'Ctrl+K',
           click: () => {
             this.syncReplay(-5)
           }
@@ -116,16 +120,13 @@ export class ReplayModule {
         {
           type: 'normal',
           label: 'Sync to first Operator (+5 sec)',
-          accelerator: 'CommandOrControl+L',
+          accelerator: 'Ctrl+L',
           click: () => {
             this.syncReplay(5)
           }
         }
       ]
     }))
-
-    const syncMode = settings.get("replay-sync-mode") || "get"
-    settings.set("replay-sync-mode", syncMode)
   }
 
   public connect () : void {
