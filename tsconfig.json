@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "strict": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "outDir": "build",
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "downlevelIteration": true,
+    "rootDirs": ["electron"],
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": [
+    "electron/**/*"
+  ],
+  "exclude": ["node_modules/**/*"]
+}

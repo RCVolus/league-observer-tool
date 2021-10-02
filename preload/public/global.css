@@ -1,0 +1,45 @@
+:root {
+  --bs-primary: #029ef7 !important;
+  --bs-success: #00b884 !important;
+  --bs-danger: #b9486d !important;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background: #252525;
+  overflow: hidden;
+}
+
+.sr-only {
+  display: none;
+}
+
+#logout-btn {
+  color: var(--bs-white);
+  border-color: var(--bs-white);
+}
+
+main::-webkit-scrollbar {
+  width: 10px;
+}
+main::-webkit-scrollbar-corner {
+  background: rgba(0,0,0,0);
+}
+main::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 6px;
+  border: 3px solid rgba(0,0,0,0);
+  background-clip: content-box;
+}
+main::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,0);
+}
