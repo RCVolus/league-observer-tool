@@ -52,7 +52,6 @@ if (!gotTheLock) {
   app.on("ready", () => {
     mainWindow = createMainWindow()
     initWindow = createInitWindow()
-    createTray(mainWindow)
 
     initApp();
 
@@ -102,7 +101,6 @@ async function initApp () {
 }
 
 function openMainWindow() {
-
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../frontend/public/index.html'));
   
@@ -114,6 +112,8 @@ function openMainWindow() {
   
     return false;
   });
+
+  createTray(mainWindow)
 
   mainWindow.webContents.on('did-finish-load', () => {
     initWindow.close()
