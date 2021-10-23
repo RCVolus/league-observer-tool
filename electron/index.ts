@@ -93,6 +93,7 @@ async function initApp () {
     Sender.emit('state', 'update-downloaded-app')
     skipClosing = true
     isQuiting = true
+    autoUpdater.quitAndInstall()
   })
 
   initWindow.webContents.on('did-finish-load', () => {
