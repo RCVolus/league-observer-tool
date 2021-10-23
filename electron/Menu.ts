@@ -1,12 +1,12 @@
 import { app, Menu, shell } from "electron";
 import { LCU } from './connector/LCU'
 import { Server } from './connector/Server'
-import Store from 'electron-store';
+import cfg from 'electron-cfg';
 
 export class MainMenu {
   public mainMenu : Menu
 
-  constructor (lcu : LCU, server : Server, store : Store) {
+  constructor (lcu : LCU, server : Server) {
     this.mainMenu = Menu.buildFromTemplate([
       {
         label: 'File',
@@ -35,7 +35,7 @@ export class MainMenu {
           {
             label: 'Open Settings',
             click () {
-              store.openInEditor()
+              shell.openExternal(cfg.file())
             }
           },
           {
@@ -119,19 +119,21 @@ export class MainMenu {
           {
             label: 'Visit GitHub Repo',
             click() {
-              shell.openExternal("https://github.com/RCVolus/league-prod-observer-tool")
+              shell.openExternal("https://github.com/RCVolus/league-observer-tool")
             }
           },
           {
             label: 'Report as Issue',
             click() {
-              shell.openExternal("https://github.com/RCVolus/league-prod-observer-tool/issues")
+              shell.openExternal("https://github.com/RCVolus/league-observer-tool/issues")
             }
           },
           {
+            visible: !app.isPackaged,
             type: "separator"
           },
           {
+            visible: !app.isPackaged,
             label: 'Toggle Developer Tools',
             click(item, focusedWindow) {
               if (focusedWindow) focusedWindow.webContents.toggleDevTools();

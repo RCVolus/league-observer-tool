@@ -1,17 +1,17 @@
-import { BrowserWindow, dialog, MessageBoxOptions } from 'electron';
+import { BrowserWindow } from "electron"
 
 export class Sender {
-  static mainWindow? : BrowserWindow
+  static currentWindow : BrowserWindow
 
-  /**
-  * sendMsg
-  */
-  static send <T = any>(channel : string, ...data : T[]) : void {
-    this.mainWindow?.webContents.send(channel, ...data)
+  static emit (event : string, ...args : any[]) : void {
+    Sender.currentWindow.webContents.postMessage(event, args)
   }
 
-  static showMessageBoxSync (options : MessageBoxOptions) : number | void {
-    if (!this.mainWindow) return
-    return dialog.showMessageBoxSync(this.mainWindow, options)
+  /**
+   * Sets the progress bar on the current window
+   * @param percent 0 to 100 for progress over 100 for pulsing
+   */
+  static setProgressBar (percent : number) : void {
+    Sender.currentWindow.setProgressBar(percent / 100)
   }
 }

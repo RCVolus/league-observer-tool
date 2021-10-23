@@ -26,13 +26,13 @@ export class InGameApi {
     private server : Server,
     private menu : Menu
   ) {
-    ipcMain.on(`${id}-start`, () => {
+    ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.on(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () =>{
       this.disconnect()
     })
-    ipcMain.on(`${id}-save`, () => {
+    ipcMain.handle(`${id}-save`, () => {
       this.saveData()
     })
 
@@ -58,7 +58,7 @@ export class InGameApi {
    * if live-game is not available, sends and error to the frontend 
   */
   public async connect () : Promise<void> {
-    Sender.send(this.id, 1)
+    Sender.emit(this.id, 1)
     if (this.subMenu) {
       this.subMenu.checked = true
     }
@@ -94,12 +94,12 @@ export class InGameApi {
       }
       this.server.send(obj)
 
-      Sender.send(this.id, 2)
+      Sender.emit(this.id, 2)
     } catch (e) {
       if (e.code && e.code === "ECONNREFUSED") {
-        Sender.send(this.id, 1)
+        Sender.emit(this.id, 1)
       } else {
-        Sender.send('error', {
+        Sender.emit('error', {
           color: "danger",
           text: e.message || 'error while fetching live-game data'
         } as DisplayError)
@@ -111,10 +111,12 @@ export class InGameApi {
    * Clears timeout to stop requesting live-game data
   */
   public disconnect () : void {
-    Sender.send(this.id, 0)
+    Sender.emit(this.id, 0)
+
     if (this.subMenu) {
       this.subMenu.checked = false
     }
+
     if (this.interval) {
       clearInterval(this.interval)
     }
@@ -139,7 +141,6 @@ export class InGameApi {
       const savePath = saveDialog.filePath.toString()
       fs.writeFile(savePath, saveData, (err) => {
           if (err) throw err;
-          Sender.send('console', `Saved at ${savePath}`)
       });
     }
   }

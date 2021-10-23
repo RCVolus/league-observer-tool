@@ -2,9 +2,10 @@ import WebSocket from "ws";
 import { ipcMain } from 'electron';
 import { Sender } from '../helper/Sender';
 import { DisplayError } from '../../types/DisplayError';
-import Store from 'electron-store';
 import type { LPTEvent } from '../../types/LPTE'
 import uniqid from 'uniqid'
+import cfg from 'electron-cfg';
+import log from 'electron-log';
 
 enum EventType {
   BROADCAST = 'BROADCAST',
@@ -21,18 +22,28 @@ export class Server {
   private isClosing = false
   private InitConnection = true
   private subscriptions: Map<string, ((data : LPTEvent) => void)[]> = new Map()
+  public isConnected = false
+  private logger : log.ElectronLog
 
-  constructor (
-    private store : Store,
-  ) {
-    this.serverIP = this.store.get("server-ip", "10.244.69.129") as string
-    this.store.set("server-ip", this.serverIP)
+  constructor () {
+    this.logger = log.create('Server')
+    this.logger.scope('Server')
 
-    ipcMain.on('server-connection-start', () => {
-      this.connect()
+    this.serverIP = cfg.get("server-ip", "127.0.0.1")
+    cfg.set("server-ip", this.serverIP)
+
+    cfg.observe('server-ip', (current : string) => {
+      console.log(current)
+      this.serverIP = current
+      
+      if (this.isConnected) {
+        this.disconnect()
+        this.connect()
+      }
     })
-    ipcMain.on('server-connection-stop', () => {
-      this.disconnect()
+
+    ipcMain.handle('server-connection-start', () => {
+      this.connect()
     })
   }
   
@@ -47,7 +58,9 @@ export class Server {
       this.isClosing = false
       this.InitConnection = false
       this.syncProdClock()
-      Sender.send('server-connection', true)
+
+      this.isConnected = true
+      Sender.emit('server-connection', this.isConnected)
     }
 
     this.ws.onmessage = (content) => {
@@ -61,15 +74,20 @@ export class Server {
     }
 
     this.ws.onerror = e => {
-      Sender.send('error', {
+      this.logger.error(e)
+      Sender.emit('error', {
         color: "danger",
         text: e.message
       } as DisplayError)
-      Sender.send('server-connection', false)
+
+      this.isConnected = false
+      Sender.emit('server-connection', this.isConnected)
     }
 
     this.ws.onclose = () => {
-      Sender.send('server-connection', false)
+      this.isConnected = false
+      Sender.emit('server-connection', this.isConnected)
+
       if (!this.isClosing && !this.InitConnection) {
         this.timeout = setTimeout(() => {this.connect()}, 5000)
       }
@@ -132,13 +150,17 @@ export class Server {
     this.isClosing = true
     this.InitConnection = true
     this.ws?.close()
+
     if (this.timeout) {
       clearTimeout(this.timeout)
     }
+
     if (this.prodClockInterval) {
       clearInterval(this.prodClockInterval)
     }
-    Sender.send('server-connection', false)
+
+    this.isConnected = false
+    Sender.emit('server-connection', this.isConnected)
   }
 
   /**
@@ -146,7 +168,10 @@ export class Server {
   */
   public send(data : LPTEvent) : void {
     this.ws?.send(JSON.stringify(data), (err) => {
-      if (err) throw err
+      if (err) {
+        this.logger.error(err)
+        throw err
+      }
     })
   }
 
@@ -229,12 +254,12 @@ export class Server {
   private async syncProdClock () {
     const offset = await this.getLocalTimeOffset()
     this.prodTimeOffset = offset
-    Sender.send('server-prod-clock', offset)
+    Sender.emit('server-prod-clock', offset)
 
     this.prodClockInterval = setInterval(async () => {
       const offset = await this.getLocalTimeOffset()
       this.prodTimeOffset = offset
-      Sender.send('server-prod-clock', offset)
+      Sender.emit('server-prod-clock', offset)
     }, 1000 * 60)
   }
 }

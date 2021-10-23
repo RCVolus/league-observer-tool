@@ -1,5 +1,5 @@
 :root {
-  --bs-primary: #029ef7 !important;
+  --bs-primary: #D8EF5E !important;
   --bs-success: #00b884 !important;
   --bs-danger: #b9486d !important;
 }
@@ -42,4 +42,8 @@ main::-webkit-scrollbar-thumb {
 }
 main::-webkit-scrollbar-track {
   background-color: rgba(0,0,0,0);
+}
+
+.progress-bar {
+  background-color: var(--bs-primary) !important;
 }

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Icon } from "sveltestrap"
   import { currentPage } from "../../stores/Stores"; 
-  const { ipcRenderer } = require('electron')
 
   export let icon : string = ""
   export let name : string = ""
@@ -22,8 +21,8 @@
   if (type === "timer") {
     let offset = 0
 
-    ipcRenderer.on('server-prod-clock', (_e: any, newOffset : number) => {
-      offset = newOffset
+    window.sender.on('server-prod-clock', (_e: any, newOffset : number) => {
+      offset = newOffset[0]
     })
 
     setInterval(() => {
@@ -59,9 +58,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 20%;
+    flex: 1;
   }
-
+  
   .time {
     margin-top: 1.53rem;
   }

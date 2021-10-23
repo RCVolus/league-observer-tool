@@ -1,14 +1,13 @@
 <script lang="ts">
-  const { ipcRenderer } = require('electron')
   import { Progress } from 'sveltestrap';
 
-  ipcRenderer.on("state", (_event : any, newSate: string) => {
-    state = newSate
+  window.sender.on("state", (e : any, data : any) => {
+    state = data[0]
   });
-  ipcRenderer.on("download-progress", (_event : any, progressInfo: any) => {
-    percent = progressInfo.percent
-    total = (progressInfo.total / Math.pow(1024, 2)).toFixed(1)
-    transferred = (progressInfo.transferred / Math.pow(1024, 2)).toFixed(1)
+  window.sender.on("download-progress", (e : any, data: any) => {
+    percent = data[0].percent
+    total = (data[0].total / Math.pow(1024, 2)).toFixed(1)
+    transferred = (data[0].transferred / Math.pow(1024, 2)).toFixed(1)
   });
 
   let state = 'checking' 
@@ -23,16 +22,19 @@
   <h2>League Observer Tool</h2>
 
   <div class="mt-4 w-100 text-center text-muted">
-    {#if state === 'checking'}
-      <small>Checking for Update ...</small>
-    {:else if state === 'downloading'}
-      <div id="progress" class="d-flex w-100 mb-1">
-        <small class="mr-5">Downloading ...</small>
+    {#if state === 'checking-app'}
+      <small>Checking for App-Update ...</small>
+    {:else if state === 'downloading-app'}
+      <div id="progress" class="d-flex w-100 mt-1">
+        <small class="mr-5">Downloading App-Update ...</small>
         <small class="ml-auto">{transferred} MBs / {total} MBs</small>
       </div>
       <Progress value={percent} width="100%" />
-    {:else if state === 'update-downloaded'}
-      <small>Installing Update ...</small>
+    {:else if state === 'update-downloaded-app'}
+      <small>Installing App-Update ...</small>
+    {:else if state === 'error-app'}
+      <small>There was an error while Updating the App ...</small>
+    
     {:else if state === 'finished'}
       <small>Starting ...</small>
     {/if}

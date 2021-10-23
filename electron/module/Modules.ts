@@ -1,21 +1,18 @@
 import { LCUModule } from './LCUModule'
-import { LCURequestModule } from './LCURequestModule'
 import { ReplayModule } from './ReplayModule'
 import { LiveEventsModule } from './LiveEventsModule'
 import { Menu, ipcMain } from 'electron';
 import { Server } from '../connector/Server';
 import { LCU } from '../connector/LCU'
 import { InGameApi } from './InGameApi'
-import Store from 'electron-store';
 
 export class Modules {
-  public modules : Map<string, LCUModule | LCURequestModule | ReplayModule | LiveEventsModule | InGameApi> = new Map()
+  public modules : Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi> = new Map()
 
   constructor (
     private lcu : LCU,
     private server : Server,
-    private menu : Menu,
-    private store : Store
+    private menu : Menu
   ) {
     this.modules.set("lcu-lobby", new LCUModule(
       "lcu-lobby",
@@ -50,15 +47,6 @@ export class Modules {
       this.menu,
       []
     ))
-    this.modules.set("lcu-request", new LCURequestModule(
-      "lcu-request",
-      "LCU Request",
-      "lcu",
-      "http-request",
-      this.lcu,
-      this.server,
-      this.menu
-    ))
 
     this.modules.set("in-game-replay", new ReplayModule(
       "in-game-replay",
@@ -66,8 +54,7 @@ export class Modules {
       "league-replay",
       "set-playback",
       this.server,
-      this.menu,
-      this.store
+      this.menu
     ))
 
     /**
@@ -90,8 +77,8 @@ export class Modules {
       this.menu
     ))
 
-    ipcMain.on('modules-ready', async (e) => {
-      e.returnValue = [...this.modules].map(([_k, m]) => {
+    ipcMain.handle('modules-ready', async (e) => {
+      return [...this.modules].map(([_k, m]) => {
         return {
           id: m.id,
           name: m.name,

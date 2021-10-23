@@ -5,7 +5,7 @@ import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import net from 'net';
 import type { LPTEvent } from '../../types/LPTE'
-import Store from 'electron-store';
+import cfg from 'electron-cfg';
 
 export class LiveEventsModule {
   private data : Array<any> = []
@@ -21,16 +21,15 @@ export class LiveEventsModule {
     public namespace : string,
     public type : string,
     private server : Server,
-    private menu : Menu,
-    private store : Store
+    private menu : Menu
   ) {
-    ipcMain.on(`${id}-start`, () => {
+    ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.on(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () =>{
       this.disconnect()
     })
-    ipcMain.on(`${id}-save`, () => {
+    ipcMain.handle(`${id}-save`, () => {
       this.saveData()
     })
 
@@ -49,8 +48,12 @@ export class LiveEventsModule {
       }
     }))
 
-    this.port = this.store.get("live-events-port", 34243) as number
-    this.store.set("live-events-port", this.port)
+    this.port = cfg.get("live-events-port", 34243)
+    cfg.set("live-events-port", this.port)
+
+    cfg.observe('server-ip', (current : number) => {
+      this.port = current
+    })
   }
 
   public connect () : void {
@@ -59,16 +62,19 @@ export class LiveEventsModule {
     }
 
     this.netClient = net.connect({port: this.port, host: "127.0.0.1"}, () => {
-      Sender.send(this.id, 2)
+      Sender.emit(this.id, 2)
     });
+
     this.netClient?.on('data', (data) => {
       this.handleData(data)
     });
+
     this.netClient?.on("error", (err) => {
-      Sender.send('console', err)
+      Sender.emit('console', err)
     })
+    
     this.netClient?.on('end', () => {
-      Sender.send(this.id, 0)
+      Sender.emit(this.id, 0)
     });
   }
 
@@ -93,15 +99,17 @@ export class LiveEventsModule {
     const filtered = parsedData.filter(e => e.eventname !== "OnNeutralMinionKill" && e.eventname !== "OnMinionKill")
 
     if (filtered.length > 0) {
-      Sender.send(`console`, filtered)
+      Sender.emit(`console`, filtered)
     }
   }
 
   public disconnect () : void {
-    Sender.send(this.id, 0)
+    Sender.emit(this.id, 0)
+
     if (this.subMenu) {
       this.subMenu.checked = false
     }
+
     this.netClient?.destroy();
   }
 
@@ -124,7 +132,6 @@ export class LiveEventsModule {
       const savePath = saveDialog.filePath.toString()
       fs.writeFile(savePath, saveData, (err) => {
           if (err) throw err;
-          Sender.send('console', `Saved at ${savePath}`)
       });
     }
   }

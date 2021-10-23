@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import { authenticate, connect, Credentials, EventCallback, LeagueClient, LeagueWebSocket, request, RequestOptions } from 'league-connect'
 import type { DisplayError } from '../../types/DisplayError';
 import { Sender } from '../helper/Sender';
+import log from 'electron-log';
 
 export class LCU {
   public credentials? : Credentials
@@ -10,78 +11,79 @@ export class LCU {
   private timeout ? : NodeJS.Timeout
   private isClosing = false
   private InitConnection = true
+  private logger : log.ElectronLog
 
   constructor () {
-    ipcMain.on('lcu-connection-start', () => {
+    this.logger = log.create('LCU')
+    this.logger.scope('LCU')
+
+    ipcMain.handle('lcu-connection-start', () => {
       this.connect()
-    })
-
-    this.handleRequests()
-  }
-
-  private async handleRequests () {
-    ipcMain.on('lcu-request', async (e, arg: RequestOptions) => {      
-      e.returnValue = await this.request(arg)
     })
   }
 
   public async request (arg: RequestOptions) : Promise<any> {
-    if (!this.credentials) {
-      Sender.send('error', {
-        color: "warning",
-        text: "not connected"
-      } as DisplayError)
-    }
+    if (!this.credentials) return
 
     try {
       const req = await request(arg, this.credentials) 
       const json = await req.json();
       return json
     } catch (e) {
-      Sender.send('console', e)
-      Sender.send('error', {
+      this.logger.error(e)
+      Sender.emit('error', {
         color: "danger",
         text: e.message
       } as DisplayError)
-      throw e
     }
   }
 
-  private handleConnection (credentials: Credentials) {
-    this.leagueClient = new LeagueClient(credentials);
+  private handleConnection () {
+    if (!this.credentials) return
+
+    this.leagueClient = new LeagueClient(this.credentials);
 
     this.leagueClient.on('connect', (newCredentials) => {
       this.credentials = newCredentials
-      Sender.send('lcu-connection', true)
+      Sender.emit('lcu-connection', true)
     })
     
     this.leagueClient.on('disconnect', () => {
       this.credentials = undefined
-      Sender.send('lcu-connection', false)
+      Sender.emit('lcu-connection', false)
+      if (!this.isClosing) {
+        this.timeout = setTimeout(() => {this.connect()}, 5000)
+      }
     })
 
     this.leagueClient.start()
   }
 
-  private async handleWebSockets(credentials: Credentials) {
-    this.lolWs = await connect(credentials);
+  private async handleWebSockets() {
+    if (!this.credentials) return
+
+    this.lolWs = await connect(this.credentials);
     
     this.lolWs.onopen = () => {
       this.isClosing = false
       this.InitConnection = false
-      Sender.send('lcu-connection', true)
+      Sender.emit('lcu-connection', true)
     }
 
     this.lolWs.onerror = e => {
-      Sender.send('error', {
+      this.logger.error(e)
+      Sender.emit('error', {
         color: "danger",
-        text: e.message,
+        text: 'There was an error on the connection to the League Client',
+        timeout: 5500
       } as DisplayError)
-      Sender.send('lcu-connection', false)
+
+      Sender.emit('lcu-connection', false)
     }
 
     this.lolWs.onclose = () => {
-      Sender.send('lcu-connection', false)
+      Sender.emit('lcu-connection', false)
+      
       if (!this.isClosing && !this.InitConnection) {
         this.timeout = setTimeout(() => {this.connect()}, 5000)
       }
@@ -114,23 +116,29 @@ export class LCU {
       clearTimeout(this.timeout)
     }
 
-    Sender.send('lcu-connection', false)
+    Sender.emit('lcu-connection', false)
   }
 
   public async connect () : Promise<void> {
     try {
       const credentials = await authenticate();
       this.credentials = credentials
-      this.handleConnection(credentials);
 
-      this.handleWebSockets(credentials)
+      this.handleConnection();
+      this.handleWebSockets()
     } catch (e) {
-      Sender.send('console', e)
-      Sender.send('error', {
+      this.logger.error(e)
+      Sender.emit('error', {
         color: "danger",
-        text: e.message
+        text: 'League Client process could not be found',
+        timeout: 5500
       } as DisplayError)
-      Sender.send('lcu-connection', false)
+
+      if (!this.isClosing) {
+        this.timeout = setTimeout(() => {this.connect()}, 5000)
+      }
+      
+      Sender.emit('lcu-connection', false)
     }
   }
 }

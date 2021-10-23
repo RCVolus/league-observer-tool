@@ -6,7 +6,7 @@ import { Server } from '../connector/Server';
 import fetch from 'node-fetch'
 import https from "https";
 import type { DisplayError } from '../../types/DisplayError';
-import Store from 'electron-store';
+import cfg from 'electron-cfg';
 
 const fetchOption = {
   agent: new https.Agent({
@@ -30,6 +30,7 @@ export class ReplayModule {
     ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
   ]
   private syncMode : "get" | "send"
+  public isConnected = false
 
   constructor (
     public id : string,
@@ -38,29 +39,37 @@ export class ReplayModule {
     public type : string,
     private server : Server,
     private menu : Menu,
-    private store : Store
   ) {
-    ipcMain.on(`${id}-start`, () => {
+    ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.on(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () =>{
       this.disconnect()
     })
-    ipcMain.on(`${id}-save`, () => {
+    ipcMain.handle(`${id}-save`, () => {
       this.saveData()
     })
-    ipcMain.on(`${id}-sync-replay`, () => {
+    ipcMain.handle(`${id}-sync-replay`, () => {
       this.syncReplay()
     })
-    ipcMain.on(`${id}-sync-replay-minus-5`, () => {
+    ipcMain.handle(`${id}-sync-replay-minus-5`, () => {
       this.syncReplay(-5)
     })
-    ipcMain.on(`${id}-sync-replay-plus-5`, () => {
+    ipcMain.handle(`${id}-sync-replay-plus-5`, () => {
       this.syncReplay(5)
     })
 
-    this.syncMode = this.store.get("replay-sync-mode", "get") as "get" | "send"
-    this.store.set("replay-sync-mode", this.syncMode)
+    this.syncMode = cfg.get("replay-sync-mode", "get") as "get" | "send"
+    cfg.set("replay-sync-mode", this.syncMode)
+
+    cfg.observe('server-ip', (current : "get" | "send") => {
+      this.syncMode = current
+      
+      if (this.isConnected) {
+        this.disconnect()
+        this.connect()
+      }
+    })
 
     this.subMenu = this.menu.getMenuItemById('tools')
     this.subMenu?.submenu?.append(new MenuItem({
@@ -89,7 +98,7 @@ export class ReplayModule {
           checked: this.syncMode === 'send',
           click: () => {
             this.sendPlayback()
-            this.store.set("replay-sync-mode", "send")
+            cfg.set("replay-sync-mode", "send")
           }
         },
         {
@@ -99,7 +108,7 @@ export class ReplayModule {
           checked: this.syncMode === 'get',
           click: () => {
             this.getPlayback()
-            this.store.set("replay-sync-mode", "get")
+            cfg.set("replay-sync-mode", "get")
           }
         },
         {
@@ -137,7 +146,8 @@ export class ReplayModule {
     if (this.subMenu) {
       this.subMenu.checked = true
     }
-    Sender.send(this.id, 1)
+
+    Sender.emit(this.id, 1)
 
     if (this.syncMode == "get") {
       setTimeout(() => {
@@ -199,15 +209,14 @@ export class ReplayModule {
         time
       })
 
-      Sender.send(this.id, 2)
+      this.isConnected = true
+      Sender.emit(this.id, 2)
     } catch (e) {
-      Sender.send('console', JSON.stringify(e))
-
       if (e.code && e.code === "ECONNREFUSED") {
-        Sender.send(this.id, 1)
+        Sender.emit(this.id, 1)
       } else {
         this.disconnect()
-        Sender.send('error', {
+        Sender.emit('error', {
           color: "danger",
           text: e.message || 'error while fetching live-game data'
         } as DisplayError)
@@ -235,7 +244,7 @@ export class ReplayModule {
         ...fetchOption
       })
     } catch (e) {
-      Sender.send('console', e)
+      Sender.emit('console', e)
     }
   }
 
@@ -257,7 +266,7 @@ export class ReplayModule {
         data: json
       })
     } catch (e) {
-      Sender.send('console', e)
+      Sender.emit('console', e)
     }
   } */
 
@@ -274,7 +283,9 @@ export class ReplayModule {
         time: data.time
       }
     })
-    Sender.send(this.id, 2)
+
+    this.isConnected = true
+    Sender.emit(this.id, 2)
   }
 
   public disconnect () : void {
@@ -285,7 +296,10 @@ export class ReplayModule {
     if (this.renderInterval) {
       clearInterval(this.renderInterval)
     }
-    Sender.send(this.id, 0)
+
+    this.isConnected = false
+    Sender.emit(this.id, 0)
+
     if (this.subMenu) {
       this.subMenu.checked = false
     }
@@ -317,7 +331,6 @@ export class ReplayModule {
       const savePath = saveDialog.filePath.toString()
       fs.writeFile(savePath, saveData, (err) => {
           if (err) throw err;
-          Sender.send('console', `Saved at ${savePath}`)
       });
     }
   }

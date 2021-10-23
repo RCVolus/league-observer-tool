@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Button, Card, CardBody, CardHeader, Icon } from "sveltestrap";
-  const { ipcRenderer } = require('electron')
   import { availableModules } from "../stores/Stores";
   import { ConnectionStore } from "../stores/Connector"; 
 
@@ -13,24 +12,24 @@
 
   function sync () {
     if (status === 0) {
-      ipcRenderer.send(`${id}-start`)
+      window.modules.start(id)
     } else {
-      ipcRenderer.send(`${id}-stop`)
+      window.modules.stop(id)
     }
   }
 
   function save () {
-    ipcRenderer.send(`${id}-save`)
+    window.modules.saveData(id)
   }
 
   function callAction (action: string) {
-    ipcRenderer.send(`${id}-${action}`)
+    window.modules.callAction(id, action)
   }
 
-  ipcRenderer.on(`${id}`, (_e, connstate: 0 | 1 | 2) => {
-    status = connstate
+  window.sender.on(`${id}`, (_e, connstate: 0 | 1 | 2) => {
+    status = connstate[0]
     availableModules.update(m => {
-      m.get(id)!.status = connstate
+      m.get(id)!.status = connstate[0]
       return m
     })
   })

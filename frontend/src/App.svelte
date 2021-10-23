@@ -1,20 +1,17 @@
 <script lang="ts">
-  const { ipcRenderer } = require('electron')
   import Alert from "./components/Alert.svelte";
   import Client from "./components/Client.svelte";
   import Navigation from "./components/nav/Navigation.svelte";
   import { currentPage, availableModules } from "./stores/Stores"; 
   import { onMount } from 'svelte';
   import Game from "./components/Game.svelte";
-  import Profile from "./components/Profile.svelte";
-  import type { Module } from  '../../types/Module'
 
-  ipcRenderer.on("console", (_event, ...args: any) => {
+  window.sender.on("console", (_event, ...args: any) => {
     console.log(...args);
   });
 
   onMount(async () => {
-    const res = await ipcRenderer.sendSync('modules-ready') as Array<Module>
+    const res = await window.modules.getModules()
 
     if (res) {
       res.forEach(resModul => {
@@ -38,8 +35,6 @@
     <Client />
   {:else if $currentPage == "in-game"}
     <Game />
-  {:else if $currentPage == "profile"}
-    <Profile />
   {/if}
 </main>
 

@@ -1,5 +1,5 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain } from "electron";
-import { createUserTasks } from "./userTasks";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray } from "electron";
+import { createJumpLists } from "./jumpList";
 import { Sender } from "./helper/Sender";
 import * as path from "path";
 import { LCU } from "./connector/LCU";
@@ -10,7 +10,6 @@ import { autoUpdater } from "electron-updater"
 import createMainWindow from "./window/mainWindow";
 import createTray from "./tray";
 import createInitWindow from "./window/initWindow";
-import Store from 'electron-store';
 import log from 'electron-log';
 
 app.setAppUserModelId('gg.rcv.league-observer-tool')
@@ -23,9 +22,10 @@ let skipClosing = false
 
 let mainWindow : BrowserWindow
 let initWindow : BrowserWindow
+let tray : Tray
 
 if (process.platform == "win32") {
-  createUserTasks();
+  createJumpLists();
 }
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -54,6 +54,7 @@ if (!gotTheLock) {
     initWindow = createInitWindow()
 
     initApp();
+    tray = createTray(mainWindow)
 
     app.on("activate", function () {
       // On macOS it's common to re-create a window in the app when the
@@ -67,26 +68,31 @@ if (!gotTheLock) {
 }
 
 async function initApp () {
+  Sender.currentWindow = initWindow
+
   autoUpdater.on('checking-for-update', () => {
-    initWindow.webContents.send('state', 'checking')
+    Sender.emit('state', 'checking-app')
   })
   autoUpdater.on('update-available', () => {
-    initWindow.webContents.send('state', 'downloading')
+    Sender.emit('state', 'downloading-app')
     autoUpdater.downloadUpdate()
   })
   autoUpdater.on('download-progress', (progressInfo) => {
-    initWindow.webContents.send('download-progress', progressInfo)
-    initWindow.setProgressBar(progressInfo.percent / 100)
+    Sender.emit('download-progress', progressInfo)
+    Sender.setProgressBar(progressInfo.percent)
   })
   autoUpdater.on('update-not-available', () => {
-    initWindow.webContents.send('state', 'finished')
+    Sender.emit('state', 'finished')
     openMainWindow()
   })
+  autoUpdater.on('error', () => {
+    Sender.emit('state', 'error-app')
+    setTimeout(openMainWindow, 1500)
+  })
   autoUpdater.on('update-downloaded', () => {
-    initWindow.webContents.send('state', 'update-downloaded')
+    Sender.emit('state', 'update-downloaded-app')
     skipClosing = true
     isQuiting = true
-    autoUpdater.quitAndInstall();
   })
 
   initWindow.webContents.on('did-finish-load', () => {
@@ -101,6 +107,8 @@ async function initApp () {
 }
 
 function openMainWindow() {
+  Sender.currentWindow = mainWindow
+
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../frontend/public/index.html'));
   
@@ -120,14 +128,12 @@ function openMainWindow() {
     mainWindow.show()
   })
 
-  const store = new Store();
-  Sender.mainWindow = mainWindow
   const lcu = new LCU()
-  const server = new Server(store)
-  const menu = new MainMenu(lcu, server, store)
-  new Modules(lcu, server, menu.mainMenu, store)
+  const server = new Server()
+  const menu = new MainMenu(lcu, server)
+  new Modules(lcu, server, menu.mainMenu)
 
-  ipcMain.on('connection-stop', () => {
+  ipcMain.handle('connection-stop', () => {
     const options = {
       buttons: ["Yes","Cancel"],
       type: "question",
@@ -139,6 +145,20 @@ function openMainWindow() {
     lcu.disconnect()
     server.disconnect()
   })
+
+  mainWindow.on('close', function (event: any) {
+    if(!isQuiting){
+        event.preventDefault();
+        mainWindow?.hide();
+    }
+  
+    return false;
+  });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    initWindow.close()
+    mainWindow.show()
+  })
 }
 
 app.on('before-quit', function (e) {
@@ -147,9 +167,8 @@ app.on('before-quit', function (e) {
   if (skipClosing) {
     isQuiting = true;
     globalShortcut.unregisterAll()
-    Sender.mainWindow = undefined
   } else {
-    const choice = dialog.showMessageBoxSync(mainWindow, {
+    const choice = dialog.showMessageBoxSync({
       type: 'question',
       buttons: ['Yes', 'No'],
       title: 'Confirm',
@@ -162,7 +181,6 @@ app.on('before-quit', function (e) {
     } else {
       isQuiting = true;
       globalShortcut.unregisterAll()
-      Sender.mainWindow = undefined
     }
   }
 });

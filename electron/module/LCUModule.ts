@@ -21,13 +21,13 @@ export class LCUModule {
     private menu : Menu,
     private dataPoints? : Array<string>
   ) {
-    ipcMain.on(`${id}-start`, () => {
+    ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.on(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () =>{
       this.disconnect()
     })
-    ipcMain.on(`${id}-save`, () => {
+    ipcMain.handle(`${id}-save`, () => {
       this.saveData()
     })
 
@@ -48,12 +48,43 @@ export class LCUModule {
   }
 
   public connect () : void {
-    Sender.send(this.id, 1)
+    Sender.emit(this.id, 1)
+
+    this.requestData()
     this.lcu.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
-    Sender.send(this.id, 2)
+
+    Sender.emit(this.id, 2)
+
     if (this.subMenu) {
       this.subMenu.checked = true
     }
+  }
+
+  private async requestData() {
+    const data = await this.lcu.request({
+      url: this.lcuURI,
+      method: 'GET'
+    })
+
+    let selectedData : {[n: string]: any} = {}
+    if (!this.dataPoints) selectedData = data
+    else {
+      for (const key of this.dataPoints) {
+        selectedData[key] = data[key]
+      }
+    }
+
+    this.data.push(selectedData)
+
+    const obj : LPTEvent = {
+      meta: {
+        namespace: "lcu",
+        type: `${this.id}-update`, 
+        timestamp: new Date().getTime() + this.server.prodTimeOffset
+      },
+      data: selectedData
+    }
+    this.server.send(obj)
   }
 
   private async handleData(data: any, event: any) {
@@ -75,13 +106,12 @@ export class LCUModule {
       },
       data: event.eventType != "Delete" ? selectedData : undefined
     }
-    Sender.send(`console`, obj)
     this.server.send(obj)
   }
 
   public disconnect () : void {
     this.lcu.unsubscribe(this.lcuURI);
-    Sender.send(this.id, 0)
+    Sender.emit(this.id, 0)
     if (this.subMenu) {
       this.subMenu.checked = false
     }
@@ -106,7 +136,6 @@ export class LCUModule {
       const savePath = saveDialog.filePath.toString()
       fs.writeFile(savePath, saveData, (err) => {
           if (err) throw err;
-          Sender.send('console', `Saved at ${savePath}`)
       });
     }
   }

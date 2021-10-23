@@ -31,7 +31,7 @@ export default function createTray (mainWindow : BrowserWindow) : Tray {
       } 
     }
   ])
-  tray.setToolTip('Observer Tool')
+  tray.setToolTip('League Observer Tool')
   tray.setContextMenu(contextMenu)
 
   return tray
