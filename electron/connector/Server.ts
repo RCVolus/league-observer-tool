@@ -75,6 +75,7 @@ export class Server {
 
     this.ws.onerror = e => {
       this.logger.error(e)
+
       Sender.emit('error', {
         color: "danger",
         text: e.message
@@ -94,7 +95,7 @@ export class Server {
     }
   }
 
-  public subscribe(namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
+  public subscribe (namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
 
     if (!this.subscriptions.has(`${namespace}-${type}`)) {
       const msg : LPTEvent = {

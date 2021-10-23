@@ -26,9 +26,14 @@ export class LCU {
     if (!this.credentials) return
 
     try {
-      const req = await request(arg, this.credentials) 
-      const json = await req.json();
-      return json
+      const res = await request(arg, this.credentials)
+
+      if (res.ok) {
+        const json = await res.json();
+        return json
+      } else {
+        return undefined
+      }
     } catch (e) {
       this.logger.error(e)
       Sender.emit('error', {

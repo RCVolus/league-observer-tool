@@ -66,6 +66,8 @@ export class LCUModule {
       method: 'GET'
     })
 
+    if (data === undefined) return
+
     let selectedData : {[n: string]: any} = {}
     if (!this.dataPoints) selectedData = data
     else {
