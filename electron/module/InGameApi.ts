@@ -4,7 +4,7 @@ import * as fs from "fs";
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import type { LPTEvent } from '../../types/LPTE'
-import fetch from 'node-fetch'
+import fetch from 'electron-fetch'
 import type { DisplayError } from '../../types/DisplayError';
 import https from 'https';
 

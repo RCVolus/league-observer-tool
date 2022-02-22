@@ -3,7 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
-import fetch from 'node-fetch'
+import fetch from 'electron-fetch'
 import https from "https";
 import type { DisplayError } from '../../types/DisplayError';
 import cfg from 'electron-cfg';
