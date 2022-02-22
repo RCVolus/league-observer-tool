@@ -94,7 +94,7 @@
     "electron-store": "^8.0.1",
     "electron-updater": "^4.3.9",
     "league-connect": "^5.3.0",
-    "node-fetch": "^2.6.5",
+    "node-fetch": "^2.6.7",
     "sirv-cli": "^1.0.14",
     "uniqid": "^5.4.0",
     "ws": "^7.5.5"
