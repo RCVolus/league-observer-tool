@@ -1,6 +1,6 @@
 {
   "name": "league-observer-tool",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"
@@ -72,7 +72,7 @@
     "@types/uniqid": "^5.3.1",
     "@typescript-eslint/eslint-plugin": "^3.10.1",
     "@typescript-eslint/parser": "^3.10.1",
-    "electron": "^15.0.0",
+    "electron": "^17.0.0",
     "electron-builder": "^22.14.13",
     "eslint": "^7.32.0",
     "rollup": "^2.56.2",
