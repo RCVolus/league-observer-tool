@@ -6,6 +6,7 @@ import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import { LCU } from '../connector/LCU'
 import type { LPTEvent } from "../../types/LPTE";
+import { DisplayError } from '../../types/DisplayError';
 
 export class LCUModule {
   private data : Array<any> = []
@@ -61,32 +62,39 @@ export class LCUModule {
   }
 
   private async requestData() {
-    const data = await this.lcu.request({
-      url: this.lcuURI,
-      method: 'GET'
-    })
+    try {
+      const data = await this.lcu.request({
+        url: this.lcuURI,
+        method: 'GET'
+      })
 
-    if (data === undefined) return
+      if (data === undefined) return
 
-    let selectedData : {[n: string]: any} = {}
-    if (!this.dataPoints) selectedData = data
-    else {
-      for (const key of this.dataPoints) {
-        selectedData[key] = data[key]
+      let selectedData : {[n: string]: any} = {}
+      if (!this.dataPoints) selectedData = data
+      else {
+        for (const key of this.dataPoints) {
+          selectedData[key] = data[key]
+        }
       }
+  
+      this.data.push(selectedData)
+  
+      const obj : LPTEvent = {
+        meta: {
+          namespace: "lcu",
+          type: `${this.id}-update`, 
+          timestamp: new Date().getTime() + this.server.prodTimeOffset
+        },
+        data: selectedData
+      }
+      this.server.send(obj)
+    } catch (e) {
+      Sender.emit('error', {
+        color: "danger",
+        text: e.message || 'error while fetching data from lcu'
+      } as DisplayError)
     }
-
-    this.data.push(selectedData)
-
-    const obj : LPTEvent = {
-      meta: {
-        namespace: "lcu",
-        type: `${this.id}-update`, 
-        timestamp: new Date().getTime() + this.server.prodTimeOffset
-      },
-      data: selectedData
-    }
-    this.server.send(obj)
   }
 
   private async handleData(data: any, event: any) {
@@ -100,15 +108,22 @@ export class LCUModule {
       }
     }
 
-    const obj : LPTEvent = {
-      meta: {
-        namespace: "lcu",
-        type: `${this.id}-${event.eventType.toLowerCase()}`, 
-        timestamp: new Date().getTime() + this.server.prodTimeOffset
-      },
-      data: event.eventType != "Delete" ? selectedData : undefined
+    try {
+      const obj : LPTEvent = {
+        meta: {
+          namespace: "lcu",
+          type: `${this.id}-${event.eventType.toLowerCase()}`, 
+          timestamp: new Date().getTime() + this.server.prodTimeOffset
+        },
+        data: event.eventType != "Delete" ? selectedData : undefined
+      }
+      this.server.send(obj)
+    } catch (e) {
+      Sender.emit('error', {
+        color: "danger",
+        text: e.message || 'error while sending data to prod tool'
+      } as DisplayError)
     }
-    this.server.send(obj)
   }
 
   public disconnect () : void {

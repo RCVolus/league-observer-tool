@@ -6,6 +6,7 @@ import { Server } from '../connector/Server';
 import net from 'net';
 import type { LPTEvent } from '../../types/LPTE'
 import cfg from 'electron-cfg';
+import { DisplayError } from '../../types/DisplayError';
 
 export class LiveEventsModule {
   private data : Array<any> = []
@@ -85,7 +86,16 @@ export class LiveEventsModule {
     newDataSting = newDataSting.replace(/(}{)/gm, "},{")
     const parsedData : Array<any> = JSON.parse(`[${newDataSting}]`)
 
-    const obj : LPTEvent = {
+    this.data.push(parsedData)
+    
+    const filtered = parsedData.filter(e => e.eventname !== "OnNeutralMinionKill" && e.eventname !== "OnMinionKill")
+
+    if (filtered.length > 0) {
+      Sender.emit(`console`, filtered)
+    }
+
+    try {
+      const obj : LPTEvent = {
       meta: {
         namespace: this.namespace,
         type: this.type,
@@ -94,12 +104,11 @@ export class LiveEventsModule {
       data: parsedData
     }
     this.server.send(obj)
-    this.data.push(parsedData)
-    
-    const filtered = parsedData.filter(e => e.eventname !== "OnNeutralMinionKill" && e.eventname !== "OnMinionKill")
-
-    if (filtered.length > 0) {
-      Sender.emit(`console`, filtered)
+    } catch (e) {
+      Sender.emit('error', {
+        color: "danger",
+        text: e.message || 'error while sending data to prod tool'
+      } as DisplayError)
     }
   }
 

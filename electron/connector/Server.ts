@@ -57,10 +57,11 @@ export class Server {
     this.ws.onopen = () => {
       this.isClosing = false
       this.InitConnection = false
-      this.syncProdClock()
-
       this.isConnected = true
+
       Sender.emit('server-connection', this.isConnected)
+
+      this.syncProdClock()
     }
 
     this.ws.onmessage = (content) => {
@@ -96,6 +97,7 @@ export class Server {
   }
 
   public subscribe (namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
+    if (!this.isConnected) return
 
     if (!this.subscriptions.has(`${namespace}-${type}`)) {
       const msg : LPTEvent = {
@@ -116,6 +118,7 @@ export class Server {
   }
 
   public subscribeOnce (namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
+    if (!this.isConnected) return
 
     const onceWrapper = (data: LPTEvent) => {
       this.unsubscribe(namespace, type)
@@ -141,6 +144,7 @@ export class Server {
   }
 
   public unsubscribe(namespace: string, type: string) : void {
+    if (!this.isConnected) return
     this.subscriptions.delete(`${namespace}-${type}`)
   }
 
@@ -168,6 +172,8 @@ export class Server {
    * send
   */
   public send(data : LPTEvent) : void {
+    if (!this.isConnected) return
+
     this.ws?.send(JSON.stringify(data), (err) => {
       if (err) {
         this.logger.error(err)
@@ -177,6 +183,8 @@ export class Server {
   }
 
   public async request (event: LPTEvent, timeout = 5000) : Promise<LPTEvent> {
+    if (!this.isConnected) throw new Error('not connected to prod tool')
+
     const reply = `${event.meta.type}-${uniqid()}`
     event.meta.reply = reply
     event.meta.channelType = EventType.REQUEST
@@ -193,6 +201,8 @@ export class Server {
   }
 
   public async await (namespace: string, type: string, timeout = 5000): Promise<LPTEvent> {
+    if (!this.isConnected) throw new Error('not connected to prod tool')
+
     return await new Promise((resolve, reject) => {
       let wasHandled = false
 
@@ -258,6 +268,7 @@ export class Server {
     Sender.emit('server-prod-clock', offset)
 
     this.prodClockInterval = setInterval(async () => {
+      if (!this.isConnected) return
       const offset = await this.getLocalTimeOffset()
       this.prodTimeOffset = offset
       Sender.emit('server-prod-clock', offset)

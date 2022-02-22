@@ -17,8 +17,6 @@ app.setAppUserModelId('gg.rcv.league-observer-tool')
 autoUpdater.logger = log;
 
 autoUpdater.autoDownload = false
-let isQuiting = false
-let skipClosing = false
 
 let mainWindow : BrowserWindow
 let initWindow : BrowserWindow
@@ -91,8 +89,6 @@ async function initApp () {
   })
   autoUpdater.on('update-downloaded', () => {
     Sender.emit('state', 'update-downloaded-app')
-    skipClosing = true
-    isQuiting = true
     autoUpdater.quitAndInstall()
   })
 
@@ -112,15 +108,6 @@ function openMainWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../frontend/public/index.html'));
-  
-  mainWindow.on('close', function (event: any) {
-    if(!isQuiting){
-        event.preventDefault();
-        mainWindow?.hide();
-    }
-  
-    return false;
-  });
 
   createTray(mainWindow)
 
@@ -147,15 +134,6 @@ function openMainWindow() {
     server.disconnect()
   })
 
-  mainWindow.on('close', function (event: any) {
-    if(!isQuiting){
-        event.preventDefault();
-        mainWindow?.hide();
-    }
-  
-    return false;
-  });
-
   mainWindow.webContents.on('did-finish-load', () => {
     initWindow.close()
     mainWindow.show()
@@ -165,25 +143,7 @@ function openMainWindow() {
 app.on('before-quit', function (e) {
   if (!mainWindow) return
 
-  if (skipClosing) {
-    isQuiting = true;
-    globalShortcut.unregisterAll()
-  } else {
-    const choice = dialog.showMessageBoxSync({
-      type: 'question',
-      buttons: ['Yes', 'No'],
-      title: 'Confirm',
-      message: 'Are you sure you want to quit?'
-    });
-  
-    if (choice === 1) {
-      isQuiting = false;
-      e.preventDefault();
-    } else {
-      isQuiting = true;
-      globalShortcut.unregisterAll()
-    }
-  }
+  globalShortcut.unregisterAll()
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
