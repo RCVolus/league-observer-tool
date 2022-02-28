@@ -7,6 +7,7 @@ import fetch from 'electron-fetch'
 import https from "https";
 import type { DisplayError } from '../../types/DisplayError';
 import cfg from 'electron-cfg';
+import isEqual from 'lodash.isequal';
 
 const fetchOption = {
   agent: new https.Agent({
@@ -195,10 +196,19 @@ export class ReplayModule {
       const json = await res.json()
       const savedAt = new Date().getTime() + this.server.prodTimeOffset
       const time = json.time
-      this.playbackData = {
+      const newData = {
         savedAt,
         time
       }
+
+      const sameData = isEqual(
+        newData,
+        this.playbackData
+      )
+
+      if (sameData) return
+
+      this.playbackData = newData
       this.server.send({
         meta: {
           namespace: "league-replay",

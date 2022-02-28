@@ -7,6 +7,7 @@ import type { LPTEvent } from '../../types/LPTE'
 import fetch from 'electron-fetch'
 import type { DisplayError } from '../../types/DisplayError';
 import https from 'https';
+import isEqual from 'lodash.isequal';
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
@@ -82,6 +83,14 @@ export class InGameApi {
       if (!res.ok) return
 
       const data = await res.json()
+
+      const sameData = isEqual(
+        data,
+        this.data[this.data.length -1]
+      )
+
+      if (sameData) return
+
       this.data.push(data)
 
       const obj : LPTEvent = {
