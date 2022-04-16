@@ -137,7 +137,7 @@ export class LiveEventsModule {
     })
 
     if (!saveDialog.canceled && saveDialog.filePath) {
-      const saveData = JSON.stringify(this.data)
+      const saveData = JSON.stringify(this.data, null, 2)
       const savePath = saveDialog.filePath.toString()
       fs.writeFile(savePath, saveData, (err) => {
           if (err) throw err;
