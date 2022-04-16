@@ -126,8 +126,9 @@ export class LCU {
 
   public async connect () : Promise<void> {
     try {
-      const credentials = await authenticate();
+      const credentials = await authenticate()
       this.credentials = credentials
+      this.credentials.password = credentials.password.replace('--app-port', '')
 
       this.handleConnection();
       this.handleWebSockets()
