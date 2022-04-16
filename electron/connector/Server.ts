@@ -32,7 +32,7 @@ export class Server {
 
     this.serverIP = cfg.get("server-ip", "127.0.0.1")
     cfg.set("server-ip", this.serverIP)
-    this.apiKey = cfg.get("server-api-key")
+    this.apiKey = cfg.get("server-api-key", "")
     cfg.set("server-api-key", this.apiKey)
 
     cfg.observe('server-ip', (current : string) => {
@@ -53,7 +53,7 @@ export class Server {
    * connect
   */
   public connect () : void {
-    const wsURI = `ws://${this.serverIP}:3003/eventbus?apiKey=${this.apiKey}`
+    const wsURI = `ws://${this.serverIP}:3003/eventbus?apikey=${this.apiKey}`
     this.ws = new WebSocket(wsURI)
 
     this.ws.onopen = () => {
