@@ -19,6 +19,7 @@ export class Server {
   private prodClockInterval ? : NodeJS.Timeout
   public prodTimeOffset = 0
   private serverIP : string
+  private apiKey : string
   private isClosing = false
   private InitConnection = true
   private subscriptions: Map<string, ((data : LPTEvent) => void)[]> = new Map()
@@ -31,9 +32,10 @@ export class Server {
 
     this.serverIP = cfg.get("server-ip", "127.0.0.1")
     cfg.set("server-ip", this.serverIP)
+    this.apiKey = cfg.get("server-api-key")
+    cfg.set("server-api-key", this.apiKey)
 
     cfg.observe('server-ip', (current : string) => {
-      console.log(current)
       this.serverIP = current
       
       if (this.isConnected) {
@@ -51,7 +53,7 @@ export class Server {
    * connect
   */
   public connect () : void {
-    const wsURI = `ws://${this.serverIP}:3003/eventbus`
+    const wsURI = `ws://${this.serverIP}:3003/eventbus?apiKey=${this.apiKey}`
     this.ws = new WebSocket(wsURI)
 
     this.ws.onopen = () => {
@@ -75,6 +77,7 @@ export class Server {
     }
 
     this.ws.onerror = e => {
+      this.isConnected = false
       this.logger.error(e)
 
       Sender.emit('error', {
@@ -82,7 +85,6 @@ export class Server {
         text: e.message
       } as DisplayError)
 
-      this.isConnected = false
       Sender.emit('server-connection', this.isConnected)
     }
 
