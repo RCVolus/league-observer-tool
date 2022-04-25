@@ -1,0 +1,31 @@
+name: Release
+
+# Run on every commit tag which begins with "v" (e.g., "v0.1.4")
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: "Release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Build
+        run: |
+          npm ci
+          npm run dist
+
+      - uses: "ncipollo/release-action@v1"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          artifacts: dist/latest.yml,dist/League-Observer-Tool-Setup-${{ github.ref_name }}.exe,dist/League-Observer-Tool-Setup-${{ github.ref_name }}.exe.blockmap
+          repo: "RCVolus/league-observer-tool"

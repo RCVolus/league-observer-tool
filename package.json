@@ -51,7 +51,7 @@
       "deleteAppDataOnUninstall": true,
       "menuCategory": true,
       "shortcutName": "League Observer Tool",
-      "artifactName": "League-Observer-Tool-Setup-${version}.${ext}"
+      "artifactName": "League-Observer-Tool-Setup-v${version}.${ext}"
     },
     "files": [
       "build/**/*",
