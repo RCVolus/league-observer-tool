@@ -27,13 +27,6 @@
   },
   "build": {
     "forceCodeSigning": false,
-    "publish": [
-      {
-        "owner": "RCVolus",
-        "repo": "League-Observer-Tool",
-        "provider": "github"
-      }
-    ],
     "appId": "gg.rcv.league-observer-tool",
     "productName": "League Observer Tool",
     "copyright": "Copyright © 2021 Riot Community Volunteers",
