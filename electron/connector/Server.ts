@@ -238,7 +238,7 @@ export class Server {
     // Send request
     const response = await this.request({
       meta: {
-        namespace: 'prod-clock',
+        namespace: 'plugin-prod-clock',
         type: 'request-sync',
         version: 1
       }
