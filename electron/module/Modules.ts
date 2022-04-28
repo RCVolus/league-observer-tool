@@ -51,7 +51,7 @@ export class Modules {
     this.modules.set("in-game-replay", new ReplayModule(
       "in-game-replay",
       "Replay",
-      "league-replay",
+      "module-league-replay",
       "set-playback",
       this.server,
       this.menu
@@ -72,7 +72,7 @@ export class Modules {
     this.modules.set("in-game-api", new InGameApi(
       "in-game-api",
       "InGame",
-      "league-in-game",
+      "module-league-in-game",
       this.server,
       this.menu
     ))
