@@ -4,6 +4,7 @@ on: push
 
 jobs:
   release:
+    permissions: write-all
     runs-on: windows-latest
 
     steps:
