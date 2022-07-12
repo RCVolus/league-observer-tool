@@ -21,7 +21,7 @@ export class Modules {
       this.lcu,
       this.server,
       this.menu,
-      ["gameConfig"]
+      /* ["gameConfig"] */
     ))
     this.modules.set("lcu-champ-select", new LCUModule(
       "lcu-champ-select",
