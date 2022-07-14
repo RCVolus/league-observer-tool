@@ -23,7 +23,7 @@
     "build:preload": "cd preload && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "tsc -p ./tsconfig.json",
-    "dist": "npm run build:preload && npm run build:frontend && npm run build:backend && electron-builder build -w --publish always"
+    "dist": "npm run build:preload && npm run build:frontend && npm run build:backend && electron-builder build -w"
   },
   "build": {
     "forceCodeSigning": false,
