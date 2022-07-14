@@ -15,3 +15,6 @@ Once install, the observer tool automatically updates to any new versions releas
 ## Usage
 The power button at the bottom connects to the configured toolkit instance.
 To connect to local League Client APIs, click Sync on the modules you need. The League Client needs to be running.
+
+## Legal Disclaimer
+league-prod-toolkit was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.
