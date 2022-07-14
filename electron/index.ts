@@ -138,17 +138,6 @@ function openMainWindow() {
     server.disconnect()
   })
 
-  mainWindow.on('close', function (event: any) {
-    if(!isQuitting){
-      event.preventDefault();
-    } else {
-      lcu.disconnect()
-      server.disconnect()
-    }
-  
-    return false;
-  });
-
   mainWindow.webContents.on('did-finish-load', () => {
     initWindow.close()
     mainWindow.show()
