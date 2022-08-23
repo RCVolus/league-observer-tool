@@ -29,9 +29,26 @@ export class ReplayModule {
     ["sync-replay", "Sync to first Operator"],
     ["sync-replay-minus-5", "Sync to first Operator (-5 sec)"],
     ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
+    ["setup-ui", "Set up UI for spectators"],
+    ["reset-ui", "Reset UI"],
   ]
   private syncMode : "get" | "send"
   public isConnected = false
+  private interfaceState = {
+    'interfaceAll' : true,
+    'interfaceReplay' : true,
+    'interfaceScore' : true,
+    'interfaceScoreboard' : true,
+    'interfaceFrames' : true,
+    'interfaceMinimap' : true,
+    'interfaceTimeline' : true,
+    'interfaceChat' : true,
+    'interfaceTarget' : true,
+    'interfaceQuests' : true,
+    'interfaceAnnounce' : true,
+    'interfaceKillCallouts' : true,
+    'interfaceNeutralTimers' : true,
+  }
 
   constructor (
     public id : string,
@@ -58,6 +75,12 @@ export class ReplayModule {
     })
     ipcMain.handle(`${id}-sync-replay-plus-5`, () => {
       this.syncReplay(5)
+    })
+    ipcMain.handle(`${id}-setup-ui`, () => {
+      this.setupUI()
+    })
+    ipcMain.handle(`${id}-reset-ui`, () => {
+      this.resetUI()
     })
 
     this.syncMode = cfg.get("replay-sync-mode", "get") as "get" | "send"
@@ -256,6 +279,48 @@ export class ReplayModule {
     } catch (e) {
       Sender.emit('console', e)
     }
+  }
+
+  setupUI () {
+    const uri = ReplayModule.replayUrl + "render"
+
+    const setup = this.interfaceState
+    setup.interfaceChat = false
+    setup.interfaceTimeline = false
+    /* setup.interfaceScore = false */
+    setup.interfaceKillCallouts = false
+    setup.interfaceNeutralTimers = true
+
+    fetch(uri, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(setup),
+      redirect: 'follow',
+      ...fetchOption
+    })
+  }
+  resetUI () {
+    const uri = ReplayModule.replayUrl + "render"
+    console.log(uri)
+
+    const setup = this.interfaceState
+    setup.interfaceChat = true
+    setup.interfaceTimeline = true
+    /* setup.interfaceScore = true */
+    setup.interfaceKillCallouts = true
+    setup.interfaceNeutralTimers = false
+
+    fetch(uri, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(setup),
+      redirect: 'follow',
+      ...fetchOption
+    })
   }
 
   /* private async handleRenderer () {
