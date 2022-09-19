@@ -20,8 +20,7 @@ export class Modules {
       "/lol-lobby/v2/lobby",
       this.lcu,
       this.server,
-      this.menu,
-      /* ["gameConfig"] */
+      this.menu
     ))
     this.modules.set("lcu-champ-select", new LCUModule(
       "lcu-champ-select",
@@ -44,8 +43,7 @@ export class Modules {
       "/lol-end-of-game/v1/eog-stats-block",
       this.lcu,
       this.server,
-      this.menu,
-      []
+      this.menu
     ))
 
     this.modules.set("in-game-replay", new ReplayModule(
