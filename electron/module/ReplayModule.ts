@@ -29,25 +29,19 @@ export class ReplayModule {
     ["sync-replay", "Sync to first Operator"],
     ["sync-replay-minus-5", "Sync to first Operator (-5 sec)"],
     ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
-    ["setup-ui", "Set up UI for spectators"],
+    ["setup-ui", "Set up UI for cinematic"],
     ["reset-ui", "Reset UI"],
   ]
   private syncMode : "get" | "send"
   public isConnected = false
   private interfaceState = {
     'interfaceAll' : true,
-    'interfaceReplay' : true,
-    'interfaceScore' : true,
-    'interfaceScoreboard' : true,
-    'interfaceFrames' : true,
-    'interfaceMinimap' : true,
-    'interfaceTimeline' : true,
-    'interfaceChat' : true,
-    'interfaceTarget' : true,
-    'interfaceQuests' : true,
-    'interfaceAnnounce' : true,
-    'interfaceKillCallouts' : true,
+    'healthBarChampions' : true,
+    'healthBarMinions' : true,
+    'healthBarStructures' : true,
+    'healthBarWards' : true,
     'interfaceNeutralTimers' : true,
+    'interfaceChat' : false,
   }
 
   constructor (
@@ -192,19 +186,15 @@ export class ReplayModule {
     globalShortcut.register('CommandOrControl+L', () => {
       this.syncReplay(5)
     })
-
-    /* this.renderInterval = setInterval(async () => {
-      await this.handleRenderer()
-    }, 5000) */
   }
 
   private sendPlayback () {
     if (!this.subMenu?.checked) return
 
     this.server.unsubscribe(this.namespace, this.type)
-    this.playbackInterval = setInterval(() => {
+    /* this.playbackInterval = setInterval(() => {
       this.handleSandingPlayback()
-    }, 5000)
+    }, 5000) */
     this.handleSandingPlayback()
   }
 
@@ -286,9 +276,33 @@ export class ReplayModule {
 
     const setup = this.interfaceState
     setup.interfaceChat = false
-    setup.interfaceTimeline = false
-    /* setup.interfaceScore = false */
-    setup.interfaceKillCallouts = false
+    setup.interfaceAll = false
+    setup.healthBarChampions = false
+    setup.healthBarMinions = false
+    setup.healthBarStructures = false
+    setup.healthBarWards = false
+
+    fetch(uri, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(setup),
+      redirect: 'follow',
+      ...fetchOption
+    })
+  }
+
+  resetUI () {
+    const uri = ReplayModule.replayUrl + "render"
+
+    const setup = this.interfaceState
+    setup.interfaceChat = false
+    setup.interfaceAll = true
+    setup.healthBarChampions = true
+    setup.healthBarMinions = true
+    setup.healthBarStructures = true
+    setup.healthBarWards = true
     setup.interfaceNeutralTimers = true
 
     fetch(uri, {
@@ -301,49 +315,6 @@ export class ReplayModule {
       ...fetchOption
     })
   }
-  resetUI () {
-    const uri = ReplayModule.replayUrl + "render"
-    console.log(uri)
-
-    const setup = this.interfaceState
-    setup.interfaceChat = true
-    setup.interfaceTimeline = true
-    /* setup.interfaceScore = true */
-    setup.interfaceKillCallouts = true
-    setup.interfaceNeutralTimers = false
-
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(setup),
-      redirect: 'follow',
-      ...fetchOption
-    })
-  }
-
-  /* private async handleRenderer () {
-    try {
-      const uri = ReplayModule.replayUrl + "render"
-      const res = await fetch(uri, option)
-  
-      if (!res.ok) return
-  
-      const json = await res.json()
-      this.renderData = json
-      this.server.send({
-        meta: {
-          namespace: "league-replay",
-          type: "set-render",
-          version: 1
-        },
-        data: json
-      })
-    } catch (e) {
-      Sender.emit('console', e)
-    }
-  } */
 
   private getPlayback () {
     if (!this.subMenu?.checked) return
