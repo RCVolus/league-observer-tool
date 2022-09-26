@@ -46,7 +46,7 @@ export class Lobby extends LCUModule {
     if (!this.players.has(m.puuid)) {
       const elo = await this.lcu.request({
         method: 'GET',
-        url: `/lol-ranked/v1/ranked-stats/${m.puui}`
+        url: `/lol-ranked/v1/ranked-stats/${m.puuid}`
       })
       
       const soloQueue = elo.queueMap.RANKED_SOLO_5x5
