@@ -9,18 +9,18 @@ import type { LPTEvent } from "../../types/LPTE";
 import { DisplayError } from '../../types/DisplayError';
 
 export class LCUModule {
-  private data : Array<any> = []
+  protected data : Array<any> = []
   public actions : [string, string][] = []
-  private subMenu : Electron.MenuItem | null
+  protected subMenu : Electron.MenuItem | null
 
   constructor (
     public id : string,
     public name : string,
-    private lcuURI : string,
-    private lcu : LCU,
-    private server : Server,
-    private menu : Menu,
-    private dataPoints? : Array<string>
+    protected lcuURI : string,
+    protected lcu : LCU,
+    protected server : Server,
+    protected menu : Menu,
+    protected dataPoints? : Array<string>
   ) {
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
@@ -69,26 +69,8 @@ export class LCUModule {
       })
 
       if (data === undefined) return
-
-      let selectedData : {[n: string]: any} = {}
-      if (!this.dataPoints) selectedData = data
-      else {
-        for (const key of this.dataPoints) {
-          selectedData[key] = data[key]
-        }
-      }
   
-      this.data.push(selectedData)
-  
-      const obj : LPTEvent = {
-        meta: {
-          namespace: "lcu",
-          type: `${this.id}-update`, 
-          timestamp: new Date().getTime() + this.server.prodTimeOffset
-        },
-        data: selectedData
-      }
-      this.server.send(obj)
+      this.handleData(data, { eventType: 'Update' })
     } catch (e) {
       Sender.emit('error', {
         color: "danger",
@@ -97,7 +79,7 @@ export class LCUModule {
     }
   }
 
-  private async handleData(data: any, event: any) {
+  async handleData(data: any, event: any): Promise<void> {
     this.data.push({data, event})
 
     let selectedData : {[n: string]: any} = {}
