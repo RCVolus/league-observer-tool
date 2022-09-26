@@ -5,16 +5,17 @@ import { Menu, ipcMain } from 'electron';
 import { Server } from '../connector/Server';
 import { LCU } from '../connector/LCU'
 import { InGameApi } from './InGameApi'
+import { Lobby } from './Lobby';
 
 export class Modules {
-  public modules : Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi> = new Map()
+  public modules : Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi | Lobby> = new Map()
 
   constructor (
     private lcu : LCU,
     private server : Server,
     private menu : Menu
   ) {
-    this.modules.set("lcu-lobby", new LCUModule(
+    this.modules.set("lcu-lobby", new Lobby(
       "lcu-lobby",
       "Lobby",
       "/lol-lobby/v2/lobby",
