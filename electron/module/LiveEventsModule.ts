@@ -61,6 +61,7 @@ export class LiveEventsModule {
     if (this.subMenu) {
       this.subMenu.checked = true
     }
+    Sender.emit(this.id, 1)
 
     this.netClient = net.connect({port: this.port, host: "127.0.0.1"}, () => {
       Sender.emit(this.id, 2)
@@ -72,6 +73,7 @@ export class LiveEventsModule {
 
     this.netClient?.on("error", (err) => {
       Sender.emit('console', err)
+      console.log(err)
     })
     
     this.netClient?.on('end', () => {
@@ -88,10 +90,11 @@ export class LiveEventsModule {
 
     this.data.push(parsedData)
     
-    const filtered = parsedData.filter(e => e.eventname !== "OnNeutralMinionKill" && e.eventname !== "OnMinionKill")
+    const filtered = parsedData.filter(e => !e.source.startsWith ("Minion"))
 
     if (filtered.length > 0) {
       Sender.emit(`console`, filtered)
+      console.log(filtered)
     }
 
     try {
