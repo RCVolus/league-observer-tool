@@ -90,12 +90,6 @@ export class LiveEventsModule {
 
     this.data.push(parsedData)
     
-    const filtered = parsedData.filter(e => !e.source.startsWith ("Minion"))
-
-    if (filtered.length > 0) {
-      Sender.emit(`console`, filtered)
-      console.log(filtered)
-    }
 
     try {
       const obj : LPTEvent = {

@@ -23,6 +23,7 @@ export class Modules {
       this.server,
       this.menu
     ))
+
     this.modules.set("lcu-champ-select", new LCUModule(
       "lcu-champ-select",
       "Champselect",
@@ -38,6 +39,7 @@ export class Modules {
         "timer"
       ]
     ))
+
     this.modules.set("lcu-end-of-game", new LCUModule(
       "lcu-end-of-game",
       "End of Game",
@@ -56,17 +58,14 @@ export class Modules {
       this.menu
     ))
 
-    /**
-     * @deprecated for now since not useful
-    */
-    /* this.modules.set("in-game-live-events", new LiveEventsModule(
+    this.modules.set("in-game-live-events", new LiveEventsModule(
       "in-game-live-events",
       "Live Events",
-      "league-live-events",
-      "send",
+      "module-league-in-game",
+      "live-events",
       this.server,
       this.menu
-    )) */
+    ))
 
     this.modules.set("in-game-api", new InGameApi(
       "in-game-api",

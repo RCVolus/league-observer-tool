@@ -29,8 +29,8 @@ export class ReplayModule {
     ["sync-replay", "Sync to first Operator"],
     ["sync-replay-minus-5", "Sync to first Operator (-5 sec)"],
     ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
-    ["setup-ui", "Set up UI for cinematic"],
-    ["reset-ui", "Reset UI"],
+    ["cinematic-ui", "Set up UI for cinematic"],
+    ["obs-ui", "Set up UI for Observing"],
   ]
   private syncMode : "get" | "send"
   public isConnected = false
@@ -42,6 +42,8 @@ export class ReplayModule {
     'healthBarWards' : true,
     'interfaceNeutralTimers' : true,
     'interfaceChat' : false,
+    'interfaceKillCallouts' : false,
+    'interfaceTimeline' : false,
   }
 
   constructor (
@@ -70,11 +72,11 @@ export class ReplayModule {
     ipcMain.handle(`${id}-sync-replay-plus-5`, () => {
       this.syncReplay(5)
     })
-    ipcMain.handle(`${id}-setup-ui`, () => {
-      this.setupUI()
+    ipcMain.handle(`${id}-cinematic-ui`, () => {
+      this.cinematicUI()
     })
-    ipcMain.handle(`${id}-reset-ui`, () => {
-      this.resetUI()
+    ipcMain.handle(`${id}-obs-ui`, () => {
+      this.obsUI()
     })
 
     this.syncMode = cfg.get("replay-sync-mode", "get") as "get" | "send"
@@ -271,7 +273,7 @@ export class ReplayModule {
     }
   }
 
-  setupUI () {
+  cinematicUI () {
     const uri = ReplayModule.replayUrl + "render"
 
     const setup = this.interfaceState
@@ -293,7 +295,7 @@ export class ReplayModule {
     })
   }
 
-  resetUI () {
+  obsUI () {
     const uri = ReplayModule.replayUrl + "render"
 
     const setup = this.interfaceState
@@ -304,6 +306,8 @@ export class ReplayModule {
     setup.healthBarStructures = true
     setup.healthBarWards = true
     setup.interfaceNeutralTimers = true
+    setup.interfaceKillCallouts = false
+    setup.interfaceTimeline = false
 
     fetch(uri, {
       method: "POST",
