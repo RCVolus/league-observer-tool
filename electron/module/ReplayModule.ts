@@ -39,7 +39,7 @@ export class ReplayModule {
     'healthBarChampions' : true,
     'healthBarMinions' : true,
     'healthBarStructures' : true,
-    "interfaceScoreboard" : true,
+    'interfaceScoreboard' : true,
     'healthBarWards' : true,
     'interfaceNeutralTimers' : true,
     'interfaceChat' : false,
