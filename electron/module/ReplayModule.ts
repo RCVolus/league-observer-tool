@@ -39,6 +39,7 @@ export class ReplayModule {
     'healthBarChampions' : true,
     'healthBarMinions' : true,
     'healthBarStructures' : true,
+    "interfaceScoreboard" : true,
     'healthBarWards' : true,
     'interfaceNeutralTimers' : true,
     'interfaceChat' : false,
@@ -308,6 +309,7 @@ export class ReplayModule {
     setup.interfaceNeutralTimers = true
     setup.interfaceKillCallouts = false
     setup.interfaceTimeline = false
+    setup.interfaceScoreboard = true
 
     fetch(uri, {
       method: "POST",
