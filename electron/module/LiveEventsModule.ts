@@ -1,6 +1,6 @@
 import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
-import * as path from "path";
-import * as fs from "fs";
+import { join } from "path";
+import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import net from 'net';
@@ -72,8 +72,12 @@ export class LiveEventsModule {
     });
 
     this.netClient?.on("error", (err) => {
+      Sender.emit(this.id, 0)
       Sender.emit('console', err)
-      console.log(err)
+      Sender.emit('error', {
+        color: "danger",
+        text: 'Not able to connect to Live-Event API'
+      } as DisplayError)
     })
     
     this.netClient?.on('end', () => {
@@ -89,7 +93,6 @@ export class LiveEventsModule {
     const parsedData : Array<any> = JSON.parse(`[${newDataSting}]`)
 
     this.data.push(parsedData)
-    
 
     try {
       const obj : LPTEvent = {
@@ -122,7 +125,7 @@ export class LiveEventsModule {
   private async saveData () {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
-      defaultPath: path.join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
+      defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
       buttonLabel: 'Save',
       filters: [
           {
@@ -136,9 +139,7 @@ export class LiveEventsModule {
     if (!saveDialog.canceled && saveDialog.filePath) {
       const saveData = JSON.stringify(this.data, null, 2)
       const savePath = saveDialog.filePath.toString()
-      fs.writeFile(savePath, saveData, (err) => {
-          if (err) throw err;
-      });
+      await writeFile(savePath, saveData)
     }
   }
 }
