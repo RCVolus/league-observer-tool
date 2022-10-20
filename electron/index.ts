@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Tray } from "electron";
 import { createJumpLists } from "./jumpList";
 import { Sender } from "./helper/Sender";
 import * as path from "path";
@@ -17,8 +17,6 @@ app.setAppUserModelId('gg.rcv.league-observer-tool')
 autoUpdater.logger = log;
 
 autoUpdater.autoDownload = false
-let isQuitting = false
-let skipClosing = false
 
 let mainWindow : BrowserWindow
 let initWindow : BrowserWindow
@@ -91,8 +89,6 @@ async function initApp () {
   })
   autoUpdater.on('update-downloaded', () => {
     Sender.emit('state', 'update-downloaded-app')
-    skipClosing = true
-    isQuitting = true
     autoUpdater.quitAndInstall()
   })
 
@@ -112,8 +108,6 @@ function openMainWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../frontend/public/index.html'));
-
-  createTray(mainWindow)
 
   mainWindow.webContents.on('did-finish-load', () => {
     initWindow.close()
@@ -143,30 +137,6 @@ function openMainWindow() {
     mainWindow.show()
   })
 }
-
-app.on('before-quit', function (e) {
-  if (!mainWindow) return
-
-  if (skipClosing) {
-    isQuitting = true;
-    globalShortcut.unregisterAll()
-  } else {
-    const choice = dialog.showMessageBoxSync({
-      type: 'question',
-      buttons: ['Yes', 'No'],
-      title: 'Confirm',
-      message: 'Are you sure you want to quit?'
-    });
-  
-    if (choice === 1) {
-      isQuitting = false;
-      e.preventDefault();
-    } else {
-      isQuitting = true;
-      globalShortcut.unregisterAll()
-    }
-  }
-});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
