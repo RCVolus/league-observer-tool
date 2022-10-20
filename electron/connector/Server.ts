@@ -19,6 +19,7 @@ export class Server {
   private prodClockInterval ? : NodeJS.Timeout
   public prodTimeOffset = 0
   private serverIP : string
+  private serverPort : number
   private apiKey : string
   private isClosing = false
   private InitConnection = true
@@ -32,6 +33,8 @@ export class Server {
 
     this.serverIP = cfg.get("server-ip", "127.0.0.1")
     cfg.set("server-ip", this.serverIP)
+    this.serverPort = cfg.get("server-port", 3003)
+    cfg.set("server-port", this.serverPort)
     this.apiKey = cfg.get("server-api-key", "")
     cfg.set("server-api-key", this.apiKey)
 
@@ -53,7 +56,7 @@ export class Server {
    * connect
   */
   public connect () : void {
-    const wsURI = `ws://${this.serverIP}:3003/eventbus?apikey=${this.apiKey}`
+    const wsURI = `ws://${this.serverIP}:${this.serverPort}/eventbus?apikey=${this.apiKey}`
     this.ws = new WebSocket(wsURI)
 
     this.ws.onopen = () => {
