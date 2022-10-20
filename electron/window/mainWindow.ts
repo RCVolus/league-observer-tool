@@ -1,10 +1,10 @@
-import { app, BrowserWindow } from "electron";
-import * as path from 'path'
+import { app, BrowserWindow, dialog, globalShortcut } from "electron";
+import { join } from 'path'
 import cfg from 'electron-cfg';
 
 export default function createMainWindow () : BrowserWindow {
   const winCfg = cfg.create(
-    path.join(app.getPath('userData'),
+    join(app.getPath('userData'),
     'window.json'
   ))
   const winOptions = winCfg.window();
@@ -13,10 +13,10 @@ export default function createMainWindow () : BrowserWindow {
   let allowDevTools : boolean
   if (app.isPackaged) {
     allowDevTools = false
-    preloaderPath = path.join(app.getAppPath(), 'build', 'preload.js')
+    preloaderPath = join(app.getAppPath(), 'build', 'preload.js')
   } else {
     allowDevTools = true
-    preloaderPath = path.join(app.getAppPath(), 'preload.js')
+    preloaderPath = join(app.getAppPath(), 'preload.js')
   }
 
   const mainWindow = new BrowserWindow({
@@ -36,10 +36,21 @@ export default function createMainWindow () : BrowserWindow {
 
   winOptions.assign(mainWindow);
 
-  mainWindow.on('minimize', (event: any) => {
-    event.preventDefault();
-    mainWindow.hide();
-  });
+  mainWindow.on("close", (e) => {
+    const choice = dialog.showMessageBoxSync({
+      type: "question",
+      buttons: ["Yes", "No"],
+      title: "Confirm",
+      message: "Are you sure you want to quit?"
+    })
+
+    if (choice === 1) {
+      e.preventDefault()
+      return
+    } else {
+      globalShortcut.unregisterAll()
+    }
+  })
 
   return mainWindow
 }
