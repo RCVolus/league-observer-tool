@@ -1,12 +1,12 @@
 import { app, BrowserWindow } from "electron";
-import * as path from "path";
+import { join } from "path";
 
 export default function createInitWindow () : BrowserWindow {
   let preloaderPath : string
   if (app.isPackaged) {
-    preloaderPath = path.join(app.getAppPath(), 'build', 'preload.js')
+    preloaderPath = join(app.getAppPath(), 'build', 'preload.js')
   } else {
-    preloaderPath = path.join(app.getAppPath(), 'preload.js')
+    preloaderPath = join(app.getAppPath(), 'preload.js')
   }
 
   const initWindow = new BrowserWindow({
@@ -23,7 +23,7 @@ export default function createInitWindow () : BrowserWindow {
     }
   });
 
-  initWindow.loadFile(path.join(__dirname, "../..", 'preload/public/index.html'))
+  initWindow.loadFile(join(__dirname, "../..", 'preload/public/index.html'))
 
   return initWindow
 }

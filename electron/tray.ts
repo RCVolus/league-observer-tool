@@ -1,9 +1,9 @@
 import { app, BrowserWindow, Menu, Tray, nativeImage } from "electron";
-import * as path from "path";
+import { join } from "path";
 
 export default function createTray (mainWindow : BrowserWindow) : Tray {
   const execPath = __dirname.replace("\\app.asar", "");
-  const iconPatch = path.join(execPath, "../assets/icons/icon.ico")
+  const iconPatch = join(execPath, "../assets/icons/icon.ico")
   const icon = nativeImage.createFromPath(iconPatch)
   const tray = new Tray(icon)
   tray.setIgnoreDoubleClickEvents(true)

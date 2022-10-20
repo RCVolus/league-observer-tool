@@ -1,7 +1,7 @@
 import { EventResponse } from 'league-connect'
 import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
-import * as path from "path";
-import * as fs from "fs";
+import { join } from "path";
+import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import { LCU } from '../connector/LCU'
@@ -119,7 +119,7 @@ export class LCUModule {
   private async saveData () {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
-      defaultPath: path.join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
+      defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
       buttonLabel: 'Save',
       filters: [
           {
@@ -131,11 +131,9 @@ export class LCUModule {
     })
 
     if (!saveDialog.canceled && saveDialog.filePath) {
-      const saveData = JSON.stringify(this.data)
+      const saveData = JSON.stringify(this.data, null, 2)
       const savePath = saveDialog.filePath.toString()
-      fs.writeFile(savePath, saveData, (err) => {
-          if (err) throw err;
-      });
+      await writeFile(savePath, saveData)
     }
   }
 }
