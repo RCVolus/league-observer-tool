@@ -20,6 +20,7 @@ For ingame Events (e.g., Dragon or Baron kills), the LiveEvents API needs to be 
 Enable=1
 Port=34243
 ```
+Make sure the port is the same as configured in the observer tool settings under `live-events-port`.
 2. Create a file called `LiveEvents.ini` in the same config directory
 3. Paste the following in the `LiveEvents.ini` file:
 ```ini
