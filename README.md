@@ -12,6 +12,22 @@ Once install, the observer tool automatically updates to any new versions releas
 * Before saving, close the Observer Tool either from the tray or with File -> Quit
 * Save the changed config file
 
+## Setting up LiveEvents API
+For ingame Events (e.g., Dragon or Baron kills), the LiveEvents API needs to be configured locally:
+1. Add the following to `game.cfg` (located in `[install path]\Riot Games\League of Legends\Config`):
+```ini
+[LiveEvents]
+Enable=1
+Port=34243
+```
+2. Create a file called `LiveEvents.ini` in the same config directory
+3. Paste the following in the `LiveEvents.ini` file:
+```ini
+OnKillDragon_Spectator
+OnKillRiftHerald_Spectator
+OnKillWorm_Spectator
+```
+
 ## Usage
 The power button at the bottom connects to the configured toolkit instance.
 To connect to local League Client APIs, click Sync on the modules you need. The League Client needs to be running.
