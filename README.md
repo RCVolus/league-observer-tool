@@ -27,6 +27,8 @@ Make sure the port is the same as configured in the observer tool settings under
 OnKillDragon_Spectator
 OnKillRiftHerald_Spectator
 OnKillWorm_Spectator
+OnTurretPlateDestroyed
+OnDragonSoulGiven
 ```
 
 ## Usage
