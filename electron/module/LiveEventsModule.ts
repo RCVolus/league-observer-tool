@@ -10,11 +10,12 @@ import { DisplayError } from '../../types/DisplayError';
 
 export class LiveEventsModule {
   private data : Array<any> = []
-  //private msgBuffer = new MessageBuffer("\n")
   private netClient ? : net.Socket
   private port : number
   public actions : [string, string][] = []
   private subMenu : Electron.MenuItem | null
+  private menuItem : Electron.MenuItem
+  private interval ? : NodeJS.Timeout
 
   constructor (
     public id : string,
@@ -35,7 +36,7 @@ export class LiveEventsModule {
     })
 
     this.subMenu = this.menu.getMenuItemById('tools')
-    this.subMenu?.submenu?.append(new MenuItem({
+    this.menuItem = new MenuItem({
       id: this.id,
       label: this.name,
       type: 'checkbox',
@@ -47,7 +48,8 @@ export class LiveEventsModule {
           this.disconnect()
         }
       }
-    }))
+    })
+    this.subMenu?.submenu?.append(this.menuItem)
 
     this.port = cfg.get("live-events-port", 34243)
     cfg.set("live-events-port", this.port)
@@ -58,13 +60,16 @@ export class LiveEventsModule {
   }
 
   public connect () : void {
-    if (this.subMenu) {
-      this.subMenu.checked = true
+    if (this.menuItem) {
+      this.menuItem.checked = true
     }
     Sender.emit(this.id, 1)
 
     this.netClient = net.connect({port: this.port, host: "127.0.0.1"}, () => {
       Sender.emit(this.id, 2)
+      if (this.interval) {
+        clearInterval(this.interval)
+      }
     });
 
     this.netClient?.on('data', (data) => {
@@ -72,16 +77,21 @@ export class LiveEventsModule {
     });
 
     this.netClient?.on("error", (err) => {
-      Sender.emit(this.id, 0)
+      Sender.emit(this.id, 1)
       Sender.emit('console', err)
-      Sender.emit('error', {
-        color: "danger",
-        text: 'Not able to connect to Live-Event API'
-      } as DisplayError)
+      console.log(err)
+
+      if (this.interval) {
+        clearInterval(this.interval)
+      }
+
+      this.interval = setInterval(() => {
+        this.connect()
+      }, 10000)
     })
     
     this.netClient?.on('end', () => {
-      Sender.emit(this.id, 0)
+      Sender.emit(this.id, 1)
     });
   }
 
@@ -115,11 +125,15 @@ export class LiveEventsModule {
   public disconnect () : void {
     Sender.emit(this.id, 0)
 
-    if (this.subMenu) {
-      this.subMenu.checked = false
+    if (this.menuItem) {
+      this.menuItem.checked = false
     }
 
     this.netClient?.destroy();
+
+    if (this.interval) {
+      clearInterval(this.interval)
+    }
   }
 
   private async saveData () {
