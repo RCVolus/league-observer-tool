@@ -7,7 +7,6 @@ import type { LPTEvent } from '../../types/LPTE'
 import fetch from 'electron-fetch'
 import type { DisplayError } from '../../types/DisplayError';
 import https from 'https';
-import isEqual from 'lodash.isequal';
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
@@ -18,8 +17,8 @@ export class InGameApi {
   private data : Array<any> = []
   public actions : [string, string][] = []
   private interval ? : NodeJS.Timeout
-  private subMenu : Electron.MenuItem | null
-  private menuItem : Electron.MenuItem
+  private subMenu : MenuItem | null
+  private menuItem : MenuItem
   private isSynced = false
 
   constructor (
@@ -67,7 +66,15 @@ export class InGameApi {
    * if live-game is not available, sends and error to the frontend 
   */
   public async connect () : Promise<void> {
+    if (!this.server.isConnected) {
+      if (this.menuItem) {
+        this.menuItem.checked = false
+      }
+      return
+    }
+
     Sender.emit(this.id, 1)
+
     if (this.menuItem) {
       this.menuItem.checked = true
     }
@@ -91,13 +98,6 @@ export class InGameApi {
       if (!res.ok) return
 
       const data = await res.json()
-
-      const sameData = isEqual(
-        data,
-        this.data[this.data.length -1]
-      )
-
-      if (sameData) return
 
       this.data.push(data)
 

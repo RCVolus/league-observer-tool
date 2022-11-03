@@ -7,7 +7,6 @@ import fetch from 'electron-fetch'
 import https from "https";
 import type { DisplayError } from '../../types/DisplayError';
 import cfg from 'electron-cfg';
-import isEqual from 'lodash.isequal';
 
 const fetchOption = {
   agent: new https.Agent({
@@ -180,6 +179,13 @@ export class ReplayModule {
   }
 
   public connect () : void {
+    if (!this.server.isConnected) {
+      if (this.menuItem.submenu) {
+        this.menuItem.submenu.items[0].checked = false
+      }
+      return
+    }
+    
     Sender.emit(this.id, 1)
 
     if (this.menuItem.submenu) {
@@ -232,13 +238,6 @@ export class ReplayModule {
         savedAt,
         time
       }
-
-      const sameData = isEqual(
-        newData,
-        this.playbackData
-      )
-
-      if (sameData) return
 
       this.playbackData = newData
       this.server.send({
