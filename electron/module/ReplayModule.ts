@@ -20,6 +20,7 @@ export class ReplayModule {
   private playbackInterval ? : NodeJS.Timeout
   private renderInterval ? : NodeJS.Timeout
   private subMenu : Electron.MenuItem | null
+  private menuItem : Electron.MenuItem
   private playbackData ? : {
     savedAt: number
     time: number
@@ -33,7 +34,7 @@ export class ReplayModule {
     ["obs-ui", "Set up UI for Observing"],
   ]
   private syncMode : "get" | "send"
-  public isConnected = false
+  public isSynced = false
   private interfaceState = {
     'interfaceAll' : true,
     'healthBarChampions' : true,
@@ -86,14 +87,14 @@ export class ReplayModule {
     cfg.observe('server-ip', (current : "get" | "send") => {
       this.syncMode = current
       
-      if (this.isConnected) {
+      if (this.isSynced) {
         this.disconnect()
         this.connect()
       }
     })
 
     this.subMenu = this.menu.getMenuItemById('tools')
-    this.subMenu?.submenu?.append(new MenuItem({
+    this.menuItem = new MenuItem({
       label: this.name,
       submenu: [
         {
@@ -160,14 +161,29 @@ export class ReplayModule {
           }
         }
       ]
-    }))
+    })
+
+    this.subMenu?.submenu?.append(this.menuItem)
+
+    this.server.onConnected(() => {
+      if (!this.isSynced) return
+      if (this.syncMode == "get") {
+        setTimeout(() => {
+          this.getPlayback()
+        }, 0)
+      } else if (this.syncMode == "send") {
+        setTimeout(() => {
+          this.sendPlayback()
+        }, 0)
+      }
+    })
   }
 
   public connect () : void {
     Sender.emit(this.id, 1)
 
-    if (this.subMenu) {
-      this.subMenu.checked = true
+    if (this.menuItem.submenu) {
+      this.menuItem.submenu.items[0].checked = true
     }
 
     if (this.syncMode == "get") {
@@ -192,7 +208,7 @@ export class ReplayModule {
   }
 
   private sendPlayback () {
-    if (!this.subMenu?.checked) return
+    if (!this.menuItem.submenu?.items[2].checked) return
 
     this.server.unsubscribe(this.namespace, this.type)
     /* this.playbackInterval = setInterval(() => {
@@ -235,7 +251,7 @@ export class ReplayModule {
         time
       })
 
-      this.isConnected = true
+      this.isSynced = true
       Sender.emit(this.id, 2)
     } catch (e) {
       if (e.code && e.code === "ECONNREFUSED") {
@@ -323,7 +339,7 @@ export class ReplayModule {
   }
 
   private getPlayback () {
-    if (!this.subMenu?.checked) return
+    if (!this.menuItem.submenu?.items[3].checked) return
 
     if (this.playbackInterval) {
       clearInterval(this.playbackInterval)
@@ -336,7 +352,7 @@ export class ReplayModule {
       }
     })
 
-    this.isConnected = true
+    this.isSynced = true
     Sender.emit(this.id, 2)
   }
 
@@ -349,11 +365,11 @@ export class ReplayModule {
       clearInterval(this.renderInterval)
     }
 
-    this.isConnected = false
+    this.isSynced = false
     Sender.emit(this.id, 0)
 
-    if (this.subMenu) {
-      this.subMenu.checked = false
+    if (this.menuItem.submenu) {
+      this.menuItem.submenu.items[0].checked = false
     }
 
     globalShortcut.unregister('CommandOrControl+J')
