@@ -26,6 +26,7 @@ export class Server {
   private subscriptions: Map<string, ((data : LPTEvent) => void)[]> = new Map()
   public isConnected = false
   private logger : log.ElectronLog
+  private connectionHandlers: Array<() => void> = []
 
   constructor () {
     this.logger = log.create('Server')
@@ -66,6 +67,7 @@ export class Server {
 
       Sender.emit('server-connection', this.isConnected)
 
+      this._onConnected()
       this.syncProdClock()
     }
 
@@ -99,6 +101,20 @@ export class Server {
         this.timeout = setTimeout(() => {this.connect()}, 5000)
       }
     }
+  }
+
+  public onConnected(handler: () => void): void {
+    if (this.isConnected) {
+      handler()
+    } else {
+      this.connectionHandlers.push(handler)
+    }
+  }
+
+  private _onConnected(): void {
+    this.connectionHandlers.forEach(handler => {
+      handler()
+    })
   }
 
   public subscribe (namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
