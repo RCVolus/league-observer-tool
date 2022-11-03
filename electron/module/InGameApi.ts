@@ -19,6 +19,8 @@ export class InGameApi {
   public actions : [string, string][] = []
   private interval ? : NodeJS.Timeout
   private subMenu : Electron.MenuItem | null
+  private menuItem : Electron.MenuItem
+  private isSynced = false
 
   constructor (
     public id : string,
@@ -38,7 +40,7 @@ export class InGameApi {
     })
 
     this.subMenu = this.menu.getMenuItemById('tools')
-    this.subMenu?.submenu?.append(new MenuItem({
+    this.menuItem = new MenuItem({
       id: this.id,
       label: this.name,
       type: 'checkbox',
@@ -50,7 +52,13 @@ export class InGameApi {
           this.disconnect()
         }
       }
-    }))
+    })
+    this.subMenu?.submenu?.append(this.menuItem)
+
+    this.server.onConnected(() => {
+      if (!this.isSynced) return
+      this.getData()
+    })
   }
 
   /**
@@ -60,8 +68,8 @@ export class InGameApi {
   */
   public async connect () : Promise<void> {
     Sender.emit(this.id, 1)
-    if (this.subMenu) {
-      this.subMenu.checked = true
+    if (this.menuItem) {
+      this.menuItem.checked = true
     }
     // get live-game data every 1s
     this.interval = setInterval(() => {
@@ -122,8 +130,8 @@ export class InGameApi {
   public disconnect () : void {
     Sender.emit(this.id, 0)
 
-    if (this.subMenu) {
-      this.subMenu.checked = false
+    if (this.menuItem) {
+      this.menuItem.checked = false
     }
 
     if (this.interval) {
