@@ -60,6 +60,13 @@ export class LiveEventsModule {
   }
 
   public connect () : void {
+    if (!this.server.isConnected) {
+      if (this.menuItem) {
+        this.menuItem.checked = false
+      }
+      return
+    }
+    
     if (this.menuItem) {
       this.menuItem.checked = true
     }

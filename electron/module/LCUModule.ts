@@ -57,6 +57,13 @@ export class LCUModule {
   }
 
   public connect () : void {
+    if (!this.server.isConnected) {
+      if (this.menuItem) {
+        this.menuItem.checked = false
+      }
+      return
+    }
+    
     Sender.emit(this.id, 1)
     this.isSynced = true
 
