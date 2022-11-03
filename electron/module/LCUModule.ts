@@ -11,16 +11,18 @@ import { DisplayError } from '../../types/DisplayError';
 export class LCUModule {
   protected data : Array<any> = []
   public actions : [string, string][] = []
-  protected subMenu : Electron.MenuItem | null
+  private subMenu : Electron.MenuItem | null
+  private menuItem : Electron.MenuItem
+  private isSynced = false
 
   constructor (
     public id : string,
     public name : string,
-    protected lcuURI : string,
+    private lcuURI : string,
     protected lcu : LCU,
     protected server : Server,
-    protected menu : Menu,
-    protected dataPoints? : Array<string>
+    private menu : Menu,
+    private dataPoints? : Array<string>
   ) {
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
@@ -33,7 +35,7 @@ export class LCUModule {
     })
 
     this.subMenu = this.menu.getMenuItemById('tools')
-    this.subMenu?.submenu?.append(new MenuItem({
+    this.menuItem = new MenuItem({
       id: this.id,
       label: this.name,
       type: 'checkbox',
@@ -45,19 +47,26 @@ export class LCUModule {
           this.disconnect()
         }
       }
-    }))
+    })
+    this.subMenu?.submenu?.append(this.menuItem)
+
+    this.server.onConnected(() => {
+      if (!this.isSynced) return
+      this.requestData()
+    })
   }
 
   public connect () : void {
     Sender.emit(this.id, 1)
+    this.isSynced = true
 
     this.requestData()
     this.lcu.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
 
     Sender.emit(this.id, 2)
 
-    if (this.subMenu) {
-      this.subMenu.checked = true
+    if (this.menuItem) {
+      this.menuItem.checked = true
     }
   }
 
@@ -111,8 +120,9 @@ export class LCUModule {
   public disconnect () : void {
     this.lcu.unsubscribe(this.lcuURI);
     Sender.emit(this.id, 0)
-    if (this.subMenu) {
-      this.subMenu.checked = false
+    this.isSynced = false
+    if (this.menuItem) {
+      this.menuItem.checked = false
     }
   }
 
