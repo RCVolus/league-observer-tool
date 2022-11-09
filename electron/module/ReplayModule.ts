@@ -189,7 +189,7 @@ export class ReplayModule {
       return
     }
     
-    this.server.subscribe('module-caster-cockpit', 'show-gold', () => {
+    this.server.subscribe('module-league-caster-cockpit', 'show-gold', () => {
       keyboard.pressKey(Key.X)
     })
 
@@ -378,7 +378,7 @@ export class ReplayModule {
       this.menuItem.submenu.items[0].checked = false
     }
 
-    this.server.unsubscribe('module-caster-cockpit', 'show-gold')
+    this.server.unsubscribe('module-league-caster-cockpit', 'show-gold')
 
     globalShortcut.unregister('CommandOrControl+J')
     globalShortcut.unregister('CommandOrControl+K')
