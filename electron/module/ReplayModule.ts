@@ -30,8 +30,8 @@ export class ReplayModule {
   private renderData : any = {}
   public actions : [string, string][] = [
     ["sync-replay", "Sync to first Operator"],
-    ["sync-replay-minus-5", "Sync to first Operator (-5 sec)"],
     ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
+    ["sync-replay-plus-10", "Sync to first Operator (10 sec)"],
     ["cinematic-ui", "Set up UI for cinematic"],
     ["obs-ui", "Set up UI for Observing"],
   ]
@@ -70,11 +70,11 @@ export class ReplayModule {
     ipcMain.handle(`${id}-sync-replay`, () => {
       this.syncReplay()
     })
-    ipcMain.handle(`${id}-sync-replay-minus-5`, () => {
-      this.syncReplay(-5)
-    })
     ipcMain.handle(`${id}-sync-replay-plus-5`, () => {
       this.syncReplay(5)
+    })
+    ipcMain.handle(`${id}-sync-replay-plus-10`, () => {
+      this.syncReplay(10)
     })
     ipcMain.handle(`${id}-cinematic-ui`, () => {
       this.cinematicUI()
@@ -188,10 +188,6 @@ export class ReplayModule {
       }
       return
     }
-    
-    this.server.subscribe('module-league-caster-cockpit', 'show-gold', () => {
-      keyboard.type(Key.X)
-    })
 
     Sender.emit(this.id, 1)
 
@@ -207,6 +203,9 @@ export class ReplayModule {
       setTimeout(() => {
         this.sendPlayback()
       }, 0)
+      this.server.subscribe('module-league-caster-cockpit', 'show-gold', () => {
+        keyboard.type(Key.X)
+      })
     }
 
     globalShortcut.register('CommandOrControl+J', () => {
@@ -224,9 +223,9 @@ export class ReplayModule {
     if (!this.menuItem.submenu?.items[2].checked) return
 
     this.server.unsubscribe(this.namespace, this.type)
-    /* this.playbackInterval = setInterval(() => {
+    this.playbackInterval = setInterval(() => {
       this.handleSandingPlayback()
-    }, 5000) */
+    }, 5000)
     this.handleSandingPlayback()
   }
 
