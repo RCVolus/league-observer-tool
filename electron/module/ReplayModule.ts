@@ -189,8 +189,8 @@ export class ReplayModule {
       return
     }
     
-    this.server.subscribe('module-league-caster-cockpit', 'show-gold', () => {
-      keyboard.pressKey(Key.X)
+    this.server.subscribe('module-league-caster-cockpit', 'show-gold', async () => {
+      (await keyboard.pressKey(Key.X)).releaseKey(Key.X)
     })
 
     Sender.emit(this.id, 1)
