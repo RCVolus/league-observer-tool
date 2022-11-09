@@ -150,18 +150,18 @@ export class ReplayModule {
         },
         {
           type: 'normal',
-          label: 'Sync to first Operator (-5 sec)',
+          label: 'Sync to first Operator (+5 sec)',
           accelerator: 'Ctrl+K',
           click: () => {
-            this.syncReplay(-5)
+            this.syncReplay(5)
           }
         },
         {
           type: 'normal',
-          label: 'Sync to first Operator (+5 sec)',
+          label: 'Sync to first Operator (+10 sec)',
           accelerator: 'Ctrl+L',
           click: () => {
-            this.syncReplay(5)
+            this.syncReplay(10)
           }
         }
       ]
@@ -214,10 +214,10 @@ export class ReplayModule {
       this.syncReplay()
     })
     globalShortcut.register('CommandOrControl+K', () => {
-      this.syncReplay(-5)
+      this.syncReplay(5)
     })
     globalShortcut.register('CommandOrControl+L', () => {
-      this.syncReplay(5)
+      this.syncReplay(10)
     })
   }
 
