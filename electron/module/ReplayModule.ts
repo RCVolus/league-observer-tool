@@ -4,12 +4,15 @@ import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import fetch from 'electron-fetch'
-import https from "https";
+import { Agent } from "https";
 import type { DisplayError } from '../../types/DisplayError';
 import cfg from 'electron-cfg';
+import { keyboard } from '@nut-tree/nut-js'
+import { Key } from '@nut-tree/nut-js/dist/lib/key.enum';
+
 
 const fetchOption = {
-  agent: new https.Agent({
+  agent: new Agent({
     rejectUnauthorized: false
   })
 }
@@ -186,6 +189,10 @@ export class ReplayModule {
       return
     }
     
+    this.server.subscribe('module-caster-cockpit', 'show-gold', () => {
+      keyboard.pressKey(Key.X)
+    })
+
     Sender.emit(this.id, 1)
 
     if (this.menuItem.submenu) {
@@ -289,7 +296,7 @@ export class ReplayModule {
     }
   }
 
-  cinematicUI () {
+  cinematicUI (): void {
     const uri = ReplayModule.replayUrl + "render"
 
     const setup = this.interfaceState
@@ -311,7 +318,7 @@ export class ReplayModule {
     })
   }
 
-  obsUI () {
+  obsUI (): void {
     const uri = ReplayModule.replayUrl + "render"
 
     const setup = this.interfaceState
@@ -370,6 +377,8 @@ export class ReplayModule {
     if (this.menuItem.submenu) {
       this.menuItem.submenu.items[0].checked = false
     }
+
+    this.server.unsubscribe('module-caster-cockpit', 'show-gold')
 
     globalShortcut.unregister('CommandOrControl+J')
     globalShortcut.unregister('CommandOrControl+K')
