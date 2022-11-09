@@ -241,7 +241,7 @@ export class ReplayModule {
   
       const json = await res.json()
       const savedAt = new Date().getTime() + this.server.prodTimeOffset
-      const time = json.time
+      const time = Math.round(json.time)
       const newData = {
         savedAt,
         time
@@ -277,7 +277,7 @@ export class ReplayModule {
     if (!this.playbackData) return
 
     try {
-      const diff = ((new Date().getTime() + this.server.prodTimeOffset) - this.playbackData.savedAt) / 1000
+      const diff = Math.round(((new Date().getTime() + this.server.prodTimeOffset) - this.playbackData.savedAt) / 1000)
       const time = this.playbackData.time + diff + delay
 
       const uri = ReplayModule.replayUrl + "playback"
