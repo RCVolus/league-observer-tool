@@ -31,7 +31,7 @@ export class ReplayModule {
   public actions : [string, string][] = [
     ["sync-replay", "Sync to first Operator"],
     ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
-    ["sync-replay-plus-10", "Sync to first Operator (10 sec)"],
+    ["sync-replay-plus-10", "Sync to first Operator (+10 sec)"],
     ["cinematic-ui", "Set up UI for cinematic"],
     ["obs-ui", "Set up UI for Observing"],
   ]
@@ -123,6 +123,7 @@ export class ReplayModule {
           click: () => {
             this.sendPlayback()
             cfg.set("replay-sync-mode", "send")
+            this.syncMode = 'send'
           }
         },
         {
@@ -133,6 +134,7 @@ export class ReplayModule {
           click: () => {
             this.getPlayback()
             cfg.set("replay-sync-mode", "get")
+            this.syncMode = 'get'
           }
         },
         {
@@ -248,7 +250,7 @@ export class ReplayModule {
       this.playbackData = newData
       this.server.send({
         meta: {
-          namespace: "league-replay",
+          namespace: this.namespace,
           type: "set-playback",
           version: 1
         },
@@ -351,6 +353,7 @@ export class ReplayModule {
     }
 
     this.server.subscribe(this.namespace, this.type, (data) => {
+      console.log(data)
       this.playbackData = {
         savedAt: data.savedAt,
         time: data.time
