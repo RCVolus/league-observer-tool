@@ -3,14 +3,14 @@ import { join } from "path";
 import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
-import net from 'net';
+import { Socket, connect } from 'net';
 import type { LPTEvent } from '../../types/LPTE'
 import cfg from 'electron-cfg';
 import { DisplayError } from '../../types/DisplayError';
 
 export class LiveEventsModule {
   private data : Array<any> = []
-  private netClient ? : net.Socket
+  private netClient ? : Socket
   private port : number
   public actions : [string, string][] = []
   private subMenu : Electron.MenuItem | null
@@ -72,7 +72,7 @@ export class LiveEventsModule {
     }
     Sender.emit(this.id, 1)
 
-    this.netClient = net.connect({port: this.port, host: "127.0.0.1"}, () => {
+    this.netClient = connect({port: this.port, host: "127.0.0.1"}, () => {
       Sender.emit(this.id, 2)
       if (this.interval) {
         clearInterval(this.interval)

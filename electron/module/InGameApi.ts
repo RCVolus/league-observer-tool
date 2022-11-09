@@ -6,9 +6,9 @@ import { Server } from '../connector/Server';
 import type { LPTEvent } from '../../types/LPTE'
 import fetch from 'electron-fetch'
 import type { DisplayError } from '../../types/DisplayError';
-import https from 'https';
+import { Agent } from 'https';
 
-const httpsAgent = new https.Agent({
+const httpsAgent = new Agent({
   rejectUnauthorized: false,
 });
 

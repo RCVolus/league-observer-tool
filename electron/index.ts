@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, Tray } from "electron";
 import { createJumpLists } from "./jumpList";
 import { Sender } from "./helper/Sender";
-import * as path from "path";
+import { join } from "path";
 import { LCU } from "./connector/LCU";
 import { Server } from "./connector/Server";
 import { MainMenu } from "./Menu";
@@ -96,7 +96,11 @@ async function initApp () {
     initWindow.show()
     
     try {
-      autoUpdater.checkForUpdates()
+      if (app.isPackaged) {
+        autoUpdater.checkForUpdates()
+      } else {
+        openMainWindow()
+      }
     } catch (e) {
       console.log(e)
     }
@@ -107,7 +111,7 @@ function openMainWindow() {
   Sender.currentWindow = mainWindow
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, '../frontend/public/index.html'));
+  mainWindow.loadFile(join(__dirname, '../frontend/public/index.html'));
 
   mainWindow.webContents.on('did-finish-load', () => {
     initWindow.close()
