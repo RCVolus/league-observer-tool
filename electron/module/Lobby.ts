@@ -48,6 +48,15 @@ export class Lobby extends LCUModule {
         method: 'GET',
         url: `/lol-ranked/v1/ranked-stats/${m.puuid}`
       })
+
+      if (elo === undefined) {
+        m.elo = {
+          tier: 'NONE',
+          division: 'NA'
+        }
+        
+        return m
+      }
       
       const soloQueue = elo.queueMap.RANKED_SOLO_5x5
       const flexQueue = elo.queueMap.RANKED_FLEX_SR
