@@ -11,6 +11,7 @@ import createMainWindow from "./window/mainWindow";
 import createTray from "./tray";
 import createInitWindow from "./window/initWindow";
 import log from 'electron-log';
+import api from "./api";
 
 app.setAppUserModelId('gg.rcv.league-observer-tool')
 
@@ -36,6 +37,8 @@ if (!gotTheLock) {
       return;
     }
 
+    /* console.log(commandLine.find((arg) => arg.startsWith('rcvlo://'))) */
+
     if (mainWindow.isMinimized()) {
       mainWindow.restore()
     } else if (!mainWindow.isVisible()) {
@@ -48,6 +51,10 @@ if (!gotTheLock) {
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   app.on("ready", () => {
+    api.listen(8572, () => {
+      console.log('api is running on port 8572')
+    })
+
     mainWindow = createMainWindow()
     initWindow = createInitWindow()
 

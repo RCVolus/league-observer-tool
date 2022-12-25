@@ -87,7 +87,7 @@ export class LCUModule {
       if (data === undefined) return
   
       this.handleData(data, { eventType: 'Update' })
-    } catch (e) {
+    } catch (e: any) {
       Sender.emit('error', {
         color: "danger",
         text: e.message || 'error while fetching data from lcu'
@@ -116,7 +116,7 @@ export class LCUModule {
         data: event.eventType != "Delete" ? selectedData : undefined
       }
       this.server.send(obj)
-    } catch (e) {
+    } catch (e: any) {
       Sender.emit('error', {
         color: "danger",
         text: e.message || 'error while sending data to prod tool'

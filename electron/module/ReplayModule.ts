@@ -9,6 +9,7 @@ import type { DisplayError } from '../../types/DisplayError';
 import cfg from 'electron-cfg';
 import { keyboard } from '@nut-tree/nut-js'
 import { Key } from '@nut-tree/nut-js/dist/lib/key.enum';
+import api from '../api';
 
 
 const fetchOption = {
@@ -81,6 +82,20 @@ export class ReplayModule {
     })
     ipcMain.handle(`${id}-obs-ui`, () => {
       this.obsUI()
+    })
+
+    api.get('/replay_sync', (req, res) => {
+      const time = parseInt(req.query.seconds as string ?? 0)
+      this.syncReplay(time)
+      res.send().status(200)
+    })
+    api.get('/ui_obs', (_req, res) => {
+      this.obsUI()
+      res.send().status(200)
+    })
+    api.get('/ui_cinematic', (_req, res) => {
+      this.cinematicUI()
+      res.send().status(200)
     })
 
     this.syncMode = cfg.get("replay-sync-mode", "get") as "get" | "send"
@@ -260,7 +275,7 @@ export class ReplayModule {
 
       this.isSynced = true
       Sender.emit(this.id, 2)
-    } catch (e) {
+    } catch (e: any) {
       if (e.code && e.code === "ECONNREFUSED") {
         Sender.emit(this.id, 1)
       } else {
@@ -298,6 +313,8 @@ export class ReplayModule {
   }
 
   cinematicUI (): void {
+    if (!this.playbackData) return
+
     const uri = ReplayModule.replayUrl + "render"
 
     const setup = this.interfaceState
@@ -320,6 +337,8 @@ export class ReplayModule {
   }
 
   obsUI (): void {
+    if (!this.playbackData) return
+
     const uri = ReplayModule.replayUrl + "render"
 
     const setup = this.interfaceState

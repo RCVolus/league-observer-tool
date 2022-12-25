@@ -34,7 +34,7 @@ export class LCU {
       } else {
         return undefined
       }
-    } catch (e) {
+    } catch (e: any) {
       this.logger.error(e)
       Sender.emit('error', {
         color: "danger",

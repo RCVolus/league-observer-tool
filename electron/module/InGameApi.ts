@@ -112,7 +112,7 @@ export class InGameApi {
       this.server.send(obj)
 
       Sender.emit(this.id, 2)
-    } catch (e) {
+    } catch (e: any) {
       if (e.code && e.code === "ECONNREFUSED") {
         Sender.emit(this.id, 1)
       } else {

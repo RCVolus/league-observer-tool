@@ -121,7 +121,7 @@ export class LiveEventsModule {
       data: parsedData
     }
     this.server.send(obj)
-    } catch (e) {
+    } catch (e: any) {
       Sender.emit('error', {
         color: "danger",
         text: e.message || 'error while sending data to prod tool'
