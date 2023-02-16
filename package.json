@@ -20,10 +20,10 @@
     "svelte-build": "rollup -c",
     "dev": "rollup -c -w",
     "svelte-start": "sirv public",
-    "build:preload": "cd preload && npm run build",
+    "build:loader": "cd loader && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "tsc -p ./tsconfig.json",
-    "dist": "npm run build:preload && npm run build:frontend && npm run build:backend && electron-builder build -w"
+    "dist": "npm run build:loader && npm run build:frontend && npm run build:backend && electron-builder build -w"
   },
   "build": {
     "forceCodeSigning": false,
