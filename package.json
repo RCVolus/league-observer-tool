@@ -52,7 +52,7 @@
     "files": [
       "build/**/*",
       "frontend/public/**/*",
-      "preload/public/**/*",
+      "loader/public/**/*",
       "node_modules/**/*",
       "package.json"
     ],
