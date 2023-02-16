@@ -23,7 +23,7 @@ export default function createInitWindow () : BrowserWindow {
     }
   });
 
-  initWindow.loadFile(join(__dirname, "../..", 'preload/public/index.html'))
+  initWindow.loadFile(join(__dirname, "../..", 'loader/public/index.html'))
 
   return initWindow
 }

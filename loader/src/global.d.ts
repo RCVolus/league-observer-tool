@@ -1,7 +1,7 @@
 /// <reference types="svelte" />
 
-export interface Connector {
-  getConnectState : () => Promise<boolean>
+export interface Constants {
+  version: string
 }
 
 export interface Sender {
@@ -11,6 +11,7 @@ export interface Sender {
 declare global {
   interface Window { 
     connector : Connector
+    constants: Constants
     sender : Sender
   }
 }

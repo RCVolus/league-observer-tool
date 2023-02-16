@@ -6,9 +6,10 @@ import { Server } from '../connector/Server';
 import { LCU } from '../connector/LCU'
 import { InGameApi } from './InGameApi'
 import { Lobby } from './Lobby';
+import { Farsight } from './Farsight';
 
 export class Modules {
-  public modules : Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi | Lobby> = new Map()
+  public modules : Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi | Lobby | Farsight> = new Map()
 
   constructor (
     private lcu : LCU,
@@ -70,6 +71,14 @@ export class Modules {
     this.modules.set("in-game-api", new InGameApi(
       "in-game-api",
       "InGame",
+      "module-league-in-game",
+      this.server,
+      this.menu
+    ))
+
+    this.modules.set("farsight", new Farsight(
+      "in-game-farsight",
+      "Farsight",
       "module-league-in-game",
       this.server,
       this.menu

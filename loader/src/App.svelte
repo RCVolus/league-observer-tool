@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { Progress } from 'sveltestrap';
-
   window.sender.on("state", (e : any, data : any) => {
     state = data[0]
   });
@@ -17,19 +15,23 @@
 </script>
 
 <main class="p-4">
-  <img src="./img/icon.png" alt="RCV Logo" width="75" class="mb-3">
+  <img src="./img/icon.png" alt="RCV Logo" width="75" class="mt-auto mb-3">
   <p class="text-muted mb-1">Riot Community Volunteers</p>
-  <h2>League Observer Tool</h2>
+  <h2 class="mb-1">League Observer Tool</h2>
+  <p>Version: {window.constants.version}</p>
 
-  <div class="mt-4 w-100 text-center text-muted">
+  <div class="mt-auto w-100 text-center text-muted">
     {#if state === 'checking-app'}
       <small>Checking for App-Update ...</small>
     {:else if state === 'downloading-app'}
-      <div id="progress" class="d-flex w-100 mt-1">
+      <div id="progress" class="mt d-flex w-100 mt-1">
         <small class="mr-5">Downloading App-Update ...</small>
         <small class="ml-auto">{transferred} MBs / {total} MBs</small>
       </div>
-      <Progress value={percent} width="100%" />
+      
+      <div class="progress-bg">
+        <div class="progress-bar" style="width: {percent}%;"></div>
+      </div>
     {:else if state === 'update-downloaded-app'}
       <small>Installing App-Update ...</small>
     {:else if state === 'error-app'}
@@ -55,5 +57,21 @@
 
   #progress {
     justify-content: space-between;
+  }
+
+  .progress-bg {
+    margin-top: auto;
+    width: 100%;
+    height: 20px;
+    background-color: var(--dark-gray);
+    position: relative;
+  }
+
+  .progress-bar {
+    position: absolute;
+    height: 100%;
+    background: var(--bs-primary);
+    background: linear-gradient(90deg, var(--bs-primary-dark) 0%, var(--bs-primary) 100%);
+    transition: width 0.15s ease;
   }
 </style>

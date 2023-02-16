@@ -6,6 +6,11 @@ contextBridge.exposeInMainWorld('sender', {
   }
 })
 
+contextBridge.exposeInMainWorld("constants", {
+  version: process.env.npm_package_version,
+  platform: process.platform
+})
+
 contextBridge.exposeInMainWorld('connector', {
   server : {
     start : () => {

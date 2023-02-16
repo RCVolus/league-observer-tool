@@ -31,13 +31,11 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (_event, commandLine) => {
     if (commandLine.includes('--quit-app')) {
       app.quit()
       return;
     }
-
-    /* console.log(commandLine.find((arg) => arg.startsWith('rcvlo://'))) */
 
     if (mainWindow.isMinimized()) {
       mainWindow.restore()
@@ -119,11 +117,6 @@ function openMainWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile(join(__dirname, '../frontend/public/index.html'));
-
-  mainWindow.webContents.on('did-finish-load', () => {
-    initWindow.close()
-    mainWindow.show()
-  })
 
   const lcu = new LCU()
   const server = new Server()

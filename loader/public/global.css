@@ -1,7 +1,9 @@
 :root {
   --bs-primary: #D8EF5E !important;
+  --bs-primary-dark: #313619 !important;
   --bs-success: #00b884 !important;
   --bs-danger: #b9486d !important;
+  --dark-gray: #2e292d;
 }
 
 * {
