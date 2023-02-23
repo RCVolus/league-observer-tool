@@ -7,7 +7,6 @@ import type { LPTEvent } from '../../types/LPTE'
 import type { DisplayError } from '../../types/DisplayError';
 import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot } from "@larseble/farsight";
 
-
 export class Farsight {
   private data : Array<any> = []
   public actions : [string, string][] = []
@@ -95,12 +94,12 @@ export class Farsight {
     try {
       if(!isReady() || !this.isConnected) {
         this.isConnected = await connectToLeague()
+        Sender.emit(this.id, 1)
         return
       }
 
       const data = makeSnapshot()
-      console.log(data)
-      this.data.push(data)
+      // this.data.push(data)
 
       const obj : LPTEvent = {
         meta: {
