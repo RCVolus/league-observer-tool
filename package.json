@@ -23,7 +23,8 @@
     "build:loader": "cd loader && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "tsc -p ./tsconfig.json",
-    "dist": "npm run build:loader && npm run build:frontend && npm run build:backend && electron-builder build -w"
+    "dist": "npm run build:loader && npm run build:frontend && npm run build:backend && electron-builder build -w",
+    "rebuild": "electron-rebuild -f"
   },
   "build": {
     "forceCodeSigning": false,
@@ -61,6 +62,7 @@
     ]
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.2.10",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@rollup/plugin-typescript": "^8.0.0",
