@@ -96,7 +96,7 @@ export class LCUModule {
   }
 
   async handleData(data: any, event: any): Promise<void> {
-    this.data.push({data, event})
+    /* this.data.push({data, event}) */
 
     let selectedData : {[n: string]: any} = {}
     if (!this.dataPoints) selectedData = data

@@ -99,7 +99,7 @@ export class InGameApi {
 
       const data = await res.json()
 
-      this.data.push(data)
+      /* this.data.push(data) */
 
       const obj : LPTEvent = {
         meta: {

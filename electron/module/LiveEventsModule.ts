@@ -109,7 +109,7 @@ export class LiveEventsModule {
     newDataSting = newDataSting.replace(/(}{)/gm, "},{")
     const parsedData : Array<any> = JSON.parse(`[${newDataSting}]`)
 
-    this.data.push(parsedData)
+    /* this.data.push(parsedData) */
 
     try {
       const obj : LPTEvent = {

@@ -15,7 +15,7 @@ export class Lobby extends LCUModule {
       this.players = new Map()
     }
 
-    this.data.push({data, event})
+    /* this.data.push({data, event}) */
 
     const selectedData : {[n: string]: any} = data
 
