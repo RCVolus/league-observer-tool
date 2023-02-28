@@ -8,25 +8,25 @@ import type { DisplayError } from '../../types/DisplayError';
 import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot } from "@larseble/farsight";
 
 export class Farsight {
-  private data : Array<any> = []
-  public actions : [string, string][] = []
-  private interval ? : NodeJS.Timeout
-  private subMenu : MenuItem | null
-  private menuItem : MenuItem
+  private data: Array<any> = []
+  public actions: [string, string][] = []
+  private interval?: NodeJS.Timeout
+  private subMenu: MenuItem | null
+  private menuItem: MenuItem
   private isSynced = false
   private isConnected = false
 
-  constructor (
-    public id : string,
-    public name : string,
-    public namespace : string,
-    private server : Server,
-    private menu : Menu
+  constructor(
+    public id: string,
+    public name: string,
+    public namespace: string,
+    private server: Server,
+    private menu: Menu
   ) {
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.handle(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
     ipcMain.handle(`${id}-save`, () => {
@@ -39,7 +39,7 @@ export class Farsight {
       label: this.name,
       type: 'checkbox',
       checked: false,
-      click : (e) => {
+      click: (e) => {
         if (e.checked) {
           this.connect()
         } else {
@@ -60,11 +60,23 @@ export class Farsight {
    * to get live game information
    * if live-game is not available, sends and error to the frontend 
   */
-  public async connect () : Promise<void> {
+  public async connect(): Promise<void> {
     if (!this.server.isConnected) {
       if (this.menuItem) {
         this.menuItem.checked = false
       }
+      return
+    }
+
+
+    const choice = dialog.showMessageBoxSync({
+      type: "warning",
+      buttons: ["Accept", "Cancel"],
+      title: "Memory Reading Warning",
+      message: "Farsight uses Memory Reading to get information that the Riot API does not expose. Riot's policy in the past has been to allow passive memory reading, which is exactly what this program does, but this may change at any time. Use Farsight at your own risk. Anti Cheat does not ban for programs used during spectate, but it does however run while in a live game. Having Farsight open during a live (non-spectate) game may lead to account bans incase checks to stop it from running fail for some reason."
+    })
+
+    if (choice === 1) {
       return
     }
 
@@ -77,10 +89,6 @@ export class Farsight {
     const res = await connectToLeague()
     this.isConnected = res
 
-    if(res && isReady()) {
-        Sender.emit(this.id, 2)
-    }
-
     // get live-game data every 1s
     this.interval = setInterval(async () => {
       this.getData()
@@ -90,9 +98,9 @@ export class Farsight {
   /**
    * Gets data from the live-game api
   */
-  private async getData () : Promise<void> {
+  private async getData(): Promise<void> {
     try {
-      if(!isReady() || !this.isConnected) {
+      if (!isReady() || !this.isConnected) {
         this.isConnected = await connectToLeague()
         Sender.emit(this.id, 1)
         return
@@ -101,7 +109,7 @@ export class Farsight {
       const data = makeSnapshot()
       // this.data.push(data)
 
-      const obj : LPTEvent = {
+      const obj: LPTEvent = {
         meta: {
           namespace: this.namespace,
           type: 'farsight-data',
@@ -127,7 +135,7 @@ export class Farsight {
   /**
    * Clears timeout to stop requesting live-game data
   */
-  public disconnect () : void {
+  public disconnect(): void {
     Sender.emit(this.id, 0)
 
     if (this.menuItem) {
@@ -141,16 +149,16 @@ export class Farsight {
     }
   }
 
-  private async saveData () {
+  private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
       buttonLabel: 'Save',
       filters: [
-          {
-              name: 'Text Files',
-              extensions: ['json']
-          }, 
+        {
+          name: 'Text Files',
+          extensions: ['json']
+        },
       ],
       properties: []
     })
