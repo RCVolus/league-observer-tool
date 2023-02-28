@@ -1,7 +1,7 @@
 /// <reference types="svelte" />
 
 export interface Constants {
-  version: string
+  getVersion: () => Promise<string>
 }
 
 export interface Sender {

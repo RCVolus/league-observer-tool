@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   window.sender.on("state", (e : any, data : any) => {
     state = data[0]
   });
@@ -7,6 +9,12 @@
     total = (data[0].total / Math.pow(1024, 2)).toFixed(1)
     transferred = (data[0].transferred / Math.pow(1024, 2)).toFixed(1)
   });
+
+  let version = '5.0.0'
+
+  onMount(async () => {
+    version = await window.constants.getVersion()
+  })
 
   let state = 'checking' 
   let percent = 0
@@ -18,7 +26,7 @@
   <img src="./img/icon.png" alt="RCV Logo" width="75" class="mt-auto mb-3">
   <p class="text-muted mb-1">Riot Community Volunteers</p>
   <h2 class="mb-1">League Observer Tool</h2>
-  <p>Version: {window.constants.version}</p>
+  <p>Version: {version}</p>
 
   <div class="mt-auto w-100 text-center text-muted">
     {#if state === 'checking-app'}
