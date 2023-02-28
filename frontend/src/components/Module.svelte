@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Card, CardBody, CardHeader, Icon } from "sveltestrap";
+  import { Button, Card, CardBody, CardHeader, /* Icon */ } from "sveltestrap";
   import { availableModules } from "../stores/Stores";
   import { ConnectionStore } from "../stores/Connector"; 
 
@@ -18,9 +18,9 @@
     }
   }
 
-  function save () {
+  /* function save () {
     window.modules.saveData(id)
-  }
+  } */
 
   function callAction (action: string) {
     window.modules.callAction(id, action)
@@ -38,9 +38,9 @@
 <Card class={`my-3 ${status === 2 ? 'border-success' : status === 1 ? 'border-warning' : ''}`} color="dark">
   <CardHeader class="d-flex justify-content-between align-items-center">
     <small class={status === 2 ? 'text-success' : status === 1 ? 'text-warning' : 'text-danger'}>{status === 2 ? 'Sync' : status === 1 ? 'Standby' : 'Offline'}</small>
-    <Button class="ml-auto" size="sm" color="dark" on:click={save} disabled={!$isConnected || $isPending}>
+    <!-- <Button class="ml-auto" size="sm" color="dark" on:click={save} disabled={!$isConnected || $isPending}>
       <Icon name="file-earmark-post-fill" />
-    </Button>
+    </Button> -->
   </CardHeader>
   <CardBody>
     <h3 class="mb-3 text-center">{name}</h3>
