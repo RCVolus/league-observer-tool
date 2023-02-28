@@ -7,19 +7,19 @@ contextBridge.exposeInMainWorld('sender', {
 })
 
 contextBridge.exposeInMainWorld("constants", {
-  version: process.env.npm_package_version,
+  getVersion: (): Promise<string> => ipcRenderer.invoke('getVersion'),
   platform: process.platform
 })
 
 contextBridge.exposeInMainWorld('connector', {
   server : {
     start : () => {
-      ipcRenderer.invoke('lcu-connection-start')
+      ipcRenderer.invoke('server-connection-start')
     }
   },
   lcu : {
     start : () => {
-      ipcRenderer.invoke('server-connection-start')
+      ipcRenderer.invoke('lcu-connection-start')
     }
   },
   stop : () => {
