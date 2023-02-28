@@ -30,7 +30,7 @@
     "forceCodeSigning": false,
     "appId": "gg.rcv.league-observer-tool",
     "productName": "League Observer Tool",
-    "copyright": "Copyright © 2021 Riot Community Volunteers",
+    "copyright": "Copyright © 2023 Riot Community Volunteers",
     "win": {
       "target": "nsis",
       "icon": "assets/icons/icon.ico",
