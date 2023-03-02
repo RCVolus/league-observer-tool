@@ -12,6 +12,11 @@ Once install, the observer tool automatically updates to any new versions releas
 * Before saving, close the Observer Tool either from the tray or with File -> Quit
 * Save the changed config file
 
+## A Note on Memory Reading
+Since version 5.0.0, the Observer tool implements passive memory reading based on [Farsight](https://github.com/floh22/native-farsight-module). Riot has previously stated passive memory reading is allowed, although this policy might change at any time without warning. Currently, memory reading while spectating should not cause you issues. Make sure you turn off the observer tool when playing games. Use at your own risk.
+
+Since memory offsets change with every patch and need to be updated, memory reading will not work immediately after game updates. Farsight has a [guide](https://github.com/floh22/native-farsight-module) on updating offsets yourself.
+
 ## Setting up LiveEvents API
 For ingame Events (e.g., Dragon or Baron kills), the LiveEvents API needs to be configured locally:
 1. Add the following to `game.cfg` (located in `[install path]\Riot Games\League of Legends\Config`):
@@ -21,6 +26,7 @@ Enable=1
 Port=34243
 ```
 Make sure the port is the same as configured in the observer tool settings under `live-events-port`.
+
 2. Create a file called `LiveEvents.ini` in the same config directory
 3. Paste the following in the `LiveEvents.ini` file:
 ```ini
