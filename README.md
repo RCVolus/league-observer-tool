@@ -12,6 +12,18 @@ Once install, the observer tool automatically updates to any new versions releas
 * Before saving, close the Observer Tool either from the tray or with File -> Quit
 * Save the changed config file
 
+The config file might look like this for a local toolkit without authentication:
+```json
+{
+  "server-ip": "127.0.0.1",
+  "server-port": 3003,
+  "server-api-key": "",
+  "replay-sync-mode": "get",
+  "live-events-port": 34243
+}
+```
+If you have authentication enabled, set a key (`RCVPT-...`) in `server-api-key`. If the toolkit isn't running locally, set the toolkit IP in `server-ip`.
+
 ## A Note on Memory Reading
 Since version 5.0.0, the Observer tool implements passive memory reading based on [Farsight](https://github.com/floh22/native-farsight-module). Riot has previously stated passive memory reading is allowed, although this policy might change at any time without warning. Currently, memory reading while spectating should not cause you issues. Make sure you turn off the observer tool when playing games. Use at your own risk.
 
