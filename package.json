@@ -89,7 +89,7 @@
     "typescript": "^4.9"
   },
   "dependencies": {
-    "@larseble/farsight": "^1.0.0",
+    "@larseble/farsight": "^1.0.3",
     "@nut-tree/nut-js": "^2.3.0",
     "electron-cfg": "^1.2.7",
     "electron-fetch": "^1.9.1",

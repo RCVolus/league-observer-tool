@@ -80,32 +80,34 @@ export class Farsight {
       return
     }
 
-    Sender.emit(this.id, 1)
-
-    if (this.menuItem) {
-      this.menuItem.checked = true
-    }
-
     const res = await connectToLeague()
     this.isConnected = res
 
     // get live-game data every 1s
-    this.interval = setInterval(async () => {
-      this.getData()
-    }, 1000)
+    if (res) {
+      Sender.emit(this.id, 1)
+
+      if (this.menuItem) {
+        this.menuItem.checked = true
+      }
+
+      this.interval = setInterval(async () => {
+        this.getData()
+      }, 1000)
+    }
   }
 
   /**
    * Gets data from the live-game api
   */
   private async getData(): Promise<void> {
+    if (!isReady() || !this.isConnected) {
+      this.isConnected = await connectToLeague()
+      Sender.emit(this.id, 1)
+      return
+    }
+    
     try {
-      if (!isReady() || !this.isConnected) {
-        this.isConnected = await connectToLeague()
-        Sender.emit(this.id, 1)
-        return
-      }
-
       const data = makeSnapshot()
       // this.data.push(data)
 
