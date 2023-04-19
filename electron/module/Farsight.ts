@@ -1,11 +1,12 @@
-import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
+import { ipcMain, dialog, app, MenuItem, type Menu } from 'electron';
 import { join } from "path";
 import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
-import { Server } from '../connector/Server';
+import type { Server } from '../connector/Server';
 import type { LPTEvent } from '../../types/LPTE'
+import type { LCU } from '../connector/LCU'
 import type { DisplayError } from '../../types/DisplayError';
-import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot } from "@larseble/farsight";
+import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot, setVersion } from "@larseble/farsight";
 
 export class Farsight {
   private data: Array<any> = []
@@ -20,6 +21,7 @@ export class Farsight {
     public id: string,
     public name: string,
     public namespace: string,
+    protected lcu : LCU,
     private server: Server,
     private menu: Menu
   ) {
@@ -80,6 +82,12 @@ export class Farsight {
       return
     }
 
+    const version: string = await this.lcu.request({
+      method: 'GET',
+      url: '/lol-patch/v1/game-version'
+    })
+
+    setVersion(version.split('.',2).join('.'))
     const res = await connectToLeague()
     this.isConnected = res
 

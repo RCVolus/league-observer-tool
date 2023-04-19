@@ -80,6 +80,7 @@ export class Modules {
       "in-game-farsight",
       "Farsight",
       "module-league-in-game",
+      this.lcu,
       this.server,
       this.menu
     ))

@@ -1,12 +1,12 @@
-import { EventResponse } from 'league-connect'
-import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
+import type { EventResponse } from 'league-connect'
+import { ipcMain, dialog, app, MenuItem, type Menu } from 'electron';
 import { join } from "path";
 import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
-import { Server } from '../connector/Server';
-import { LCU } from '../connector/LCU'
+import type { Server } from '../connector/Server';
+import type { LCU } from '../connector/LCU'
 import type { LPTEvent } from "../../types/LPTE";
-import { DisplayError } from '../../types/DisplayError';
+import type { DisplayError } from '../../types/DisplayError';
 
 export class LCUModule {
   protected data : Array<any> = []
