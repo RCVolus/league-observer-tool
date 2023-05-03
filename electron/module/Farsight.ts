@@ -88,6 +88,7 @@ export class Farsight {
     })
 
     setVersion(version.split('.',2).join('.'))
+
     const res = await connectToLeague()
     this.isConnected = res
 
