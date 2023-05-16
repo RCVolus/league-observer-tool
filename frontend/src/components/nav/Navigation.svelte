@@ -6,8 +6,9 @@
 <div class="navbar">
   <ul class="items">
     <NavItem icon="window" name="Client" href="client" />
-    <NavItem type="timer" />
     <NavItem icon="controller" name="In Game" href="in-game" />
+    <NavItem type="timer" />
+    <NavItem icon="gear" name="Settings" href="settings" width={2} />
   </ul>
   <NavConnect />
 </div>
