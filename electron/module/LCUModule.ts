@@ -7,10 +7,11 @@ import type { Server } from '../connector/Server';
 import type { LCU } from '../connector/LCU'
 import type { LPTEvent } from "../../types/LPTE";
 import type { DisplayError } from '../../types/DisplayError';
+import { Action } from '../../types/Action';
 
 export class LCUModule {
   protected data : Array<any> = []
-  public actions : [string, string][] = []
+  public actions : [string, Action][] = []
   private subMenu : Electron.MenuItem | null
   private menuItem : Electron.MenuItem
   private isSynced = false

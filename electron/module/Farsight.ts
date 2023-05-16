@@ -7,10 +7,11 @@ import type { LPTEvent } from '../../types/LPTE'
 import type { LCU } from '../connector/LCU'
 import type { DisplayError } from '../../types/DisplayError';
 import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot, setVersion } from "@larseble/farsight";
+import { Action } from '../../types/Action';
 
 export class Farsight {
   private data: Array<any> = []
-  public actions: [string, string][] = []
+  public actions: [string, Action][] = []
   private interval?: NodeJS.Timeout
   private subMenu: MenuItem | null
   private menuItem: MenuItem

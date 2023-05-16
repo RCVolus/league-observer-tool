@@ -7,6 +7,7 @@ import type { LPTEvent } from '../../types/LPTE'
 import fetch from 'electron-fetch'
 import type { DisplayError } from '../../types/DisplayError';
 import { Agent } from 'https';
+import { Action } from '../../types/Action';
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -15,7 +16,7 @@ const httpsAgent = new Agent({
 export class InGameApi {
   static url = "https://127.0.0.1:2999/liveclientdata/"
   private data : Array<any> = []
-  public actions : [string, string][] = []
+  public actions : [string, Action][] = []
   private interval ? : NodeJS.Timeout
   private subMenu : MenuItem | null
   private menuItem : MenuItem
