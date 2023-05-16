@@ -12,7 +12,7 @@
   }
 </script>
 
-<div class="navconnect" class:connected={$isConnected} class:pending={$isPending} on:click={handleConnection} >
+<button class="navconnect" class:connected={$isConnected} class:pending={$isPending} on:click={handleConnection} >
   <span>
     {#if $isPending}
       <Spinner type="border" style="border-width: .10em" class="mt-1"></Spinner>
@@ -20,7 +20,7 @@
       <Icon name="power"></Icon>
     {/if}
   </span>
-</div>
+</button>
 
 <style>
   .navconnect {
