@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Alert as SSAlert  } from "sveltestrap";
+  import { Alert as SAlert } from "sveltestrap";
   import { AlertStore } from "../stores/Alert";
   import { ConnectionStore } from "../stores/Connector"; 
   import type { DisplayError } from "../../../types/DisplayError";
@@ -17,12 +17,6 @@
     visible = true;
     const ms = alert.timeout || 3000
     if (ms > 0) timeout = setTimeout(() => (visible = false), ms);
-
-    if (alert.color == "danger") {
-      style = "background: rgb(185,72,109)"
-    } else if (alert.color == "success") {
-      style = "background: rgb(0,184,132)"
-    }
   };
   $: onMessageChange($Alert);
   onDestroy(() => clearTimeout(timeout));
@@ -30,10 +24,9 @@
 
 <div class="alert-box">
   {#if !$isConnected}
-    <SSAlert
+    <SAlert
       color="danger"
       class="my-0 text-center"
-      style="background: rgb(185,72,109)"
     >
       <h5 class="alert-heading text-capitalize mb-0">
         Not connected to
@@ -47,18 +40,18 @@
           Server
         {/if}
       </h5>
-    </SSAlert>
+    </SAlert>
   {/if}
 
   {#if $Alert}
-  <SSAlert
+  <SAlert
     color={$Alert.color}
     isOpen={visible}
     class="my-0 text-center"
     {style}
   >
     <h5 class="alert-heading text-capitalize mb-0">{$Alert.text}</h5>
-  </SSAlert>
+  </SAlert>
   {/if}
 </div>
 
