@@ -1,14 +1,8 @@
 import { app, BrowserWindow, dialog, globalShortcut } from "electron";
 import { join } from 'path'
-import cfg from 'electron-cfg';
+import { store } from '../index'
 
 export default function createMainWindow () : BrowserWindow {
-  const winCfg = cfg.create(
-    join(app.getPath('userData'),
-    'window.json'
-  ))
-  const winOptions = winCfg.window();
-
   let preloaderPath : string
   let allowDevTools : boolean
   if (app.isPackaged) {
@@ -19,10 +13,9 @@ export default function createMainWindow () : BrowserWindow {
     preloaderPath = join(app.getAppPath(), 'preload.js')
   }
 
-  const mainWindow = new BrowserWindow({
+  const options = Object.assign({
     height: 900,
     width: 400,
-    ...winOptions.options(),
     title: "League Observer Tool",
     show: false,
     webPreferences: {
@@ -31,10 +24,10 @@ export default function createMainWindow () : BrowserWindow {
       contextIsolation: true, // protect against prototype pollution
       preload: preloaderPath,
       devTools: allowDevTools
-    }
-  })
+    },
+  }, store.get('window-bounds'))
 
-  winOptions.assign(mainWindow);
+  const mainWindow = new BrowserWindow(options)
 
   mainWindow.on("close", (e) => {
     const choice = dialog.showMessageBoxSync({
@@ -48,6 +41,7 @@ export default function createMainWindow () : BrowserWindow {
       e.preventDefault()
       return
     } else {
+      store.set('window-bounds', mainWindow.getBounds())
       globalShortcut.unregisterAll()
     }
   })

@@ -12,6 +12,9 @@ import createTray from "./tray";
 import createInitWindow from "./window/initWindow";
 import log from 'electron-log';
 import api from "./api";
+import Config from "../types/Config";
+import Store from 'electron-store'
+import createStore from "./store";
 
 app.setAppUserModelId('gg.rcv.league-observer-tool')
 
@@ -22,6 +25,7 @@ autoUpdater.autoDownload = false
 let mainWindow : BrowserWindow
 let initWindow : BrowserWindow
 let tray : Tray
+export let store : Store<Config>
 
 if (process.platform == "win32") {
   createJumpLists();
@@ -49,19 +53,17 @@ if (!gotTheLock) {
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   app.on("ready", () => {
-    api.listen(8572, () => {
-      console.log('api is running on port 8572')
+    store = createStore()
+    tray = createTray(mainWindow)
+
+    ipcMain.handle('getVersion', () => {
+      return app.getVersion()
     })
 
     mainWindow = createMainWindow()
     initWindow = createInitWindow()
 
     initApp();
-    tray = createTray(mainWindow)
-
-    ipcMain.handle('getVersion', () => {
-      return app.getVersion()
-    })
 
     app.on("activate", function () {
       // On macOS it's common to re-create a window in the app when the
@@ -126,6 +128,10 @@ function openMainWindow() {
   const server = new Server()
   const menu = new MainMenu(lcu, server)
   new Modules(lcu, server, menu.mainMenu)
+
+  api.listen(8572, () => {
+    console.log('api is running on port 8572')
+  })
 
   ipcMain.handle('connection-stop', () => {
     const options = {

@@ -3,8 +3,8 @@ import { ipcMain } from 'electron';
 import { Sender } from '../helper/Sender';
 import { DisplayError } from '../../types/DisplayError';
 import type { LPTEvent } from '../../types/LPTE'
+import { store } from '../index'
 import uniqid from 'uniqid'
-import cfg from 'electron-cfg';
 import log from 'electron-log';
 
 enum EventType {
@@ -32,15 +32,36 @@ export class Server {
     this.logger = log.create('Server')
     this.logger.scope('Server')
 
-    this.serverIP = cfg.get("server-ip", "127.0.0.1")
-    cfg.set("server-ip", this.serverIP)
-    this.serverPort = cfg.get("server-port", 3003)
-    cfg.set("server-port", this.serverPort)
-    this.apiKey = cfg.get("server-api-key", "")
-    cfg.set("server-api-key", this.apiKey)
+    this.serverIP = store.get("server-ip")
+    this.serverPort = store.get("server-port")
+    this.apiKey = store.get("server-api-key")
 
-    cfg.observe('server-ip', (current : string) => {
-      this.serverIP = current
+    store.onDidChange('server-ip', (newValue, oldValue) => {
+      if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
+
+      this.serverIP = newValue
+      
+      if (this.isConnected) {
+        this.disconnect()
+        this.connect()
+      }
+    })
+
+    store.onDidChange('server-port', (newValue, oldValue) => {
+      if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
+
+      this.serverPort = newValue
+      
+      if (this.isConnected) {
+        this.disconnect()
+        this.connect()
+      }
+    })
+
+    store.onDidChange('server-api-key', (newValue, oldValue) => {
+      if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
+
+      this.apiKey = newValue
       
       if (this.isConnected) {
         this.disconnect()

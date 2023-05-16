@@ -1,7 +1,7 @@
 import { app, Menu, shell } from "electron";
 import { LCU } from './connector/LCU'
 import { Server } from './connector/Server'
-import cfg from 'electron-cfg';
+import { store } from './index'
 
 export class MainMenu {
   public mainMenu : Menu
@@ -35,7 +35,7 @@ export class MainMenu {
           {
             label: 'Open Settings',
             click () {
-              shell.openExternal(cfg.file())
+              store.openInEditor()
             }
           },
           {

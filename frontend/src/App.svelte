@@ -1,16 +1,18 @@
 <script lang="ts">
+  import { currentPage, availableModules, store } from "./stores/Stores"; 
+  import { onMount } from 'svelte';
   import Alert from "./components/Alert.svelte";
   import Client from "./components/Client.svelte";
   import Navigation from "./components/nav/Navigation.svelte";
-  import { currentPage, availableModules } from "./stores/Stores"; 
-  import { onMount } from 'svelte';
   import Game from "./components/Game.svelte";
+  import Settings from "./components/Settings.svelte";
 
   window.sender.on("console", (_event, ...args: any) => {
     console.log(...args);
   });
 
   onMount(async () => {
+    $store = await window.store.getStore()
     const res = await window.modules.getModules()
 
     if (res) {
@@ -35,6 +37,8 @@
     <Client />
   {:else if $currentPage == "in-game"}
     <Game />
+  {:else if $currentPage == "settings"}
+    <Settings />
   {/if}
 </main>
 
