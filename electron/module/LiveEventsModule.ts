@@ -5,14 +5,15 @@ import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import { Socket, connect } from 'net';
 import type { LPTEvent } from '../../types/LPTE'
-import cfg from 'electron-cfg';
+import { store } from '../index'
 import { DisplayError } from '../../types/DisplayError';
+import { Action } from '../../types/Action';
 
 export class LiveEventsModule {
   private data : Array<any> = []
   private netClient ? : Socket
   private port : number
-  public actions : [string, string][] = []
+  public actions : [string, Action][] = []
   private subMenu : Electron.MenuItem | null
   private menuItem : Electron.MenuItem
   private interval ? : NodeJS.Timeout
@@ -51,11 +52,17 @@ export class LiveEventsModule {
     })
     this.subMenu?.submenu?.append(this.menuItem)
 
-    this.port = cfg.get("live-events-port", 34243)
-    cfg.set("live-events-port", this.port)
+    this.port = store.get("live-events-port")
 
-    cfg.observe('server-ip', (current : number) => {
-      this.port = current
+    store.onDidChange('live-events-port', (newValue, oldValue) => {
+      if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
+
+      this.port = newValue
+      
+      if (this.menuItem.checked) {
+        this.disconnect()
+        this.connect()
+      }
     })
   }
 

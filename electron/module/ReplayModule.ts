@@ -2,15 +2,15 @@ import { ipcMain, dialog, app, MenuItem, Menu, globalShortcut } from 'electron';
 import { join } from "path";
 import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
+import { Action } from '../../types/Action';
 import { Server } from '../connector/Server';
 import fetch from 'electron-fetch'
 import { Agent } from "https";
 import type { DisplayError } from '../../types/DisplayError';
-import cfg from 'electron-cfg';
+import { store } from '../index'
 import { keyboard } from '@nut-tree/nut-js'
 import { Key } from '@nut-tree/nut-js/dist/lib/key.enum';
 import api from '../api';
-
 
 const fetchOption = {
   agent: new Agent({
@@ -20,49 +20,81 @@ const fetchOption = {
 
 export class ReplayModule {
   static replayUrl = "https://127.0.0.1:2999/replay/"
-  private playbackInterval ? : NodeJS.Timeout
-  private renderInterval ? : NodeJS.Timeout
-  private subMenu : Electron.MenuItem | null
-  private menuItem : Electron.MenuItem
-  private playbackData ? : {
+  private playbackInterval?: NodeJS.Timeout
+  private renderInterval?: NodeJS.Timeout
+  private subMenu: Electron.MenuItem | null
+  private menuItem: Electron.MenuItem
+  private playbackData?: {
     savedAt: number
     time: number
   }
-  private renderData : any = {}
-  public actions : [string, string][] = [
-    ["sync-replay", "Sync to first Operator"],
-    ["sync-replay-plus-5", "Sync to first Operator (+5 sec)"],
-    ["sync-replay-plus-10", "Sync to first Operator (+10 sec)"],
-    ["cinematic-ui", "Set up UI for cinematic"],
-    ["obs-ui", "Set up UI for Observing"],
+  private renderData: any = {}
+  public actions: [string, Action][] = [
+    ["sync-replay", {
+      title: "Sync to first Operator",
+      type: 'button'
+    }],
+    ["sync-replay-plus-5", {
+      title: "Sync to first Operator (+5 sec)",
+      type: 'button'
+    }],
+    ["sync-replay-plus-10", {
+      title: "Sync to first Operator (+10 sec)",
+      type: 'button'
+    }],
+    ["sync-replay-input", {
+      title: "Sync to first Operator (+/- Time)",
+      type: 'input',
+      input: {
+        type: 'number',
+        default: -5
+      }
+    }],
+    ["jump-to-time", {
+      title: "Jump to a In-Game Time",
+      type: 'input',
+      input: {
+        type: 'text',
+        default: '00:00',
+        pattern: /^[0-9]{1,2}\:[0-9]{2}/
+      }
+    }],
+    ["cinematic-ui", {
+      title: "Set up UI for cinematic",
+      type: 'button'
+    }],
+    ["obs-ui", {
+      title: "Set up UI for Observing",
+      type: 'button'
+    }]
   ]
-  private syncMode : "get" | "send"
+  private syncMode: boolean
   public isSynced = false
   private interfaceState = {
-    'interfaceAll' : true,
-    'healthBarChampions' : true,
-    'healthBarMinions' : true,
-    'healthBarStructures' : true,
-    'interfaceScoreboard' : true,
-    'healthBarWards' : true,
-    'interfaceNeutralTimers' : true,
-    'interfaceChat' : false,
-    'interfaceKillCallouts' : false,
-    'interfaceTimeline' : false,
+    'interfaceAll': true,
+    'healthBarChampions': true,
+    'healthBarMinions': true,
+    'healthBarStructures': true,
+    'interfaceScoreboard': true,
+    'healthBarWards': true,
+    'interfaceNeutralTimers': true,
+    'interfaceChat': false,
+    'interfaceKillCallouts': false,
+    'interfaceTimeline': false,
   }
 
-  constructor (
-    public id : string,
-    public name : string,
-    public namespace : string,
-    public type : string,
-    private server : Server,
-    private menu : Menu,
+  constructor(
+    public id: string,
+    public name: string,
+    public namespace: string,
+    public type: string,
+    private server: Server,
+    private menu: Menu,
   ) {
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.handle(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
     ipcMain.handle(`${id}-save`, () => {
@@ -76,6 +108,12 @@ export class ReplayModule {
     })
     ipcMain.handle(`${id}-sync-replay-plus-10`, () => {
       this.syncReplay(10)
+    })
+    ipcMain.handle(`${id}-sync-replay-input`, (_e, value) => {
+      this.syncReplay(value)
+    })
+    ipcMain.handle(`${id}-jump-to-time`, (_e, value) => {
+      this.jumpToTime(value)
     })
     ipcMain.handle(`${id}-cinematic-ui`, () => {
       this.cinematicUI()
@@ -98,13 +136,14 @@ export class ReplayModule {
       res.send().status(200)
     })
 
-    this.syncMode = cfg.get("replay-sync-mode", "get") as "get" | "send"
-    cfg.set("replay-sync-mode", this.syncMode)
+    this.syncMode = store.get("replay-send-information")
 
-    cfg.observe('server-ip', (current : "get" | "send") => {
-      this.syncMode = current
-      
-      if (this.isSynced) {
+    store.onDidChange('replay-send-information', (newValue, oldValue) => {
+      if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
+
+      this.syncMode = newValue
+
+      if (this.menuItem.checked) {
         this.disconnect()
         this.connect()
       }
@@ -119,7 +158,7 @@ export class ReplayModule {
           label: this.name,
           type: 'checkbox',
           checked: false,
-          click : (e) => {
+          click: (e) => {
             if (e.checked) {
               this.connect()
             } else {
@@ -134,22 +173,20 @@ export class ReplayModule {
           id: this.id + "_send_playback",
           label: "Send Information",
           type: "radio",
-          checked: this.syncMode === 'send',
+          checked: this.syncMode,
           click: () => {
             this.sendPlayback()
-            cfg.set("replay-sync-mode", "send")
-            this.syncMode = 'send'
+            store.set("replay-sync-mode", true)
           }
         },
         {
           id: this.id + "_get_playback",
           label: "Get Information",
           type: "radio",
-          checked: this.syncMode === 'get',
+          checked: !this.syncMode,
           click: () => {
             this.getPlayback()
-            cfg.set("replay-sync-mode", "get")
-            this.syncMode = 'get'
+            store.set("replay-sync-mode", false)
           }
         },
         {
@@ -186,11 +223,11 @@ export class ReplayModule {
 
     this.server.onConnected(() => {
       if (!this.isSynced) return
-      if (this.syncMode == "get") {
+      if (!this.syncMode) {
         setTimeout(() => {
           this.getPlayback()
         }, 0)
-      } else if (this.syncMode == "send") {
+      } else if (this.syncMode) {
         setTimeout(() => {
           this.sendPlayback()
         }, 0)
@@ -198,7 +235,7 @@ export class ReplayModule {
     })
   }
 
-  public connect () : void {
+  public connect(): void {
     if (!this.server.isConnected) {
       if (this.menuItem.submenu) {
         this.menuItem.submenu.items[0].checked = false
@@ -212,11 +249,11 @@ export class ReplayModule {
       this.menuItem.submenu.items[0].checked = true
     }
 
-    if (this.syncMode == "get") {
+    if (!this.syncMode) {
       setTimeout(() => {
         this.getPlayback()
       }, 0)
-    } else if (this.syncMode == "send") {
+    } else if (this.syncMode) {
       setTimeout(() => {
         this.sendPlayback()
       }, 0)
@@ -236,7 +273,7 @@ export class ReplayModule {
     })
   }
 
-  private sendPlayback () {
+  private sendPlayback() {
     if (!this.menuItem.submenu?.items[2].checked) return
 
     this.server.unsubscribe(this.namespace, this.type)
@@ -246,14 +283,14 @@ export class ReplayModule {
     this.handleSandingPlayback()
   }
 
-  private async handleSandingPlayback () {
+  private async handleSandingPlayback() {
     const fetchUri = ReplayModule.replayUrl + "playback"
 
     try {
       const res = await fetch(fetchUri, fetchOption)
-  
+
       if (!res.ok) return
-  
+
       const json = await res.json()
       const savedAt = new Date().getTime() + this.server.prodTimeOffset
       const time = Math.round(json.time)
@@ -288,7 +325,7 @@ export class ReplayModule {
     }
   }
 
-  private syncReplay (delay = 0) {
+  private syncReplay(delay = 0) {
     if (!this.playbackData) return
 
     try {
@@ -312,7 +349,31 @@ export class ReplayModule {
     }
   }
 
-  cinematicUI (): void {
+  private jumpToTime(time: string) {
+    if (!this.playbackData) return
+
+    try {
+      const a = time.split(':')
+      const seconds = (+a[0]) * 60 + (+a[1])
+
+      const uri = ReplayModule.replayUrl + "playback"
+      fetch(uri, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          time: seconds
+        }),
+        redirect: 'follow',
+        ...fetchOption
+      })
+    } catch (e) {
+      Sender.emit('console', e)
+    }
+  }
+
+  cinematicUI(): void {
     if (!this.playbackData) return
 
     const uri = ReplayModule.replayUrl + "render"
@@ -336,7 +397,7 @@ export class ReplayModule {
     })
   }
 
-  obsUI (): void {
+  obsUI(): void {
     if (!this.playbackData) return
 
     const uri = ReplayModule.replayUrl + "render"
@@ -364,7 +425,7 @@ export class ReplayModule {
     })
   }
 
-  private getPlayback () {
+  private getPlayback() {
     if (!this.menuItem.submenu?.items[3].checked) return
 
     if (this.playbackInterval) {
@@ -372,7 +433,6 @@ export class ReplayModule {
     }
 
     this.server.subscribe(this.namespace, this.type, (data) => {
-      console.log(data)
       this.playbackData = {
         savedAt: data.savedAt,
         time: data.time
@@ -383,7 +443,7 @@ export class ReplayModule {
     Sender.emit(this.id, 2)
   }
 
-  public disconnect () : void {
+  public disconnect(): void {
     this.server.unsubscribe(this.namespace, this.type)
     if (this.playbackInterval) {
       clearInterval(this.playbackInterval)
@@ -406,16 +466,16 @@ export class ReplayModule {
     globalShortcut.unregister('CommandOrControl+L')
   }
 
-  private async saveData () {
+  private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
       buttonLabel: 'Save',
       filters: [
-          {
-              name: 'Text Files',
-              extensions: ['json']
-          }, 
+        {
+          name: 'Text Files',
+          extensions: ['json']
+        },
       ],
       properties: []
     })

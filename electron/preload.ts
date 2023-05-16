@@ -1,8 +1,18 @@
 import { contextBridge, ipcRenderer } from "electron";
+import Config from "../types/Config";
 
 contextBridge.exposeInMainWorld('sender', {
   on: (channel : string, func : (event : Electron.IpcRendererEvent, ...data : any[]) => void ) => {
     ipcRenderer.on(channel, func)
+  }
+})
+
+contextBridge.exposeInMainWorld('store', {
+  getStore: () => {
+    return ipcRenderer.invoke('getStore')
+  },
+  saveStore: (store: Config) => {
+    return ipcRenderer.invoke('saveStore', store)
   }
 })
 
@@ -31,8 +41,8 @@ contextBridge.exposeInMainWorld('modules', {
   getModules: () => {
     return ipcRenderer.invoke('modules-ready')
   },
-  callAction : (moduleID : string, action : string) => {
-    ipcRenderer.invoke(`${moduleID}-${action}`)
+  callAction : (moduleID : string, action : string, value?: string | number) => {
+    ipcRenderer.invoke(`${moduleID}-${action}`, value)
   },
   saveData : (moduleID : string) => {
     ipcRenderer.invoke(`${moduleID}-save`)
