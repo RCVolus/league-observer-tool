@@ -60,7 +60,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-top: 6px solid #D8EF5E;
+    border-top: 6px solid var(--bs-primary);
   }
 
   #progress {
@@ -79,7 +79,6 @@
     position: absolute;
     height: 100%;
     background: var(--bs-primary);
-    background: linear-gradient(90deg, var(--bs-primary-dark) 0%, var(--bs-primary) 100%);
     transition: width 0.15s ease;
   }
 </style>
