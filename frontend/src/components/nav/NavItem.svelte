@@ -6,6 +6,7 @@
   export let name : string = ""
   export let href : string = ""
   export let type : "link" | "timer" = "link"
+  export let width : 1 | 2 = 1
   let timer = "-- : -- : --"
 
   let active = $currentPage == href
@@ -34,14 +35,14 @@
 </script>
 
 {#if type == "link"}
-  <li class="navitem" class:active on:click={setPage}>
+  <button class="navitem" class:active on:click={setPage} style="flex: {width}">
     <div class="icon">
       <Icon name={icon} />
     </div>
     <p class="name">{name}</p>
-  </li>
+  </button>
 {:else if type == "timer"}
-  <li class="navitem timer">
+  <li class="navitem timer" style="flex: {width}">
     <p class="time">{timer}</p>
   </li>
 {/if}
@@ -58,7 +59,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex: 1;
+    background: none;
+    outline: none;
+    color: white;
+    border: none;
   }
   
   .time {
@@ -66,7 +70,7 @@
   }
 
   .navitem:hover .icon {
-    color: #029ef7;
+    color: var(--bs-primary);
   }
 
   .icon {
@@ -80,14 +84,14 @@
   }
 
   .active {
-    border-top: 2px solid rgb(2, 158, 247, 0.5);
+    border-top: 2px solid rgb(var(--primary), 0.5);
     border-radius: 3px;
-    box-shadow: 0px -10px 10px -10px rgba(2,158,247, 0.75);
-    background: rgb(2,158,247);
-    background: linear-gradient(180deg, rgba(2,158,247,0.15) 0%, rgba(2,158,247,0) 100%);
+    box-shadow: 0px -10px 10px -10px rgba(var(--primary), 0.75);
+    background: var(--bs-primary);
+    background: linear-gradient(180deg, rgba(var(--primary), 0.15) 0%, rgba(var(--primary), 0) 100%);
   }
 
   .active .icon {
-    color: #029ef7;
+    color: var(--bs-primary);
   }
 </style>
