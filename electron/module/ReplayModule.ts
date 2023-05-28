@@ -176,7 +176,7 @@ export class ReplayModule {
           checked: this.syncMode,
           click: () => {
             this.sendPlayback()
-            store.set("replay-sync-mode", true)
+            store.set("replay-mode-information", true)
           }
         },
         {
@@ -186,7 +186,7 @@ export class ReplayModule {
           checked: !this.syncMode,
           click: () => {
             this.getPlayback()
-            store.set("replay-sync-mode", false)
+            store.set("replay-send-information", false)
           }
         },
         {
