@@ -176,7 +176,7 @@ export class ReplayModule {
           checked: this.syncMode,
           click: () => {
             this.sendPlayback()
-            store.set("replay-mode-information", true)
+            store.set("replay-send-information", true)
           }
         },
         {
