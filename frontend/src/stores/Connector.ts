@@ -1,4 +1,4 @@
-import { writable, Writable, derived, get } from "svelte/store";
+import { writable, type Writable, derived, get } from "svelte/store";
 
 class Connector {
   public lcuConnected : Writable<boolean> = writable(false)
