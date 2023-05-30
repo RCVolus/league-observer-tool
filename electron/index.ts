@@ -134,7 +134,7 @@ function openMainWindow() {
   })
 
   ipcMain.handle('connection-stop', () => {
-    const options = {
+    const options: Electron.MessageBoxSyncOptions = {
       buttons: ["Yes","Cancel"],
       type: "question",
       message: "Do you really want to disconnect?"
