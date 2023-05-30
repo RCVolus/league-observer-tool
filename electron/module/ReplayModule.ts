@@ -56,7 +56,7 @@ export class ReplayModule {
       input: {
         type: 'text',
         default: '00:00',
-        pattern: /^[0-9]{1,2}\:[0-9]{2}/
+        pattern: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/
       }
     }],
     ["cinematic-ui", {
@@ -125,6 +125,11 @@ export class ReplayModule {
     api.get('/replay_sync', (req, res) => {
       const time = parseInt(req.query.seconds as string ?? 0)
       this.syncReplay(time)
+      res.send().status(200)
+    })
+    api.get('/replay_time', (req, res) => {
+      const time = req.query.time as string
+      this.jumpToTime(time)
       res.send().status(200)
     })
     api.get('/ui_obs', (_req, res) => {
