@@ -91,7 +91,7 @@
   },
   "dependencies": {
     "@larseble/farsight": "github:floh22/native-farsight-module",
-    "@nut-tree/nut-js": "^3.1.1",
+    "@nut-tree/nut-js": "^3.1.2",
     "electron-fetch": "^1.9.1",
     "electron-log": "^4.4.8",
     "electron-store": "^8.1.0",
