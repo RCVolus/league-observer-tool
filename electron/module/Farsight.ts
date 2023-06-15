@@ -56,6 +56,10 @@ export class Farsight {
       if (!this.isSynced) return
       this.getData()
     })
+
+    app.on('before-quit', () => {
+      this.disconnect()
+    })
   }
 
   /**
@@ -119,7 +123,11 @@ export class Farsight {
     
     try {
       const data = makeSnapshot()
-      // this.data.push(data)
+
+      if (!isReady() || !this.isConnected) {
+        Sender.emit(this.id, 1)
+        return
+      }
 
       const obj: LPTEvent = {
         meta: {

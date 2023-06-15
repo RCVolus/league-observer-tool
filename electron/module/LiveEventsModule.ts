@@ -64,6 +64,10 @@ export class LiveEventsModule {
         this.connect()
       }
     })
+
+    app.on('before-quit', () => {
+      this.disconnect()
+    })
   }
 
   public connect () : void {

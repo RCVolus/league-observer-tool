@@ -59,6 +59,10 @@ export class InGameApi {
       if (!this.isSynced) return
       this.getData()
     })
+
+    app.on('before-quit', () => {
+      this.disconnect()
+    })
   }
 
   /**
