@@ -24,7 +24,6 @@
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "tsc -p ./tsconfig.json",
     "dist": "npm run build:loader && npm run build:frontend && npm run build:backend && electron-builder build -w",
-    "rebuild": "electron-rebuild -f",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
@@ -63,7 +62,6 @@
     ]
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.2.10",
     "@rollup/plugin-commonjs": "^25.0.1",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-typescript": "^11.1.0",
