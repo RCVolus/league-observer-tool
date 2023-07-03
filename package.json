@@ -70,7 +70,7 @@
     "@tsconfig/svelte": "^4.0.1",
     "@types/express": "^4.17.15",
     "@types/uniqid": "^5.3.1",
-    "@typescript-eslint/eslint-plugin": "^5.59.8",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "electron": "^25.1.1",
     "electron-builder": "^24.4.0",
