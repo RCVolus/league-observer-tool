@@ -96,4 +96,10 @@ export class Modules {
       })
     })
   }
+
+  public disconnect() {
+    [...this.modules.values()].forEach(element => {
+      element.disconnect()
+    });
+  }
 }

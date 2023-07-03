@@ -238,10 +238,6 @@ export class ReplayModule {
         }, 0)
       }
     })
-
-    app.on('before-quit', () => {
-      this.disconnect()
-    })
   }
 
   public connect(): void {

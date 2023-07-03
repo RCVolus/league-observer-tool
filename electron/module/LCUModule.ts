@@ -55,10 +55,6 @@ export class LCUModule {
       if (!this.isSynced) return
       this.requestData()
     })
-
-    app.on('before-quit', () => {
-      this.disconnect()
-    })
   }
 
   public connect () : void {

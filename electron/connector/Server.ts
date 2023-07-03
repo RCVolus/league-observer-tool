@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { ipcMain } from 'electron';
+import { ipcMain, app } from 'electron';
 import { Sender } from '../helper/Sender';
 import { DisplayError } from '../../types/DisplayError';
 import type { LPTEvent } from '../../types/LPTE'

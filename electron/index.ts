@@ -127,7 +127,7 @@ function openMainWindow() {
   const lcu = new LCU()
   const server = new Server()
   const menu = new MainMenu(lcu, server)
-  new Modules(lcu, server, menu.mainMenu)
+  const modules = new Modules(lcu, server, menu.mainMenu)
 
   api.listen(8572, () => {
     console.log('api is running on port 8572')
@@ -145,6 +145,12 @@ function openMainWindow() {
     lcu.disconnect()
     server.disconnect()
   })
+
+  app.on("window-all-closed", () => {
+    lcu.disconnect()
+    server.disconnect()
+    modules.disconnect()
+  });
 
   mainWindow.webContents.on('did-finish-load', () => {
     initWindow.close()

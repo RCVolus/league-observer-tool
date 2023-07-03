@@ -56,10 +56,6 @@ export class Farsight {
       if (!this.isSynced) return
       this.getData()
     })
-
-    app.on('before-quit', () => {
-      this.disconnect()
-    })
   }
 
   /**
