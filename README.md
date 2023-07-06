@@ -29,6 +29,14 @@ Since version 5.0.0, the Observer tool implements passive memory reading based o
 
 Since memory offsets change with every patch and need to be updated, memory reading will not work immediately after game updates. Farsight has a [guide](https://github.com/floh22/native-farsight-module) on updating offsets yourself.
 
+## Setting up Replay API
+For time controls, the Replay API is used (similar to what LeagueDirector does) and needs to be configured locally:
+In `game.cfg` (located in `[install path]\Riot Games\League of Legends\Config`), add this value under `[General]`:
+```ini
+EnableReplayApi=1
+```
+If there is already a value present, make sure its set to 1; if not just add it to the bottom of the list under `[General]`
+
 ## Setting up LiveEvents API
 For ingame Events (e.g., Dragon or Baron kills), the LiveEvents API needs to be configured locally:
 1. Add the following to `game.cfg` (located in `[install path]\Riot Games\League of Legends\Config`):
