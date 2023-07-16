@@ -125,7 +125,7 @@ export class LCUModule {
     }
   }
 
-  public disconnect () : void {
+  public async disconnect () : Promise<void> {
     this.lcu.unsubscribe(this.lcuURI);
     Sender.emit(this.id, 0)
     this.isSynced = false

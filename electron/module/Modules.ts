@@ -97,9 +97,9 @@ export class Modules {
     })
   }
 
-  public disconnect() {
-    [...this.modules.values()].forEach(element => {
-      element.disconnect()
-    });
+  public async disconnect() {
+    for await (const module of this.modules.values()) {
+      module.disconnect()
+    }
   }
 }
