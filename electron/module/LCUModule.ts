@@ -87,7 +87,7 @@ export class LCUModule {
 
       if (data === undefined) return
   
-      this.handleData(data, { eventType: 'Update' })
+      this.handleData(data, { eventType: 'Create' })
     } catch (e: any) {
       Sender.emit('error', {
         color: "danger",
