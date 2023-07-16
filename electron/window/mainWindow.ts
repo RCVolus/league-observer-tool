@@ -29,22 +29,5 @@ export default function createMainWindow () : BrowserWindow {
 
   const mainWindow = new BrowserWindow(options)
 
-  mainWindow.on("close", (e) => {
-    const choice = dialog.showMessageBoxSync({
-      type: "question",
-      buttons: ["Yes", "No"],
-      title: "Confirm",
-      message: "Are you sure you want to quit?"
-    })
-
-    if (choice === 1) {
-      e.preventDefault()
-      return
-    } else {
-      store.set('window-bounds', mainWindow.getBounds())
-      globalShortcut.unregisterAll()
-    }
-  })
-
   return mainWindow
 }
