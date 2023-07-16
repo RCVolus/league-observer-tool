@@ -1,6 +1,7 @@
 {
   "name": "league-observer-tool-frontend",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "build": "rollup -c",
