@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Tray } from "electron";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray } from "electron";
 import { createJumpLists } from "./jumpList";
 import { Sender } from "./helper/Sender";
 import { join } from "path";
@@ -146,11 +146,24 @@ function openMainWindow() {
     server.disconnect()
   })
 
-  app.on("window-all-closed", () => {
-    lcu.disconnect()
-    server.disconnect()
-    modules.disconnect()
-  });
+  mainWindow.on("close", async (e) => {
+    const choice = dialog.showMessageBoxSync({
+      type: "question",
+      buttons: ["Yes", "No"],
+      title: "Confirm",
+      message: "Are you sure you want to quit?"
+    })
+
+    if (choice === 1) {
+      e.preventDefault()
+      return
+    } else {
+      store.set('window-bounds', mainWindow.getBounds())
+      await modules.disconnect()
+      globalShortcut.unregisterAll()
+      return
+    }
+  })
 
   mainWindow.webContents.on('did-finish-load', () => {
     initWindow.close()
