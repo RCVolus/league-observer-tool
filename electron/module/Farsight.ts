@@ -71,7 +71,6 @@ export class Farsight {
       return
     }
 
-
     const choice = dialog.showMessageBoxSync({
       type: "warning",
       buttons: ["Accept", "Cancel"],
@@ -83,6 +82,8 @@ export class Farsight {
       return
     }
 
+    Sender.emit(this.id, 1)
+
     const version: string = await this.lcu.request({
       method: 'GET',
       url: '/lol-patch/v1/game-version'
@@ -90,13 +91,14 @@ export class Farsight {
 
     setVersion(version.split('.',2).join('.'))
 
+    this._connectToLeague()
+  }
+
+  private async _connectToLeague () {
     const res = await connectToLeague()
     this.isConnected = res
 
-    // get live-game data every 1s
     if (res) {
-      Sender.emit(this.id, 1)
-
       if (this.menuItem) {
         this.menuItem.checked = true
       }
@@ -104,6 +106,10 @@ export class Farsight {
       this.interval = setInterval(async () => {
         this.getData()
       }, 1000)
+    } else {
+      setTimeout(() => {
+        this._connectToLeague()
+      }, 5000)
     }
   }
 
