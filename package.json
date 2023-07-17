@@ -72,7 +72,7 @@
     "@typescript-eslint/parser": "^5.60.1",
     "electron": "^25.2.0",
     "electron-builder": "^24.4.0",
-    "eslint": "^8.43.0",
+    "eslint": "^8.45.0",
     "rollup": "^3.26.2",
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-livereload": "^2.0.5",
