@@ -73,7 +73,7 @@
     "electron": "^25.3.2",
     "electron-builder": "^24.6.3",
     "eslint": "^8.46.0",
-    "rollup": "^3.27.0",
+    "rollup": "^3.27.2",
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-svelte": "^7.1.6",
