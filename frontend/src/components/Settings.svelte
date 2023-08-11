@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Form, FormGroup, Input } from 'sveltestrap';
+  import { Form, FormGroup, Input, Button } from 'sveltestrap';
   import { store } from "../stores/Stores"; 
   import { AlertStore } from "../stores/Alert";
 
@@ -13,6 +13,10 @@
       color: 'success',
       text: 'Settings Save'
     }
+  }
+
+  async function setupConfig() {
+    await window.config.setupConfig()
   }
 </script>
 
@@ -39,5 +43,6 @@
     </FormGroup>
 
     <Input type="submit" class="w-100" value="Save Settings" />
+    <Button class="w-100 mt-3" color="info" on:click={setupConfig}>Setup Game Config</Button>
   </Form>
 </div>

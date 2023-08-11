@@ -29,6 +29,9 @@ const schema: Schema<Config> = {
   },
   'window-bounds': {
     type: 'object'
+  },
+  'league-install-path': {
+    type: 'string'
   }
 }
 

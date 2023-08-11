@@ -29,11 +29,16 @@ export interface Store {
   saveStore : (store: Config) => Promise<Config>;
 }
 
+export interface Config {
+  setupConfig : () => Promise<void>;
+}
+
 declare global {
   interface Window { 
     connector : Connector
     sender : Sender
     modules : Modules
     store : Store
+    config : Config
   }
 }

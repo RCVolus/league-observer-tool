@@ -5,4 +5,5 @@ export default interface Config {
   'live-events-port': number
   'replay-send-information': boolean
   'window-bounds': Electron.Rectangle
+  'league-install-path': string
 }

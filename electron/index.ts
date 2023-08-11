@@ -15,6 +15,8 @@ import api from "./api";
 import Config from "../types/Config";
 import Store from 'electron-store'
 import createStore from "./store";
+import { LiveEventsConfig } from "./setup/LiveEventsConfig";
+import { GameConfig } from "./setup/GameConfig";
 
 app.setAppUserModelId('gg.rcv.league-observer-tool')
 
@@ -22,10 +24,14 @@ autoUpdater.logger = log;
 
 autoUpdater.autoDownload = false
 
-let mainWindow : BrowserWindow
-let initWindow : BrowserWindow
-let tray : Tray
-export let store : Store<Config>
+let mainWindow: BrowserWindow
+let initWindow: BrowserWindow
+let tray: Tray
+let gameConfig: GameConfig
+let liveEventConfig: LiveEventsConfig
+let lcu: LCU
+let server: Server
+export let store: Store<Config>
 
 if (process.platform == "win32") {
   createJumpLists();
@@ -76,7 +82,7 @@ if (!gotTheLock) {
   });
 }
 
-async function initApp () {
+async function initApp() {
   Sender.currentWindow = initWindow
 
   autoUpdater.on('checking-for-update', () => {
@@ -105,7 +111,7 @@ async function initApp () {
 
   initWindow.webContents.on('did-finish-load', () => {
     initWindow.show()
-    
+
     try {
       if (app.isPackaged) {
         autoUpdater.checkForUpdates()
@@ -124,8 +130,8 @@ function openMainWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile(join(__dirname, '../frontend/public/index.html'));
 
-  const lcu = new LCU()
-  const server = new Server()
+  lcu = new LCU()
+  server = new Server()
   const menu = new MainMenu(lcu, server)
   const modules = new Modules(lcu, server, menu.mainMenu)
 
@@ -135,7 +141,7 @@ function openMainWindow() {
 
   ipcMain.handle('connection-stop', () => {
     const options: Electron.MessageBoxSyncOptions = {
-      buttons: ["Yes","Cancel"],
+      buttons: ["Yes", "Cancel"],
       type: "question",
       message: "Do you really want to disconnect?"
     }
@@ -165,10 +171,48 @@ function openMainWindow() {
     }
   })
 
-  mainWindow.webContents.on('did-finish-load', () => {
+  mainWindow.webContents.on('did-finish-load', async () => {
     initWindow.close()
     mainWindow.show()
+    await config()
   })
+}
+
+async function config () {
+  if (!store.has('league-install-path') || store.get('league-install-path') === undefined || store.get('league-install-path') === '') {
+    lcu.onConnected(() => {
+      setTimeout(async () => {
+        gameConfig = new GameConfig()
+        liveEventConfig = new LiveEventsConfig()
+        await checkConfigs()
+      }, 2500)
+    })
+  } else {
+    gameConfig = new GameConfig()
+    liveEventConfig = new LiveEventsConfig()
+    await checkConfigs()
+  }
+}
+
+async function checkConfigs() {
+  const game = await gameConfig.checkConfig()
+  const live = await liveEventConfig.checkConfig()
+
+  if (game && live) return
+
+  const choice = dialog.showMessageBoxSync({
+    type: "question",
+    buttons: ["Yes", "No"],
+    title: "Setup Game Configs",
+    message: "The game config are missing or not complete! Do you want to automatically fix that to insure full functionality?"
+  })
+
+  if (choice === 1) {
+    return
+  } else {
+    await gameConfig.setupConfig()
+    await liveEventConfig.setupConfig()
+  }
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common

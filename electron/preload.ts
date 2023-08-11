@@ -16,6 +16,12 @@ contextBridge.exposeInMainWorld('store', {
   }
 })
 
+contextBridge.exposeInMainWorld('config', {
+  setupConfig: () => {
+    return ipcRenderer.invoke('config-auto-setup')
+  }
+})
+
 contextBridge.exposeInMainWorld("constants", {
   getVersion: (): Promise<string> => ipcRenderer.invoke('getVersion'),
   platform: process.platform
