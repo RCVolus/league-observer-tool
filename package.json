@@ -1,6 +1,6 @@
 {
   "name": "league-observer-tool",
-  "version": "6.2.5",
+  "version": "6.3.0",
   "description": "An addition to the league-prod-toolkit for the observer PC",
   "author": {
     "name": "Riot Community Volunteers"
@@ -79,7 +79,6 @@
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-svelte": "^7.1.6",
-    "@rollup/plugin-terser": "^0.4.3",
     "sass": "^1.64.2",
     "sirv-cli": "^2.0.2",
     "svelte": "^3.59.2",
