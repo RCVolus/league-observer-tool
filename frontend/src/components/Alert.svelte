@@ -15,7 +15,7 @@
     if (!alert) return
     clearTimeout(timeout);
     visible = true;
-    const ms = alert.timeout || 3000
+    const ms = alert.timeout ?? 3000
     if (ms > 0) timeout = setTimeout(() => (visible = false), ms);
   };
   $: onMessageChange($Alert);
