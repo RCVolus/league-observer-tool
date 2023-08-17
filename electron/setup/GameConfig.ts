@@ -19,6 +19,14 @@ export class GameConfig extends Setup {
       'LiveEvents': {
         'Enable': '1',
         'Port': store.get('live-events-port').toString()
+      },
+      'Replay': {
+        'MouseHighlightEnable': '0',
+        'SelectedHighlightEnable': '0',
+        'SelectedHealthbarHighlightEnable': '1'
+      },
+      'Spectator': {
+        'eSportsNeutralTimers': '1'
       }
     }
 
