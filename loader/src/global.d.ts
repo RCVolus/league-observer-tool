@@ -4,14 +4,19 @@ export interface Constants {
   getVersion: () => Promise<string>
 }
 
+export interface AutoUpdater {
+  installUpdate: () => Promise<void>
+  skipUpdate: () => Promise<void>
+}
+
 export interface Sender {
   on : (channel : string, func : (event : Electron.IpcRendererEvent, ...data : any[]) => void ) => void;
 }
 
 declare global {
-  interface Window { 
-    connector : Connector
+  interface Window {
     constants: Constants
-    sender : Sender
+    autoUpdater: AutoUpdater
+    sender: Sender
   }
 }

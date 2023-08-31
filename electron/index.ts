@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray } from "electron";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray, Notification, shell } from "electron";
 import { createJumpLists } from "./jumpList";
 import { Sender } from "./helper/Sender";
 import { join } from "path";
@@ -21,7 +21,6 @@ import { GameConfig } from "./setup/GameConfig";
 app.setAppUserModelId('gg.rcv.league-observer-tool')
 
 autoUpdater.logger = log;
-
 autoUpdater.autoDownload = false
 
 let mainWindow: BrowserWindow
@@ -88,9 +87,8 @@ async function initApp() {
   autoUpdater.on('checking-for-update', () => {
     Sender.emit('state', 'checking-app')
   })
-  autoUpdater.on('update-available', () => {
-    Sender.emit('state', 'downloading-app')
-    autoUpdater.downloadUpdate()
+  autoUpdater.on('update-available', (info) => {
+    Sender.emit('show-patch-notes', JSON.stringify(info))
   })
   autoUpdater.on('download-progress', (progressInfo) => {
     Sender.emit('download-progress', progressInfo)
@@ -109,6 +107,14 @@ async function initApp() {
     autoUpdater.quitAndInstall()
   })
 
+  ipcMain.handle('install-update', () => {
+    Sender.emit('state', 'downloading-app')
+    autoUpdater.downloadUpdate()
+  })
+  ipcMain.handle('skip-update', () => {
+    openMainWindow()
+  })
+
   initWindow.webContents.on('did-finish-load', () => {
     initWindow.show()
 
@@ -119,7 +125,7 @@ async function initApp() {
         openMainWindow()
       }
     } catch (e) {
-      console.log(e)
+      log.error(e)
     }
   })
 }

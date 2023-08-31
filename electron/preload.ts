@@ -16,6 +16,15 @@ contextBridge.exposeInMainWorld('store', {
   }
 })
 
+contextBridge.exposeInMainWorld('autoUpdater', {
+  installUpdate: () => {
+    return ipcRenderer.invoke('install-update')
+  },
+  skipUpdate: () => {
+    return ipcRenderer.invoke('skip-update')
+  }
+})
+
 contextBridge.exposeInMainWorld('config', {
   setupConfig: () => {
     return ipcRenderer.invoke('config-auto-setup')
