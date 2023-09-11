@@ -71,7 +71,7 @@
     "@types/ini": "^1.3.31",
     "@types/uniqid": "^5.3.1",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
-    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/parser": "^6.6.0",
     "electron": "^26.1.0",
     "electron-builder": "^24.6.3",
     "eslint": "^8.46.0",
