@@ -94,7 +94,7 @@
     "electron-fetch": "^1.9.1",
     "electron-log": "^4.4.8",
     "electron-store": "^8.1.0",
-    "electron-updater": "^6.1.1",
+    "electron-updater": "^6.1.4",
     "express": "^4.18.2",
     "ini": "^4.1.1",
     "league-connect": "^5.5.0",
