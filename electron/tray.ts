@@ -1,13 +1,13 @@
 import { app, BrowserWindow, Menu, Tray, nativeImage } from "electron";
 import { join } from "path";
 
-export default function createTray (mainWindow : BrowserWindow) : Tray {
+export default function createTray(mainWindow: BrowserWindow): Tray {
   const execPath = __dirname.replace("\\app.asar", "");
   const iconPatch = join(execPath, "../assets/icons/icon.ico")
   const icon = nativeImage.createFromPath(iconPatch)
   const tray = new Tray(icon)
   tray.setIgnoreDoubleClickEvents(true)
-  tray.on('click', function(e){
+  tray.on('click', function (e) {
     if (!mainWindow?.isVisible()) {
       mainWindow?.show()
     }
@@ -16,19 +16,19 @@ export default function createTray (mainWindow : BrowserWindow) : Tray {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
-      icon: icon.resize({width:16}),
-      click: function(){
+      icon: icon.resize({ width: 16 }),
+      click: function () {
         mainWindow?.show();
-      } 
+      }
     },
     {
       type: "separator"
     },
     {
       label: 'Quit',
-      click: function() {
+      click: function () {
         app.quit();
-      } 
+      }
     }
   ])
   tray.setToolTip('League Observer Tool')

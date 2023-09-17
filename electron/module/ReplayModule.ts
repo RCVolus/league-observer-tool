@@ -11,6 +11,7 @@ import { store } from '../index'
 import { keyboard } from '@nut-tree/nut-js'
 import { Key } from '@nut-tree/nut-js/dist/lib/key.enum';
 import api from '../api';
+import log from 'electron-log';
 
 const fetchOption = {
   agent: new Agent({
@@ -24,6 +25,7 @@ export class ReplayModule {
   private renderInterval?: NodeJS.Timeout
   private subMenu: Electron.MenuItem | null
   private menuItem: Electron.MenuItem
+  private logger: log.ElectronLog
   private playbackData?: {
     savedAt: number
     time: number
@@ -91,6 +93,9 @@ export class ReplayModule {
     private server: Server,
     private menu: Menu,
   ) {
+    this.logger = log.create(id)
+    this.logger.scope(id)
+
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
@@ -318,6 +323,8 @@ export class ReplayModule {
       this.isSynced = true
       Sender.emit(this.id, 2)
     } catch (e: any) {
+      this.logger.error(e)
+
       if (e.code && e.code === "ECONNREFUSED") {
         Sender.emit(this.id, 1)
       } else {
@@ -350,7 +357,7 @@ export class ReplayModule {
         ...fetchOption
       })
     } catch (e) {
-      Sender.emit('console', e)
+      this.logger.error(e)
     }
   }
 
@@ -374,7 +381,7 @@ export class ReplayModule {
         ...fetchOption
       })
     } catch (e) {
-      Sender.emit('console', e)
+      this.logger.error(e)
     }
   }
 
@@ -391,15 +398,19 @@ export class ReplayModule {
     setup.healthBarStructures = false
     setup.healthBarWards = false
 
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(setup),
-      redirect: 'follow',
-      ...fetchOption
-    })
+    try {
+      fetch(uri, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(setup),
+        redirect: 'follow',
+        ...fetchOption
+      })
+    } catch (e) {
+      this.logger.error(e)
+    }
   }
 
   obsUI(): void {
@@ -419,15 +430,19 @@ export class ReplayModule {
     setup.interfaceTimeline = false
     setup.interfaceScoreboard = true
 
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(setup),
-      redirect: 'follow',
-      ...fetchOption
-    })
+    try {
+      fetch(uri, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(setup),
+        redirect: 'follow',
+        ...fetchOption
+      })
+    } catch (e) {
+      this.logger.error(e)
+    }
   }
 
   private getPlayback() {

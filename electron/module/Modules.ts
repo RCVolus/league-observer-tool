@@ -9,12 +9,12 @@ import { Lobby } from './Lobby';
 import { Farsight } from './Farsight';
 
 export class Modules {
-  public modules : Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi | Lobby | Farsight> = new Map()
+  public modules: Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi | Lobby | Farsight> = new Map()
 
-  constructor (
-    private lcu : LCU,
-    private server : Server,
-    private menu : Menu
+  constructor(
+    private lcu: LCU,
+    private server: Server,
+    private menu: Menu
   ) {
     this.modules.set("lcu-lobby", new Lobby(
       "lcu-lobby",

@@ -35,7 +35,7 @@ const schema: Schema<Config> = {
   }
 }
 
-export default function createStore (): Store<Config> {
+export default function createStore(): Store<Config> {
   const store = new Store({
     schema,
     clearInvalidConfig: true,

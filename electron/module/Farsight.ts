@@ -7,6 +7,7 @@ import type { LPTEvent } from '../../types/LPTE'
 import type { LCU } from '../connector/LCU'
 import type { DisplayError } from '../../types/DisplayError';
 import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot, setVersion } from "@larseble/farsight";
+import log from 'electron-log';
 import { Action } from '../../types/Action';
 
 export class Farsight {
@@ -17,15 +18,19 @@ export class Farsight {
   private menuItem: MenuItem
   private isSynced = false
   private isConnected = false
+  private logger: log.ElectronLog
 
   constructor(
     public id: string,
     public name: string,
     public namespace: string,
-    protected lcu : LCU,
+    protected lcu: LCU,
     private server: Server,
     private menu: Menu
   ) {
+    this.logger = log.create(id)
+    this.logger.scope(id)
+
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
@@ -89,12 +94,12 @@ export class Farsight {
       url: '/lol-patch/v1/game-version'
     })
 
-    setVersion(version.split('.',2).join('.'))
+    setVersion(version.split('.', 2).join('.'))
 
     this._connectToLeague()
   }
 
-  private async _connectToLeague () {
+  private async _connectToLeague() {
     const res = await connectToLeague()
     this.isConnected = res
 
@@ -122,7 +127,7 @@ export class Farsight {
       Sender.emit(this.id, 1)
       return
     }
-    
+
     try {
       const data = makeSnapshot()
 
@@ -143,6 +148,8 @@ export class Farsight {
 
       Sender.emit(this.id, 2)
     } catch (e: any) {
+      this.logger.error(e)
+
       if (e.code && e.code === "ECONNREFUSED") {
         Sender.emit(this.id, 1)
       } else {

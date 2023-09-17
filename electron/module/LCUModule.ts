@@ -8,27 +8,32 @@ import type { LCU } from '../connector/LCU'
 import type { LPTEvent } from "../../types/LPTE";
 import type { DisplayError } from '../../types/DisplayError';
 import { Action } from '../../types/Action';
+import log from 'electron-log';
 
 export class LCUModule {
-  protected data : Array<any> = []
-  public actions : [string, Action][] = []
-  private subMenu : Electron.MenuItem | null
-  private menuItem : Electron.MenuItem
+  protected data: Array<any> = []
+  public actions: [string, Action][] = []
+  private subMenu: Electron.MenuItem | null
+  private menuItem: Electron.MenuItem
   private isSynced = false
+  protected logger: log.ElectronLog
 
-  constructor (
-    public id : string,
-    public name : string,
-    private lcuURI : string,
-    protected lcu : LCU,
-    protected server : Server,
-    private menu : Menu,
-    private dataPoints? : Array<string>
+  constructor(
+    public id: string,
+    public name: string,
+    private lcuURI: string,
+    protected lcu: LCU,
+    protected server: Server,
+    private menu: Menu,
+    private dataPoints?: Array<string>
   ) {
+    this.logger = log.create(id)
+    this.logger.scope(id)
+
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.handle(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
     ipcMain.handle(`${id}-save`, () => {
@@ -41,7 +46,7 @@ export class LCUModule {
       label: this.name,
       type: 'checkbox',
       checked: false,
-      click : (e) => {
+      click: (e) => {
         if (e.checked) {
           this.connect()
         } else {
@@ -57,14 +62,14 @@ export class LCUModule {
     })
   }
 
-  public connect () : void {
+  public connect(): void {
     if (!this.server.isConnected) {
       if (this.menuItem) {
         this.menuItem.checked = false
       }
       return
     }
-    
+
     Sender.emit(this.id, 1)
     this.isSynced = true
 
@@ -86,9 +91,11 @@ export class LCUModule {
       })
 
       if (data === undefined) return
-  
+
       this.handleData(data, { eventType: 'Create' })
     } catch (e: any) {
+      this.logger.error(e)
+
       Sender.emit('error', {
         color: "danger",
         text: e.message || 'error while fetching data from lcu'
@@ -99,7 +106,7 @@ export class LCUModule {
   async handleData(data: any, event: any): Promise<void> {
     /* this.data.push({data, event}) */
 
-    let selectedData : {[n: string]: any} = {}
+    let selectedData: { [n: string]: any } = {}
     if (!this.dataPoints) selectedData = data
     else {
       for (const key of this.dataPoints) {
@@ -108,16 +115,18 @@ export class LCUModule {
     }
 
     try {
-      const obj : LPTEvent = {
+      const obj: LPTEvent = {
         meta: {
           namespace: "lcu",
-          type: `${this.id}-${event.eventType.toLowerCase()}`, 
+          type: `${this.id}-${event.eventType.toLowerCase()}`,
           timestamp: new Date().getTime() + this.server.prodTimeOffset
         },
         data: event.eventType != "Delete" ? selectedData : undefined
       }
       this.server.send(obj)
     } catch (e: any) {
+      this.logger.error(e)
+
       Sender.emit('error', {
         color: "danger",
         text: e.message || 'error while sending data to prod tool'
@@ -125,7 +134,7 @@ export class LCUModule {
     }
   }
 
-  public async disconnect () : Promise<void> {
+  public async disconnect(): Promise<void> {
     this.lcu.unsubscribe(this.lcuURI);
     Sender.emit(this.id, 0)
     this.isSynced = false
@@ -134,16 +143,16 @@ export class LCUModule {
     }
   }
 
-  private async saveData () {
+  private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
       buttonLabel: 'Save',
       filters: [
-          {
-              name: 'Text Files',
-              extensions: ['json']
-          }, 
+        {
+          name: 'Text Files',
+          extensions: ['json']
+        },
       ],
       properties: []
     })

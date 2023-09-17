@@ -1,8 +1,8 @@
 import { app, BrowserWindow } from "electron";
 import { join } from "path";
 
-export default function createInitWindow () : BrowserWindow {
-  let preloaderPath : string
+export default function createInitWindow(): BrowserWindow {
+  let preloaderPath: string
   if (app.isPackaged) {
     preloaderPath = join(app.getAppPath(), 'build', 'preload.js')
   } else {

@@ -6,6 +6,10 @@ import { store } from '../index'
 import fileExists from '../helper/fileExists';
 import { DisplayError } from '../../types/DisplayError';
 import { Sender } from '../helper/Sender';
+import log from 'electron-log';
+
+const logger = log.create('GameConfig')
+logger.scope('GameConfig')
 
 export class GameConfig extends Setup {
   config: {
@@ -87,6 +91,8 @@ export class GameConfig extends Setup {
       await writeFile(configPath, ini.stringify(config))
       this.setupComplete = true
     } catch (error) {
+      logger.error(error)
+
       Sender.emit('error', {
         color: "danger",
         text: `The Game config could not be updated! Error: ${error}`

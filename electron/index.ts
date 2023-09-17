@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray, Notification, shell } from "electron";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray } from "electron";
 import { createJumpLists } from "./jumpList";
 import { Sender } from "./helper/Sender";
 import { join } from "path";
@@ -184,7 +184,7 @@ function openMainWindow() {
   })
 }
 
-async function config () {
+async function config() {
   if (!store.has('league-install-path') || store.get('league-install-path') === undefined || store.get('league-install-path') === '') {
     lcu.onConnected(() => {
       setTimeout(async () => {

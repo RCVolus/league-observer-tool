@@ -8,7 +8,7 @@ export class Lobby extends LCUModule {
    * @param puuid string
    * @param elo tier: string, division: string
   */
-  private players : Map<string, {tier: string, division: string}> = new Map()
+  private players: Map<string, { tier: string, division: string }> = new Map()
 
   async handleData(data: any, event: any): Promise<void> {
     if (event.eventType === 'Create') {
@@ -17,7 +17,7 @@ export class Lobby extends LCUModule {
 
     /* this.data.push({data, event}) */
 
-    const selectedData : {[n: string]: any} = data
+    const selectedData: { [n: string]: any } = data
 
     if (data) {
       await Promise.all(data.gameConfig.customTeam100.map((m: any) => this.getPlayerElo(m)))
@@ -25,16 +25,18 @@ export class Lobby extends LCUModule {
     }
 
     try {
-      const obj : LPTEvent = {
+      const obj: LPTEvent = {
         meta: {
           namespace: "lcu",
-          type: `${this.id}-${event.eventType.toLowerCase()}`, 
+          type: `${this.id}-${event.eventType.toLowerCase()}`,
           timestamp: new Date().getTime() + this.server.prodTimeOffset
         },
         data: event.eventType != "Delete" ? selectedData : undefined
       }
       this.server.send(obj)
     } catch (e: any) {
+      this.logger.error(e)
+
       Sender.emit('error', {
         color: "danger",
         text: e.message || 'error while sending data to prod tool'
@@ -42,7 +44,7 @@ export class Lobby extends LCUModule {
     }
   }
 
-  async getPlayerElo (m: any): Promise<any> {
+  async getPlayerElo(m: any): Promise<any> {
     if (!this.players.has(m.puuid)) {
       const elo = await this.lcu.request({
         method: 'GET',
@@ -54,10 +56,10 @@ export class Lobby extends LCUModule {
           tier: 'NONE',
           division: 'NA'
         }
-        
+
         return m
       }
-      
+
       const soloQueue = elo.queueMap.RANKED_SOLO_5x5
       const flexQueue = elo.queueMap.RANKED_FLEX_SR
 

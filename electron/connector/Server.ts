@@ -14,21 +14,21 @@ enum EventType {
 }
 
 export class Server {
-  private ws ? : WebSocket
-  private timeout ? : NodeJS.Timeout
-  private prodClockInterval ? : NodeJS.Timeout
+  private ws?: WebSocket
+  private timeout?: NodeJS.Timeout
+  private prodClockInterval?: NodeJS.Timeout
   public prodTimeOffset = 0
-  private serverIP : string
-  private serverPort : number
-  private apiKey : string
+  private serverIP: string
+  private serverPort: number
+  private apiKey: string
   private isClosing = false
   private InitConnection = true
-  private subscriptions: Map<string, ((data : LPTEvent) => void)[]> = new Map()
+  private subscriptions: Map<string, ((data: LPTEvent) => void)[]> = new Map()
   public isConnected = false
-  private logger : log.ElectronLog
+  private logger: log.ElectronLog
   private connectionHandlers: Array<() => void> = []
 
-  constructor () {
+  constructor() {
     this.logger = log.create('Server')
     this.logger.scope('Server')
 
@@ -40,10 +40,13 @@ export class Server {
       if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
 
       this.serverIP = newValue
-      
+
       if (this.isConnected) {
         this.disconnect()
-        this.connect()
+
+        setTimeout(() => {
+          this.connect()
+        }, 1000)
       }
     })
 
@@ -51,10 +54,13 @@ export class Server {
       if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
 
       this.serverPort = newValue
-      
+
       if (this.isConnected) {
         this.disconnect()
-        this.connect()
+
+        setTimeout(() => {
+          this.connect()
+        }, 1000)
       }
     })
 
@@ -62,10 +68,13 @@ export class Server {
       if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
 
       this.apiKey = newValue
-      
+
       if (this.isConnected) {
         this.disconnect()
-        this.connect()
+
+        setTimeout(() => {
+          this.connect()
+        }, 1000)
       }
     })
 
@@ -73,11 +82,11 @@ export class Server {
       this.connect()
     })
   }
-  
+
   /**
    * connect
   */
-  public connect () : void {
+  public connect(): void {
     const wsURI = `ws://${this.serverIP}:${this.serverPort}/eventbus?apikey=${this.apiKey}`
     this.ws = new WebSocket(wsURI)
 
@@ -94,7 +103,7 @@ export class Server {
 
     this.ws.onmessage = (content) => {
       const json = JSON.parse(content.data.toString()) as LPTEvent
-      
+
       if (this.subscriptions.has(`${json.meta.namespace}-${json.meta.type}`)) {
         this.subscriptions.get(`${json.meta.namespace}-${json.meta.type}`)?.forEach((cb) => {
           cb(json)
@@ -119,7 +128,7 @@ export class Server {
       Sender.emit('server-connection', this.isConnected)
 
       if (!this.isClosing && !this.InitConnection) {
-        this.timeout = setTimeout(() => {this.connect()}, 5000)
+        this.timeout = setTimeout(() => { this.connect() }, 5000)
       }
     }
   }
@@ -138,11 +147,11 @@ export class Server {
     })
   }
 
-  public subscribe (namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
+  public subscribe(namespace: string, type: string, effect: (data: LPTEvent) => void): void {
     if (!this.isConnected) return
 
     if (!this.subscriptions.has(`${namespace}-${type}`)) {
-      const msg : LPTEvent = {
+      const msg: LPTEvent = {
         meta: {
           namespace: "lpte",
           type: "subscribe"
@@ -159,7 +168,7 @@ export class Server {
     }
   }
 
-  public subscribeOnce (namespace: string, type: string, effect: (data: LPTEvent) => void) : void {
+  public subscribeOnce(namespace: string, type: string, effect: (data: LPTEvent) => void): void {
     if (!this.isConnected) return
 
     const onceWrapper = (data: LPTEvent) => {
@@ -168,7 +177,7 @@ export class Server {
     }
 
     if (!this.subscriptions.has(`${namespace}-${type}`)) {
-      const msg : LPTEvent = {
+      const msg: LPTEvent = {
         meta: {
           namespace: "lpte",
           type: "subscribe"
@@ -185,7 +194,7 @@ export class Server {
     }
   }
 
-  public unsubscribe(namespace: string, type: string) : void {
+  public unsubscribe(namespace: string, type: string): void {
     if (!this.isConnected) return
     this.subscriptions.delete(`${namespace}-${type}`)
   }
@@ -193,7 +202,7 @@ export class Server {
   /**
    * disconnect
   */
-  public disconnect() : void {
+  public disconnect(): void {
     this.isClosing = true
     this.InitConnection = true
     this.ws?.close()
@@ -213,7 +222,7 @@ export class Server {
   /**
    * send
   */
-  public send(data : LPTEvent) : void {
+  public send(data: LPTEvent): void {
     if (!this.isConnected) return
 
     this.ws?.send(JSON.stringify(data), (err) => {
@@ -224,7 +233,7 @@ export class Server {
     })
   }
 
-  public async request (event: LPTEvent, timeout = 5000) : Promise<LPTEvent> {
+  public async request(event: LPTEvent, timeout = 5000): Promise<LPTEvent> {
     if (!this.isConnected) throw new Error('not connected to prod tool')
 
     const reply = `${event.meta.type}-${uniqid()}`
@@ -242,7 +251,7 @@ export class Server {
     }
   }
 
-  public async await (namespace: string, type: string, timeout = 5000): Promise<LPTEvent> {
+  public async await(namespace: string, type: string, timeout = 5000): Promise<LPTEvent> {
     if (!this.isConnected) throw new Error('not connected to prod tool')
 
     return await new Promise((resolve, reject) => {
@@ -271,7 +280,7 @@ export class Server {
     })
   }
 
-  public async getLocalTimeOffset () : Promise<number> {
+  public async getLocalTimeOffset(): Promise<number> {
     // Get before time to measure roundtrip time to server
     const beforeTime = new Date().getTime();
 
@@ -304,7 +313,7 @@ export class Server {
     return localOffset;
   }
 
-  private async syncProdClock () {
+  private async syncProdClock() {
     const offset = await this.getLocalTimeOffset()
     this.prodTimeOffset = offset
     Sender.emit('server-prod-clock', offset)

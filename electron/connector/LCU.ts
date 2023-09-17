@@ -6,17 +6,17 @@ import log from 'electron-log';
 import { store } from '../index'
 
 export class LCU {
-  public credentials? : Credentials
-  public leagueClient? : LeagueClient
-  private lolWs? : LeagueWebSocket
-  private timeout ? : NodeJS.Timeout
+  public credentials?: Credentials
+  public leagueClient?: LeagueClient
+  private lolWs?: LeagueWebSocket
+  private timeout?: NodeJS.Timeout
   private isClosing = false
   private isConnected = false
   private InitConnection = true
-  private logger : log.ElectronLog
+  private logger: log.ElectronLog
   private connectionHandlers: Array<() => void> = []
 
-  constructor () {
+  constructor() {
     this.logger = log.create('LCU')
     this.logger.scope('LCU')
 
@@ -25,7 +25,7 @@ export class LCU {
     })
   }
 
-  public async request(arg: RequestOptions) : Promise<any> {
+  public async request(arg: RequestOptions): Promise<any> {
     if (!this.credentials) return
 
     try {
@@ -46,7 +46,7 @@ export class LCU {
     }
   }
 
-  private handleConnection () {
+  private handleConnection() {
     if (!this.credentials) return
 
     this.leagueClient = new LeagueClient(this.credentials);
@@ -55,21 +55,21 @@ export class LCU {
       this.credentials = newCredentials
       Sender.emit('lcu-connection', true)
     })
-    
+
     this.leagueClient.on('disconnect', () => {
       this.credentials = undefined
       Sender.emit('lcu-connection', false)
       this.isConnected = false
 
       if (!this.isClosing) {
-        this.timeout = setTimeout(() => {this.connect()}, 5000)
+        this.timeout = setTimeout(() => { this.connect() }, 5000)
       }
     })
 
     this.leagueClient.start()
   }
 
-  async getInstallPath (): Promise<string> {
+  async getInstallPath(): Promise<string> {
     const res = await this.request({
       method: 'GET',
       url: '/data-store/v1/install-dir'
@@ -95,7 +95,7 @@ export class LCU {
     if (!this.credentials) return
 
     this.lolWs = await connect(this.credentials);
-    
+
     this.lolWs.onopen = async () => {
       this.isClosing = false
       this.InitConnection = false
@@ -104,11 +104,8 @@ export class LCU {
 
       this._onConnected()
 
-      if (!store.has('league-install-path') || store.get('league-install-path') === undefined || store.get('league-install-path') === '') {
-        const path = await this.getInstallPath()
-        console.log(path)
-        store.set('league-install-path', path)
-      }
+      const path = await this.getInstallPath()
+      store.set('league-install-path', path)
     }
 
     this.lolWs.onerror = e => {
@@ -126,9 +123,9 @@ export class LCU {
     this.lolWs.onclose = () => {
       Sender.emit('lcu-connection', false)
       this.isConnected = true
-      
+
       if (!this.isClosing && !this.InitConnection) {
-        this.timeout = setTimeout(() => {this.connect()}, 5000)
+        this.timeout = setTimeout(() => { this.connect() }, 5000)
       }
     }
   }
@@ -136,18 +133,18 @@ export class LCU {
   /**
    * subscribe
    */
-  public subscribe(path: string, effect: EventCallback<any>) : void {
+  public subscribe(path: string, effect: EventCallback<any>): void {
     this.lolWs?.subscribe(path, effect)
   }
 
   /**
    * unsubscribe
    */
-  public unsubscribe(path: string) : void {
+  public unsubscribe(path: string): void {
     this.lolWs?.unsubscribe(path)
   }
 
-  public disconnect () : void {
+  public disconnect(): void {
     this.leagueClient?.stop()
     this.credentials = undefined
 
@@ -155,7 +152,7 @@ export class LCU {
     this.InitConnection = true
     this.isConnected = true
     this.lolWs?.close()
-    
+
     if (this.timeout) {
       clearTimeout(this.timeout)
     }
@@ -163,13 +160,13 @@ export class LCU {
     Sender.emit('lcu-connection', false)
   }
 
-  public async connect () : Promise<void> {
+  public async connect(): Promise<void> {
     try {
       const credentials = await authenticate()
       this.credentials = credentials
       this.credentials.password = credentials.password.replace('--app-port', '')
 
-      this.handleConnection();
+      this.handleConnection()
       this.handleWebSockets()
     } catch (e) {
       this.logger.error(e)
@@ -180,9 +177,9 @@ export class LCU {
       } as DisplayError)
 
       if (!this.isClosing) {
-        this.timeout = setTimeout(() => {this.connect()}, 5000)
+        this.timeout = setTimeout(() => { this.connect() }, 5000)
       }
-      
+
       Sender.emit('lcu-connection', false)
     }
   }

@@ -4,9 +4,9 @@ import { Server } from './connector/Server'
 import { store } from './index'
 
 export class MainMenu {
-  public mainMenu : Menu
+  public mainMenu: Menu
 
-  constructor (lcu : LCU, server : Server) {
+  constructor(lcu: LCU, server: Server) {
     this.mainMenu = Menu.buildFromTemplate([
       {
         label: 'File',
@@ -15,7 +15,7 @@ export class MainMenu {
             id: 'connect',
             label: 'Connect',
             enabled: true,
-            click () {
+            click() {
               lcu.connect()
               server.connect()
             }
@@ -24,7 +24,7 @@ export class MainMenu {
             id: 'disconnect',
             label: 'Disconnect',
             enabled: false,
-            click () {
+            click() {
               lcu.disconnect()
               server.disconnect()
             }
@@ -34,7 +34,7 @@ export class MainMenu {
           },
           {
             label: 'Open Settings',
-            click () {
+            click() {
               store.openInEditor()
             }
           },
@@ -45,7 +45,7 @@ export class MainMenu {
             label: 'Quit',
             accelerator: 'CommandOrControl+Q',
             role: 'quit',
-            click () {
+            click() {
               app.quit();
             }
           },

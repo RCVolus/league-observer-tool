@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import Config from "../types/Config";
 
 contextBridge.exposeInMainWorld('sender', {
-  on: (channel : string, func : (event : Electron.IpcRendererEvent, ...data : any[]) => void ) => {
+  on: (channel: string, func: (event: Electron.IpcRendererEvent, ...data: any[]) => void) => {
     ipcRenderer.on(channel, func)
   }
 })
@@ -37,17 +37,17 @@ contextBridge.exposeInMainWorld("constants", {
 })
 
 contextBridge.exposeInMainWorld('connector', {
-  server : {
-    start : () => {
+  server: {
+    start: () => {
       ipcRenderer.invoke('server-connection-start')
     }
   },
-  lcu : {
-    start : () => {
+  lcu: {
+    start: () => {
       ipcRenderer.invoke('lcu-connection-start')
     }
   },
-  stop : () => {
+  stop: () => {
     ipcRenderer.invoke('connection-stop')
   }
 })
@@ -56,16 +56,16 @@ contextBridge.exposeInMainWorld('modules', {
   getModules: () => {
     return ipcRenderer.invoke('modules-ready')
   },
-  callAction : (moduleID : string, action : string, value?: string | number) => {
+  callAction: (moduleID: string, action: string, value?: string | number) => {
     ipcRenderer.invoke(`${moduleID}-${action}`, value)
   },
-  saveData : (moduleID : string) => {
+  saveData: (moduleID: string) => {
     ipcRenderer.invoke(`${moduleID}-save`)
   },
-  start : (moduleID : string) => {
+  start: (moduleID: string) => {
     ipcRenderer.invoke(`${moduleID}-start`)
   },
-  stop : (moduleID : string) => {
+  stop: (moduleID: string) => {
     ipcRenderer.invoke(`${moduleID}-stop`)
   }
 })

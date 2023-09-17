@@ -4,6 +4,10 @@ import { Setup } from "./Setup";
 import fileExists from '../helper/fileExists';
 import { Sender } from '../helper/Sender';
 import { DisplayError } from '../../types/DisplayError';
+import log from 'electron-log';
+
+const logger = log.create('LiveEventsConfig')
+logger.scope('LiveEventsConfig')
 
 export class LiveEventsConfig extends Setup {
   static lines: string[] = [
@@ -56,6 +60,8 @@ export class LiveEventsConfig extends Setup {
       await writeFile(configPath, fileLines.join('\r\n'))
       this.setupComplete = true
     } catch (error) {
+      logger.error(error)
+
       Sender.emit('error', {
         color: "danger",
         text: `The Game config could not be updated! Error: ${error}`

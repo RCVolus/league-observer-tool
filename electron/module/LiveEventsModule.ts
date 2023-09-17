@@ -8,28 +8,33 @@ import type { LPTEvent } from '../../types/LPTE'
 import { store } from '../index'
 import { DisplayError } from '../../types/DisplayError';
 import { Action } from '../../types/Action';
+import log from 'electron-log';
 
 export class LiveEventsModule {
-  private data : Array<any> = []
-  private netClient ? : Socket
-  private port : number
-  public actions : [string, Action][] = []
-  private subMenu : Electron.MenuItem | null
-  private menuItem : Electron.MenuItem
-  private interval ? : NodeJS.Timeout
+  private data: Array<any> = []
+  private netClient?: Socket
+  private port: number
+  public actions: [string, Action][] = []
+  private subMenu: Electron.MenuItem | null
+  private menuItem: Electron.MenuItem
+  private interval?: NodeJS.Timeout
+  private logger: log.ElectronLog
 
-  constructor (
-    public id : string,
-    public name : string,
-    public namespace : string,
-    public type : string,
-    private server : Server,
-    private menu : Menu
+  constructor(
+    public id: string,
+    public name: string,
+    public namespace: string,
+    public type: string,
+    private server: Server,
+    private menu: Menu
   ) {
+    this.logger = log.create(id)
+    this.logger.scope(id)
+
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
     })
-    ipcMain.handle(`${id}-stop`, () =>{
+    ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
     ipcMain.handle(`${id}-save`, () => {
@@ -42,7 +47,7 @@ export class LiveEventsModule {
       label: this.name,
       type: 'checkbox',
       checked: false,
-      click : (e) => {
+      click: (e) => {
         if (e.checked) {
           this.connect()
         } else {
@@ -58,7 +63,7 @@ export class LiveEventsModule {
       if (oldValue === undefined || oldValue === newValue || newValue === undefined) return
 
       this.port = newValue
-      
+
       if (this.menuItem.checked) {
         this.disconnect()
         this.connect()
@@ -66,20 +71,20 @@ export class LiveEventsModule {
     })
   }
 
-  public connect () : void {
+  public connect(): void {
     if (!this.server.isConnected) {
       if (this.menuItem) {
         this.menuItem.checked = false
       }
       return
     }
-    
+
     if (this.menuItem) {
       this.menuItem.checked = true
     }
     Sender.emit(this.id, 1)
 
-    this.netClient = connect({port: this.port, host: "127.0.0.1"}, () => {
+    this.netClient = connect({ port: this.port, host: "127.0.0.1" }, () => {
       Sender.emit(this.id, 2)
       if (this.interval) {
         clearInterval(this.interval)
@@ -92,8 +97,8 @@ export class LiveEventsModule {
 
     this.netClient?.on("error", (err) => {
       Sender.emit(this.id, 1)
-      Sender.emit('console', err)
-      console.log(err)
+
+      this.logger.error(err)
 
       if (this.interval) {
         clearInterval(this.interval)
@@ -103,32 +108,34 @@ export class LiveEventsModule {
         this.connect()
       }, 10000)
     })
-    
+
     this.netClient?.on('end', () => {
       Sender.emit(this.id, 1)
     });
   }
 
-  private handleData (data: Buffer) {
+  private handleData(data: Buffer) {
     const dataString = data.toString()
 
     let newDataSting = dataString.replace(/(\\r\\n\\t|\n|\r|\\|\r\n|\t)/gm, "")
     newDataSting = newDataSting.replace(/(}{)/gm, "},{")
-    const parsedData : Array<any> = JSON.parse(`[${newDataSting}]`)
+    const parsedData: Array<any> = JSON.parse(`[${newDataSting}]`)
 
     /* this.data.push(parsedData) */
 
     try {
-      const obj : LPTEvent = {
-      meta: {
-        namespace: this.namespace,
-        type: this.type,
-        version: 1
-      },
-      data: parsedData
-    }
-    this.server.send(obj)
+      const obj: LPTEvent = {
+        meta: {
+          namespace: this.namespace,
+          type: this.type,
+          version: 1
+        },
+        data: parsedData
+      }
+      this.server.send(obj)
     } catch (e: any) {
+      this.logger.error(e)
+
       Sender.emit('error', {
         color: "danger",
         text: e.message || 'error while sending data to prod tool'
@@ -136,7 +143,7 @@ export class LiveEventsModule {
     }
   }
 
-  public disconnect () : void {
+  public disconnect(): void {
     Sender.emit(this.id, 0)
 
     if (this.menuItem) {
@@ -150,16 +157,16 @@ export class LiveEventsModule {
     }
   }
 
-  private async saveData () {
+  private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
       buttonLabel: 'Save',
       filters: [
-          {
-              name: 'Text Files',
-              extensions: ['json']
-          }, 
+        {
+          name: 'Text Files',
+          extensions: ['json']
+        },
       ],
       properties: []
     })

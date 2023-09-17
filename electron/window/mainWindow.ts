@@ -1,10 +1,10 @@
-import { app, BrowserWindow, dialog, globalShortcut } from "electron";
+import { app, BrowserWindow } from "electron";
 import { join } from 'path'
 import { store } from '../index'
 
-export default function createMainWindow () : BrowserWindow {
-  let preloaderPath : string
-  let allowDevTools : boolean
+export default function createMainWindow(): BrowserWindow {
+  let preloaderPath: string
+  let allowDevTools: boolean
   if (app.isPackaged) {
     allowDevTools = false
     preloaderPath = join(app.getAppPath(), 'build', 'preload.js')

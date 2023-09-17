@@ -1,6 +1,6 @@
 import { app } from 'electron'
 
-export function createJumpLists() : void {
+export function createJumpLists(): void {
   app.setJumpList([
     {
       name: 'App',
