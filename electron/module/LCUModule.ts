@@ -16,7 +16,7 @@ export class LCUModule {
   private subMenu: Electron.MenuItem | null
   private menuItem: Electron.MenuItem
   private isSynced = false
-  protected logger: log.ElectronLog
+  protected logger: log.LogFunctions
 
   constructor(
     public id: string,
@@ -27,8 +27,7 @@ export class LCUModule {
     private menu: Menu,
     private dataPoints?: Array<string>
   ) {
-    this.logger = log.create(id)
-    this.logger.scope(id)
+    this.logger = log.scope(id)
 
     ipcMain.handle(`${id}-start`, () => {
       this.connect()

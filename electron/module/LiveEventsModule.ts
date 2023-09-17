@@ -18,7 +18,7 @@ export class LiveEventsModule {
   private subMenu: Electron.MenuItem | null
   private menuItem: Electron.MenuItem
   private interval?: NodeJS.Timeout
-  private logger: log.ElectronLog
+  private logger: log.LogFunctions
 
   constructor(
     public id: string,
@@ -28,8 +28,7 @@ export class LiveEventsModule {
     private server: Server,
     private menu: Menu
   ) {
-    this.logger = log.create(id)
-    this.logger.scope(id)
+    this.logger = log.scope(id)
 
     ipcMain.handle(`${id}-start`, () => {
       this.connect()

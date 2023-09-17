@@ -18,7 +18,7 @@ export class Farsight {
   private menuItem: MenuItem
   private isSynced = false
   private isConnected = false
-  private logger: log.ElectronLog
+  private logger: log.LogFunctions
 
   constructor(
     public id: string,
@@ -28,8 +28,7 @@ export class Farsight {
     private server: Server,
     private menu: Menu
   ) {
-    this.logger = log.create(id)
-    this.logger.scope(id)
+    this.logger = log.scope(id)
 
     ipcMain.handle(`${id}-start`, () => {
       this.connect()

@@ -8,8 +8,7 @@ import { DisplayError } from '../../types/DisplayError';
 import { Sender } from '../helper/Sender';
 import log from 'electron-log';
 
-const logger = log.create('GameConfig')
-logger.scope('GameConfig')
+const logger = log.scope('GameConfig')
 
 export class GameConfig extends Setup {
   config: {

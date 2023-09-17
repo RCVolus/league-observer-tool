@@ -25,7 +25,7 @@ export class ReplayModule {
   private renderInterval?: NodeJS.Timeout
   private subMenu: Electron.MenuItem | null
   private menuItem: Electron.MenuItem
-  private logger: log.ElectronLog
+  private logger: log.LogFunctions
   private playbackData?: {
     savedAt: number
     time: number
@@ -93,8 +93,7 @@ export class ReplayModule {
     private server: Server,
     private menu: Menu,
   ) {
-    this.logger = log.create(id)
-    this.logger.scope(id)
+    this.logger = log.scope(id)
 
     ipcMain.handle(`${id}-start`, () => {
       this.connect()

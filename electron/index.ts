@@ -20,7 +20,7 @@ import { GameConfig } from "./setup/GameConfig";
 
 app.setAppUserModelId('gg.rcv.league-observer-tool')
 
-autoUpdater.logger = log;
+autoUpdater.logger = log.scope('updater');
 autoUpdater.autoDownload = false
 
 let mainWindow: BrowserWindow

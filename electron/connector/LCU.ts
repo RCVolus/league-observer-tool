@@ -13,12 +13,11 @@ export class LCU {
   private isClosing = false
   private isConnected = false
   private InitConnection = true
-  private logger: log.ElectronLog
+  private logger: log.LogFunctions
   private connectionHandlers: Array<() => void> = []
 
   constructor() {
-    this.logger = log.create('LCU')
-    this.logger.scope('LCU')
+    this.logger = log.scope('LCU')
 
     ipcMain.handle('lcu-connection-start', () => {
       this.connect()

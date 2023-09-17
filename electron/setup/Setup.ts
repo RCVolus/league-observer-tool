@@ -5,8 +5,7 @@ import { DisplayError } from '../../types/DisplayError';
 import { ipcMain } from 'electron';
 import log from 'electron-log';
 
-const logger = log.create('Setup')
-logger.scope('Setup')
+const logger = log.scope('Setup')
 
 export class Setup {
   setupComplete = false

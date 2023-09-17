@@ -25,12 +25,11 @@ export class Server {
   private InitConnection = true
   private subscriptions: Map<string, ((data: LPTEvent) => void)[]> = new Map()
   public isConnected = false
-  private logger: log.ElectronLog
+  private logger: log.LogFunctions
   private connectionHandlers: Array<() => void> = []
 
   constructor() {
-    this.logger = log.create('Server')
-    this.logger.scope('Server')
+    this.logger = log.scope('Server')
 
     this.serverIP = store.get("server-ip")
     this.serverPort = store.get("server-port")

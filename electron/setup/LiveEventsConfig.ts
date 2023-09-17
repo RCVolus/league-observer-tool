@@ -6,8 +6,7 @@ import { Sender } from '../helper/Sender';
 import { DisplayError } from '../../types/DisplayError';
 import log from 'electron-log';
 
-const logger = log.create('LiveEventsConfig')
-logger.scope('LiveEventsConfig')
+const logger = log.scope('LiveEventsConfig')
 
 export class LiveEventsConfig extends Setup {
   static lines: string[] = [

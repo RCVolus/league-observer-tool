@@ -22,7 +22,7 @@ export class InGameApi {
   private subMenu: MenuItem | null
   private menuItem: MenuItem
   private isSynced = false
-  private logger: log.ElectronLog
+  private logger: log.LogFunctions
 
   constructor(
     public id: string,
@@ -31,8 +31,7 @@ export class InGameApi {
     private server: Server,
     private menu: Menu
   ) {
-    this.logger = log.create(id)
-    this.logger.scope(id)
+    this.logger = log.scope(id)
 
     ipcMain.handle(`${id}-start`, () => {
       this.connect()
