@@ -16,7 +16,7 @@
   "scripts": {
     "watch": "tsc -w -p ./tsconfig.e.json",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
-    "start": "npm run build:backend && electron ./build/index.js",
+    "start": "npm run build:backend && electron --trace-warnings ./build/index.js",
     "svelte-build": "rollup -c",
     "dev": "rollup -c -w",
     "svelte-start": "sirv public",
