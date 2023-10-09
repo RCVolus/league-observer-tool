@@ -246,6 +246,7 @@ export class Server {
     try {
       return await this.await('reply', reply, timeout)
     } catch {
+      this.logger.error('request timed out')
       throw new Error('request timed out')
     }
   }
