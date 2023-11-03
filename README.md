@@ -1,10 +1,7 @@
-# league-prod-observer-tool
+# league-observer-tool-codebase
 
-**An addition to the league-prod-toolkit for the observer PC**
+The source code for the league observer tool, part of the [prod-toolkit](https://github.com/RCVolus/league-prod-toolkit])
 
-This is a [TypeScript](https://www.typescriptlang.org) port of the [Electron Quick Start repo](https://github.com/electron/electron-quick-start) -- a minimal Electron application based on the [Quick Start Guide](http://electron.atom.io/docs/tutorial/quick-start) within the Electron documentation.
+For docs, support and downloadable releases, please go to this repository: https://github.com/RCVolus/league-observer-tool
 
-```bash
-npm run start
-npm run dist
-```
+To contribute, please grab an issue in the main repository and/or open a pull request here.
