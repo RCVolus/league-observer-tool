@@ -7,11 +7,11 @@ class Connector {
   public severPending : Writable<boolean> = writable(false)
 
   constructor () {
-    window.sender.on('lcu-connection', (_e: any, state : boolean) => {
+    window.sender.on('lcu-connection', (_e, state : boolean[]) => {
       this.lcuPending.set(false)
       this.lcuConnected.set(state[0])
     })
-    window.sender.on('server-connection', (_e: any, state : boolean) => {
+    window.sender.on('server-connection', (_e, state : boolean[]) => {
       this.severPending.set(false)
       this.serverConnected.set(state[0])
     })

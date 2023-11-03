@@ -27,10 +27,10 @@
     window.modules.callAction(id, action, value);
   }
 
-  window.sender.on(`${id}`, (_e, connstate: 0 | 1 | 2) => {
-    status = connstate[0];
+  window.sender.on(`${id}`, (_e, connState: Array<0 | 1 | 2>) => {
+    status = connState[0];
     availableModules.update((m) => {
-      m.get(id)!.status = connstate[0];
+      m.get(id)!.status = connState[0];
       return m;
     });
   });

@@ -10,7 +10,7 @@ export interface AutoUpdater {
 }
 
 export interface Sender {
-  on : (channel : string, func : (event : Electron.IpcRendererEvent, ...data : any[]) => void ) => void;
+  on: <T>(channel: string, func: (event: Electron.IpcRendererEvent, data: T[]) => void) => void;
 }
 
 declare global {

@@ -22,7 +22,7 @@
   if (type === "timer") {
     let offset = 0
 
-    window.sender.on('server-prod-clock', (_e: any, newOffset : number) => {
+    window.sender.on('server-prod-clock', (_e: any, newOffset : number[]) => {
       offset = newOffset[0]
     })
 

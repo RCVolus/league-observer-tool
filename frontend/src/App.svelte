@@ -7,7 +7,7 @@
   import Game from "./components/Game.svelte";
   import Settings from "./components/Settings.svelte";
 
-  window.sender.on("console", (_event, ...args: any) => {
+  window.sender.on("console", (_event, args) => {
     console.log(...args);
   });
 
