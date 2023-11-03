@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 20
 
-      name: Build/release Electron app
+      - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
           # GitHub token, automatically provided to the action
