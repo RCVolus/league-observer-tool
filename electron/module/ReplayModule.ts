@@ -1,5 +1,6 @@
 import { ipcMain, dialog, app, MenuItem, Menu, globalShortcut } from 'electron';
 import { join } from "path";
+import { readFileSync } from "fs";
 import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
 import { Action } from '../../types/Action';
@@ -13,11 +14,11 @@ import { Key } from '@nut-tree/nut-js/dist/lib/key.enum';
 import api from '../api';
 import log from 'electron-log';
 
-const fetchOption = {
-  agent: new Agent({
-    rejectUnauthorized: false
-  })
-}
+const cert = readFileSync(join(__dirname, '..', '..', 'riotgames.pem'))
+
+const httpsAgent = new Agent({
+  ca: cert
+});
 
 export class ReplayModule {
   static replayUrl = "https://127.0.0.1:2999/replay/"
@@ -296,7 +297,10 @@ export class ReplayModule {
     const fetchUri = ReplayModule.replayUrl + "playback"
 
     try {
-      const res = await fetch(fetchUri, fetchOption)
+      const res = await fetch(fetchUri, {
+        agent: httpsAgent,
+        useElectronNet: false
+      })
 
       if (!res.ok) return
 
@@ -353,7 +357,8 @@ export class ReplayModule {
           time: time >= 0 ? time : 0
         }),
         redirect: 'follow',
-        ...fetchOption
+        agent: httpsAgent,
+        useElectronNet: false
       })
     } catch (e) {
       this.logger.error(e)
@@ -377,7 +382,8 @@ export class ReplayModule {
           time: seconds
         }),
         redirect: 'follow',
-        ...fetchOption
+        agent: httpsAgent,
+        useElectronNet: false
       })
     } catch (e) {
       this.logger.error(e)
@@ -405,7 +411,8 @@ export class ReplayModule {
         },
         body: JSON.stringify(setup),
         redirect: 'follow',
-        ...fetchOption
+        agent: httpsAgent,
+        useElectronNet: false
       })
     } catch (e) {
       this.logger.error(e)
@@ -437,7 +444,8 @@ export class ReplayModule {
         },
         body: JSON.stringify(setup),
         redirect: 'follow',
-        ...fetchOption
+        agent: httpsAgent,
+        useElectronNet: false
       })
     } catch (e) {
       this.logger.error(e)

@@ -55,7 +55,8 @@
       "frontend/public/**/*",
       "loader/public/**/*",
       "node_modules/**/*",
-      "package.json"
+      "package.json",
+      "riotgames.pem"
     ],
     "extraResources": [
       "assets/**/*"

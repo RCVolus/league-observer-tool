@@ -1,5 +1,6 @@
 import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
 import { join } from "path";
+import { readFileSync } from "fs";
 import { writeFile } from "fs/promises";
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
@@ -10,8 +11,10 @@ import { Agent } from 'https';
 import { Action } from '../../types/Action';
 import log from 'electron-log';
 
+const cert = readFileSync(join(__dirname, '..', '..', 'riotgames.pem'))
+
 const httpsAgent = new Agent({
-  rejectUnauthorized: false,
+  ca: cert
 });
 
 export class InGameApi {
@@ -98,6 +101,7 @@ export class InGameApi {
     try {
       const res = await fetch(fetchUrl, {
         agent: httpsAgent,
+        useElectronNet: false
       })
 
       if (!res.ok) return
