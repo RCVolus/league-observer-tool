@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: 'Build Toolkit'
+    name: 'Release'
     runs-on: 'windows-latest'
     steps:
       - uses: actions/checkout@v4
