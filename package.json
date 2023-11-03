@@ -15,7 +15,7 @@
   "main": "./build/index.js",
   "scripts": {
     "watch": "tsc -w -p ./tsconfig.e.json",
-    "lint": "eslint -c .eslintrc --ext .ts ./src",
+    "lint": "eslint -c .eslintrc --ext .ts ./electron",
     "start": "npm run build:backend && electron --trace-warnings ./build/index.js",
     "svelte-build": "rollup -c",
     "dev": "rollup -c -w",
