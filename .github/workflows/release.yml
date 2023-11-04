@@ -26,8 +26,6 @@ jobs:
 
       - name: Build
         run: npm run dist
-        with:
-          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
       - name: Release
         uses: 'marvinpinto/action-automatic-releases@latest'
