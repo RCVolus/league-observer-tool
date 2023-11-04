@@ -33,6 +33,6 @@ jobs:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           prerelease: false
           files: |
-            dist/League-Observer-Tool-Setup-${{ GITHUB_REF#refs/*/ }}.exe
-            dist/League-Observer-Tool-Setup-${{ GITHUB_REF#refs/*/ }}.exe.blockmap
+            dist/League-Observer-Tool-Setup-${{ github.ref_name }}.exe
+            dist/League-Observer-Tool-Setup-${{ github.ref_name }}.exe.blockmap
             dist/latest.yml
