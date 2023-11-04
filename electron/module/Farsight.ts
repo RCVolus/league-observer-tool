@@ -6,7 +6,7 @@ import type { Server } from '../connector/Server';
 import type { LPTEvent } from '../../types/LPTE'
 import type { LCU } from '../connector/LCU'
 import type { DisplayError } from '../../types/DisplayError';
-import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot, setVersion } from "@larseble/farsight";
+import { connectToLeague, disconnectFromLeague, isReady, makeSnapshot, setVersion } from "@floh22/farsight";
 import log from 'electron-log';
 import { Action } from '../../types/Action';
 
