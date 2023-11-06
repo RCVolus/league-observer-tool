@@ -1,11 +1,11 @@
-import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
+import { ipcMain, /* dialog, app, */ MenuItem, Menu } from 'electron';
 import { join } from "path";
 import { readFileSync } from "fs";
-import { writeFile } from "fs/promises";
+/* import { writeFile } from "fs/promises"; */
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import type { LPTEvent } from '../../types/LPTE'
-import fetch from 'electron-fetch'
+import fetch, { FetchError } from 'electron-fetch'
 import type { DisplayError } from '../../types/DisplayError';
 import { Agent } from 'https';
 import { Action } from '../../types/Action';
@@ -19,7 +19,7 @@ const httpsAgent = new Agent({
 
 export class InGameApi {
   static url = "https://127.0.0.1:2999/liveclientdata/"
-  private data: Array<any> = []
+  //private data: Array<any> = []
   public actions: [string, Action][] = []
   private interval?: NodeJS.Timeout
   private subMenu: MenuItem | null
@@ -42,9 +42,9 @@ export class InGameApi {
     ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
-    ipcMain.handle(`${id}-save`, () => {
+    /* ipcMain.handle(`${id}-save`, () => {
       this.saveData()
-    })
+    }) */
 
     this.subMenu = this.menu.getMenuItemById('tools')
     this.menuItem = new MenuItem({
@@ -121,15 +121,16 @@ export class InGameApi {
       this.server.send(obj)
 
       Sender.emit(this.id, 2)
-    } catch (e: any) {
-      this.logger.error(e)
-
-      if (e.code && e.code === "ECONNREFUSED") {
+    } catch (e) {
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
         Sender.emit(this.id, 1)
       } else {
+        this.disconnect()
+
+        this.logger.error(e)
         Sender.emit('error', {
           color: "danger",
-          text: e.message || 'error while fetching live-game data'
+          text: (e as Error).message
         } as DisplayError)
       }
     }
@@ -150,7 +151,7 @@ export class InGameApi {
     }
   }
 
-  private async saveData() {
+/*   private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
@@ -169,5 +170,5 @@ export class InGameApi {
       const savePath = saveDialog.filePath.toString()
       await writeFile(savePath, saveData)
     }
-  }
+  } */
 }

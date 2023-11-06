@@ -1,6 +1,6 @@
-import { ipcMain, dialog, app, MenuItem, Menu } from 'electron';
-import { join } from "path";
-import { writeFile } from "fs/promises";
+import { ipcMain, /* dialog, app, */ MenuItem, Menu } from 'electron';
+/* import { join } from "path";
+import { writeFile } from "fs/promises"; */
 import { Sender } from '../helper/Sender';
 import { Server } from '../connector/Server';
 import { Socket, connect } from 'net';
@@ -11,7 +11,7 @@ import { Action } from '../../types/Action';
 import log from 'electron-log';
 
 export class LiveEventsModule {
-  private data: Array<any> = []
+  // private data: Array<any> = []
   private netClient?: Socket
   private port: number
   public actions: [string, Action][] = []
@@ -36,9 +36,9 @@ export class LiveEventsModule {
     ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
-    ipcMain.handle(`${id}-save`, () => {
+    /* ipcMain.handle(`${id}-save`, () => {
       this.saveData()
-    })
+    }) */
 
     this.subMenu = this.menu.getMenuItemById('tools')
     this.menuItem = new MenuItem({
@@ -122,6 +122,7 @@ export class LiveEventsModule {
 
       let newDataSting = dataString.replace(/(\\r\\n\\t|\n|\r|\\|\r\n|\t)/gm, "")
       newDataSting = newDataSting.replace(/(}{)/gm, "},{")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parsedData: Array<any> = JSON.parse(`[${newDataSting}]`)
       this.logger.info(parsedData)
 
@@ -134,12 +135,12 @@ export class LiveEventsModule {
         data: parsedData
       }
       this.server.send(obj)
-    } catch (e: any) {
+    } catch (e) {
       this.logger.error(e)
 
       Sender.emit('error', {
         color: "danger",
-        text: e.message || 'error while sending data to prod tool'
+        text: (e as Error).message || 'error while sending data to prod tool'
       } as DisplayError)
     }
   }
@@ -158,7 +159,7 @@ export class LiveEventsModule {
     }
   }
 
-  private async saveData() {
+/*   private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
@@ -177,5 +178,5 @@ export class LiveEventsModule {
       const savePath = saveDialog.filePath.toString()
       await writeFile(savePath, saveData)
     }
-  }
+  } */
 }

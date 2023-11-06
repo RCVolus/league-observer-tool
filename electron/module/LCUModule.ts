@@ -1,7 +1,7 @@
 import type { EventResponse } from 'league-connect'
-import { ipcMain, dialog, app, MenuItem, type Menu } from 'electron';
-import { join } from "path";
-import { writeFile } from "fs/promises";
+import { ipcMain, /* dialog, app, */ MenuItem, type Menu } from 'electron';
+/* import { join } from "path";
+import { writeFile } from "fs/promises"; */
 import { Sender } from '../helper/Sender';
 import type { Server } from '../connector/Server';
 import type { LCU } from '../connector/LCU'
@@ -9,9 +9,10 @@ import type { LPTEvent } from "../../types/LPTE";
 import type { DisplayError } from '../../types/DisplayError';
 import { Action } from '../../types/Action';
 import log from 'electron-log';
+import { FetchError } from 'electron-fetch';
 
 export class LCUModule {
-  protected data: Array<any> = []
+  //protected data: Array<any> = []
   public actions: [string, Action][] = []
   private subMenu: Electron.MenuItem | null
   private menuItem: Electron.MenuItem
@@ -35,9 +36,9 @@ export class LCUModule {
     ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
-    ipcMain.handle(`${id}-save`, () => {
+    /* ipcMain.handle(`${id}-save`, () => {
       this.saveData()
-    })
+    }) */
 
     this.subMenu = this.menu.getMenuItemById('tools')
     this.menuItem = new MenuItem({
@@ -73,7 +74,7 @@ export class LCUModule {
     this.isSynced = true
 
     this.requestData()
-    this.lcu.subscribe(this.lcuURI, (data: any, event: EventResponse) => this.handleData(data, event))
+    this.lcu.subscribe(this.lcuURI, (data, event: EventResponse) => this.handleData(data, event))
 
     Sender.emit(this.id, 2)
 
@@ -92,19 +93,26 @@ export class LCUModule {
       if (data === undefined) return
 
       this.handleData(data, { eventType: 'Create' })
-    } catch (e: any) {
-      this.logger.error(e)
+    } catch (e) {
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
+        Sender.emit(this.id, 1)
+      } else {
+        this.disconnect()
 
-      Sender.emit('error', {
-        color: "danger",
-        text: e.message || 'error while fetching data from lcu'
-      } as DisplayError)
+        this.logger.error(e)
+        Sender.emit('error', {
+          color: "danger",
+          text: (e as Error).message || 'error while fetching data from lcu'
+        } as DisplayError)
+      }
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async handleData(data: any, event: any): Promise<void> {
     /* this.data.push({data, event}) */
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let selectedData: { [n: string]: any } = {}
     if (!this.dataPoints) selectedData = data
     else {
@@ -123,13 +131,18 @@ export class LCUModule {
         data: event.eventType != "Delete" ? selectedData : undefined
       }
       this.server.send(obj)
-    } catch (e: any) {
-      this.logger.error(e)
+    } catch (e) {
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
+        Sender.emit(this.id, 1)
+      } else {
+        this.disconnect()
 
-      Sender.emit('error', {
-        color: "danger",
-        text: e.message || 'error while sending data to prod tool'
-      } as DisplayError)
+        this.logger.error(e)
+        Sender.emit('error', {
+          color: "danger",
+          text: (e as Error).message
+        } as DisplayError)
+      }
     }
   }
 
@@ -142,7 +155,7 @@ export class LCUModule {
     }
   }
 
-  private async saveData() {
+/*   private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
@@ -161,5 +174,5 @@ export class LCUModule {
       const savePath = saveDialog.filePath.toString()
       await writeFile(savePath, saveData)
     }
-  }
+  } */
 }

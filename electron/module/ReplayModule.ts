@@ -1,11 +1,11 @@
-import { ipcMain, dialog, app, MenuItem, Menu, globalShortcut } from 'electron';
+import { ipcMain, /* dialog, app, */ MenuItem, Menu, globalShortcut } from 'electron';
 import { join } from "path";
 import { readFileSync } from "fs";
-import { writeFile } from "fs/promises";
+/* import { writeFile } from "fs/promises"; */
 import { Sender } from '../helper/Sender';
 import { Action } from '../../types/Action';
 import { Server } from '../connector/Server';
-import fetch from 'electron-fetch'
+import fetch, { FetchError } from 'electron-fetch'
 import { Agent } from "https";
 import type { DisplayError } from '../../types/DisplayError';
 import { store } from '../index'
@@ -31,7 +31,7 @@ export class ReplayModule {
     savedAt: number
     time: number
   }
-  private renderData: any = {}
+  //private renderData: any = {}
   public actions: [string, Action][] = [
     ["sync-replay", {
       title: "Sync to first Operator",
@@ -102,9 +102,9 @@ export class ReplayModule {
     ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
-    ipcMain.handle(`${id}-save`, () => {
+    /* ipcMain.handle(`${id}-save`, () => {
       this.saveData()
-    })
+    }) */
     ipcMain.handle(`${id}-sync-replay`, () => {
       this.syncReplay()
     })
@@ -325,16 +325,16 @@ export class ReplayModule {
 
       this.isSynced = true
       Sender.emit(this.id, 2)
-    } catch (e: any) {
-      this.logger.error(e)
-
-      if (e.code && e.code === "ECONNREFUSED") {
+    } catch (e) {
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
         Sender.emit(this.id, 1)
       } else {
         this.disconnect()
+
+        this.logger.error(e)
         Sender.emit('error', {
           color: "danger",
-          text: e.message || 'error while fetching live-game data'
+          text: (e as Error).message
         } as DisplayError)
       }
     }
@@ -361,7 +361,17 @@ export class ReplayModule {
         useElectronNet: false
       })
     } catch (e) {
-      this.logger.error(e)
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
+        Sender.emit(this.id, 1)
+      } else {
+        this.disconnect()
+
+        this.logger.error(e)
+        Sender.emit('error', {
+          color: "danger",
+          text: (e as Error).message
+        } as DisplayError)
+      }
     }
   }
 
@@ -386,7 +396,17 @@ export class ReplayModule {
         useElectronNet: false
       })
     } catch (e) {
-      this.logger.error(e)
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
+        Sender.emit(this.id, 1)
+      } else {
+        this.disconnect()
+
+        this.logger.error(e)
+        Sender.emit('error', {
+          color: "danger",
+          text: (e as Error).message
+        } as DisplayError)
+      }
     }
   }
 
@@ -415,7 +435,17 @@ export class ReplayModule {
         useElectronNet: false
       })
     } catch (e) {
-      this.logger.error(e)
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
+        Sender.emit(this.id, 1)
+      } else {
+        this.disconnect()
+
+        this.logger.error(e)
+        Sender.emit('error', {
+          color: "danger",
+          text: (e as Error).message
+        } as DisplayError)
+      }
     }
   }
 
@@ -448,7 +478,17 @@ export class ReplayModule {
         useElectronNet: false
       })
     } catch (e) {
-      this.logger.error(e)
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
+        Sender.emit(this.id, 1)
+      } else {
+        this.disconnect()
+
+        this.logger.error(e)
+        Sender.emit('error', {
+          color: "danger",
+          text: (e as Error).message
+        } as DisplayError)
+      }
     }
   }
 
@@ -493,7 +533,7 @@ export class ReplayModule {
     globalShortcut.unregister('CommandOrControl+L')
   }
 
-  private async saveData() {
+  /* private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
@@ -515,5 +555,5 @@ export class ReplayModule {
       const savePath = saveDialog.filePath.toString()
       await writeFile(savePath, saveData)
     }
-  }
+  } */
 }

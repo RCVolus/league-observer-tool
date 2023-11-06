@@ -2,6 +2,7 @@ import { Sender } from "../helper/Sender";
 import { DisplayError } from "../../types/DisplayError";
 import { LPTEvent } from "../../types/LPTE";
 import { LCUModule } from "./LCUModule";
+import { FetchError } from "electron-fetch";
 
 export class Lobby extends LCUModule {
   /**
@@ -10,6 +11,7 @@ export class Lobby extends LCUModule {
   */
   private players: Map<string, { tier: string, division: string }> = new Map()
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async handleData(data: any, event: any): Promise<void> {
     if (event.eventType === 'Create') {
       this.players = new Map()
@@ -17,10 +19,13 @@ export class Lobby extends LCUModule {
 
     /* this.data.push({data, event}) */
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectedData: { [n: string]: any } = data
 
     if (data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await Promise.all(data.gameConfig.customTeam100.map((m: any) => this.getPlayerElo(m)))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await Promise.all(data.gameConfig.customTeam200.map((m: any) => this.getPlayerElo(m)))
     }
 
@@ -34,19 +39,26 @@ export class Lobby extends LCUModule {
         data: event.eventType != "Delete" ? selectedData : undefined
       }
       this.server.send(obj)
-    } catch (e: any) {
-      this.logger.error(e)
+    } catch (e) {
+      if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
+        Sender.emit(this.id, 1)
+      } else {
+        this.disconnect()
 
-      Sender.emit('error', {
-        color: "danger",
-        text: e.message || 'error while sending data to prod tool'
-      } as DisplayError)
+        this.logger.error(e)
+        Sender.emit('error', {
+          color: "danger",
+          text: (e as Error).message
+        } as DisplayError)
+      }
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getPlayerElo(m: any): Promise<any> {
     if (!this.players.has(m.puuid)) {
-      const elo = await this.lcu.request({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const elo = await this.lcu.request<any>({
         method: 'GET',
         url: `/lol-ranked/v1/ranked-stats/${m.puuid}`
       })

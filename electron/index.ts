@@ -25,6 +25,7 @@ autoUpdater.autoDownload = false
 
 let mainWindow: BrowserWindow
 let initWindow: BrowserWindow
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let tray: Tray
 let gameConfig: GameConfig
 let liveEventConfig: LiveEventsConfig

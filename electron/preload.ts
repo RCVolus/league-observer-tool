@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import Config from "../types/Config";
 
 contextBridge.exposeInMainWorld('sender', {
-  on: (channel: string, func: (event: Electron.IpcRendererEvent, ...data: any[]) => void) => {
+  on: <T>(channel: string, func: (event: Electron.IpcRendererEvent, data: T[]) => void) => {
     ipcRenderer.on(channel, func)
   }
 })

@@ -7,7 +7,7 @@ export default function createTray(mainWindow: BrowserWindow): Tray {
   const icon = nativeImage.createFromPath(iconPatch)
   const tray = new Tray(icon)
   tray.setIgnoreDoubleClickEvents(true)
-  tray.on('click', function (e) {
+  tray.on('click', () => {
     if (!mainWindow?.isVisible()) {
       mainWindow?.show()
     }

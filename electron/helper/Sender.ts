@@ -3,7 +3,7 @@ import { BrowserWindow } from "electron"
 export class Sender {
   static currentWindow: BrowserWindow
 
-  static emit(event: string, ...args: any[]): void {
+  static emit<T>(event: string, ...args: T[]): void {
     Sender.currentWindow.webContents.postMessage(event, args)
   }
 

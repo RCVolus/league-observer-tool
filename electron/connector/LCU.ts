@@ -24,7 +24,7 @@ export class LCU {
     })
   }
 
-  public async request(arg: RequestOptions): Promise<any> {
+  public async request<T>(arg: RequestOptions): Promise<T | undefined> {
     if (!this.credentials) return
 
     try {
@@ -36,11 +36,11 @@ export class LCU {
       } else {
         return undefined
       }
-    } catch (e: any) {
+    } catch (e) {
       this.logger.error(e)
       Sender.emit('error', {
         color: "danger",
-        text: e.message
+        text: (e as Error).message
       } as DisplayError)
     }
   }
@@ -68,8 +68,8 @@ export class LCU {
     this.leagueClient.start()
   }
 
-  async getInstallPath(): Promise<string> {
-    const res = await this.request({
+  async getInstallPath(): Promise<string | undefined> {
+    const res = await this.request<string>({
       method: 'GET',
       url: '/data-store/v1/install-dir'
     })
@@ -132,7 +132,7 @@ export class LCU {
   /**
    * subscribe
    */
-  public subscribe(path: string, effect: EventCallback<any>): void {
+  public subscribe<T>(path: string, effect: EventCallback<T>): void {
     this.lolWs?.subscribe(path, effect)
   }
 

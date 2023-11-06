@@ -85,8 +85,9 @@ export class Modules {
       this.menu
     ))
 
-    ipcMain.handle('modules-ready', async (e) => {
-      return [...this.modules].map(([_k, m]) => {
+    ipcMain.handle('modules-ready', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return [...this.modules].map(([k, m]) => {
         return {
           id: m.id,
           name: m.name,

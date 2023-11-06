@@ -1,6 +1,6 @@
-import { ipcMain, dialog, app, MenuItem, type Menu } from 'electron';
-import { join } from "path";
-import { writeFile } from "fs/promises";
+import { ipcMain, dialog, /* app, */ MenuItem, type Menu } from 'electron';
+/* import { join } from "path";
+import { writeFile } from "fs/promises"; */
 import { Sender } from '../helper/Sender';
 import type { Server } from '../connector/Server';
 import type { LPTEvent } from '../../types/LPTE'
@@ -11,7 +11,7 @@ import log from 'electron-log';
 import { Action } from '../../types/Action';
 
 export class Farsight {
-  private data: Array<any> = []
+  //private data: Array<any> = []
   public actions: [string, Action][] = []
   private interval?: NodeJS.Timeout
   private subMenu: MenuItem | null
@@ -36,9 +36,9 @@ export class Farsight {
     ipcMain.handle(`${id}-stop`, () => {
       this.disconnect()
     })
-    ipcMain.handle(`${id}-save`, () => {
+    /* ipcMain.handle(`${id}-save`, () => {
       this.saveData()
-    })
+    }) */
 
     this.subMenu = this.menu.getMenuItemById('tools')
     this.menuItem = new MenuItem({
@@ -86,12 +86,14 @@ export class Farsight {
       return
     }
 
-    Sender.emit(this.id, 1)
+    Sender.emit<number>(this.id, 1)
 
-    const version: string = await this.lcu.request({
+    const version = await this.lcu.request<string>({
       method: 'GET',
       url: '/lol-patch/v1/game-version'
     })
+
+    if (version === undefined) return
 
     setVersion(version.split('.', 2).join('.'))
 
@@ -146,17 +148,13 @@ export class Farsight {
       this.server.send(obj)
 
       Sender.emit(this.id, 2)
-    } catch (e: any) {
+    } catch (e) {
       this.logger.error(e)
 
-      if (e.code && e.code === "ECONNREFUSED") {
-        Sender.emit(this.id, 1)
-      } else {
-        Sender.emit('error', {
-          color: "danger",
-          text: e.message || 'error while fetching game data'
-        } as DisplayError)
-      }
+      Sender.emit('error', {
+        color: "danger",
+        text: (e as Error).message || 'error while fetching game data'
+      } as DisplayError)
     }
   }
 
@@ -177,7 +175,7 @@ export class Farsight {
     }
   }
 
-  private async saveData() {
+/*   private async saveData() {
     const saveDialog = await dialog.showSaveDialog({
       title: 'Select the File Path to save',
       defaultPath: join(app.getPath('documents'), `../Observer Tool/${this.name}-data.json`),
@@ -196,5 +194,5 @@ export class Farsight {
       const savePath = saveDialog.filePath.toString()
       await writeFile(savePath, saveData)
     }
-  }
+  } */
 }
