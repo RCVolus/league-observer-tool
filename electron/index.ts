@@ -211,7 +211,7 @@ async function checkConfigs() {
     type: "question",
     buttons: ["Yes", "No"],
     title: "Setup Game Configs",
-    message: "The game config are missing or not complete! Do you want to automatically fix that to insure full functionality?"
+    message: "The game configs are missing or not complete! Do you want to automatically fix that to ensure full functionality?"
   })
 
   if (choice === 1) {

@@ -22,11 +22,11 @@ export class Setup {
   }
 
   protected emitErrorMessage(config: 'Game' | 'Live Events', type: 'missing' | 'incomplete' | 'wrong'): void {
-    logger.warn(`The ${config} config is ${type}! Go to the settings page to automatically fix that or adjust it manually to insure full functionality`)
+    logger.warn(`The ${config} config is ${type}! Go to the settings page to fix automatically or adjust manually to ensure full functionality`)
 
     Sender.emit('error', {
       color: "danger",
-      text: `The ${config} config is ${type}! Go to the settings page to automatically fix that or adjust it manually to insure full functionality`,
+      text: `The ${config} config is ${type}! Go to the settings page to fix automatically or adjust manually to ensure full functionality`,
       timeout: 10_000
     } as DisplayError)
   }
