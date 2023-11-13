@@ -135,7 +135,7 @@ function openMainWindow() {
   Sender.currentWindow = mainWindow
 
   // and load the index.html of the app.
-  mainWindow.loadFile(join(__dirname, '../frontend/public/index.html'));
+  mainWindow.loadFile(join(__dirname, '../frontend/build/index.html'));
 
   lcu = new LCU()
   server = new Server()

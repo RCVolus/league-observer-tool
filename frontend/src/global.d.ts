@@ -1,6 +1,6 @@
 /// <reference types="svelte" />
 
-import type { Config } from "../../types/Config"
+import type { Config } from "../types/Config"
 
 export interface Connector {
   server: {
