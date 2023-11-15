@@ -340,8 +340,9 @@ export class ReplayModule {
 
         this.logger.error(e)
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while fetching data from game',
+          message: (e as Error).message
         } as DisplayError)
       }
     }
@@ -375,8 +376,9 @@ export class ReplayModule {
 
         this.logger.error(e)
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while sending data to game',
+          message: (e as Error).message
         } as DisplayError)
       }
     }
@@ -410,8 +412,9 @@ export class ReplayModule {
 
         this.logger.error(e)
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while sending data to game',
+          message: (e as Error).message
         } as DisplayError)
       }
     }
@@ -449,8 +452,9 @@ export class ReplayModule {
 
         this.logger.error(e)
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while sending data to game',
+          message: (e as Error).message
         } as DisplayError)
       }
     }
@@ -492,8 +496,9 @@ export class ReplayModule {
 
         this.logger.error(e)
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while sending data to game',
+          message: (e as Error).message
         } as DisplayError)
       }
     }

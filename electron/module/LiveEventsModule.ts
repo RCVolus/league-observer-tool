@@ -139,8 +139,9 @@ export class LiveEventsModule {
       this.logger.error(e)
 
       Sender.emit('error', {
-        color: "danger",
-        text: (e as Error).message || 'error while sending data to prod tool'
+        color: "error",
+        title: 'Error while processing data from game',
+        message: (e as Error).message
       } as DisplayError)
     }
   }

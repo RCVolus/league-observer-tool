@@ -47,8 +47,9 @@ export class Lobby extends LCUModule {
 
         this.logger.error(e)
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while processing data from client',
+          message: (e as Error).message
         } as DisplayError)
       }
     }

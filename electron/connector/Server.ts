@@ -115,8 +115,9 @@ export class Server {
       this.logger.error(e)
 
       Sender.emit('error', {
-        color: "danger",
-        text: e.message
+        color: "error",
+        title: 'Prod-Tool connection issue',
+        message: e.message,
       } as DisplayError)
 
       Sender.emit('server-connection', this.isConnected)

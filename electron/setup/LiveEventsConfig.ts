@@ -62,8 +62,9 @@ export class LiveEventsConfig extends Setup {
       logger.error(error)
 
       Sender.emit('error', {
-        color: "danger",
-        text: `The Game config could not be updated! Error: ${error}`
+        color: "error",
+        title: 'The Game config could not be updated!',
+        message: (error as Error).message,
       } as DisplayError)
     }
   }

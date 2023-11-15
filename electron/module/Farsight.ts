@@ -149,11 +149,14 @@ export class Farsight {
 
       Sender.emit(this.id, 2)
     } catch (e) {
+      Sender.emit(this.id, 1)
+      
       this.logger.error(e)
 
       Sender.emit('error', {
-        color: "danger",
-        text: (e as Error).message || 'error while fetching game data'
+        color: "error",
+        title: 'Error while fetching game data',
+        message: (e as Error).message
       } as DisplayError)
     }
   }

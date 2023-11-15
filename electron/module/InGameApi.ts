@@ -126,9 +126,11 @@ export class InGameApi {
         Sender.emit(this.id, 1)
       } else {
         this.logger.error(e)
+
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while fetching game data',
+          message: (e as Error).message
         } as DisplayError)
       }
     }
