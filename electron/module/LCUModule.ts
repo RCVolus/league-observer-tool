@@ -100,9 +100,11 @@ export class LCUModule {
         this.disconnect()
 
         this.logger.error(e)
+
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message || 'error while fetching data from lcu'
+          color: "error",
+          title: 'Error while fetching data from client',
+          message: (e as Error).message
         } as DisplayError)
       }
     }
@@ -138,9 +140,11 @@ export class LCUModule {
         this.disconnect()
 
         this.logger.error(e)
+
         Sender.emit('error', {
-          color: "danger",
-          text: (e as Error).message
+          color: "error",
+          title: 'Error while processing data from client',
+          message: (e as Error).message
         } as DisplayError)
       }
     }

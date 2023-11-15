@@ -39,8 +39,9 @@ export class LCU {
     } catch (e) {
       this.logger.error(e)
       Sender.emit('error', {
-        color: "danger",
-        text: (e as Error).message
+        color: "error",
+        title: 'Error while requesting data from client',
+        message: (e as Error).message
       } as DisplayError)
     }
   }
@@ -109,9 +110,11 @@ export class LCU {
 
     this.lolWs.onerror = e => {
       this.logger.error(e)
+
       Sender.emit('error', {
-        color: "danger",
-        text: 'There was an error on the connection to the League Client',
+        color: "error",
+        title: 'There was an error on the connection to the League Client',
+        message: e.message,
         timeout: 5500
       } as DisplayError)
 
@@ -169,9 +172,11 @@ export class LCU {
       this.handleWebSockets()
     } catch (e) {
       this.logger.error(e)
+
       Sender.emit('error', {
-        color: "danger",
-        text: 'League Client process could not be found',
+        color: "error",
+        title: 'League Client process could not be found',
+        message: '',
         timeout: 5500
       } as DisplayError)
 
