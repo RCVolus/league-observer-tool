@@ -2,7 +2,7 @@
   import Fa from "svelte-fa";
   import { faWarning, faClose } from "@fortawesome/free-solid-svg-icons";
   import { onMount, onDestroy } from "svelte";
-  import type { DisplayError } from "../../types/DisplayError";
+  import type { DisplayError } from "../../../types/DisplayError";
   import { alert as alertStore } from '$lib/store'
 
   onMount(async () => {
