@@ -32,6 +32,10 @@ const schema: Schema<Config> = {
   },
   'league-install-path': {
     type: 'string'
+  },
+  'initial-setup-complete': {
+    type: 'boolean',
+    default: false
   }
 }
 
