@@ -1,7 +1,6 @@
-import type { Color } from "sveltestrap/src/shared";
-
 export type DisplayError = {
-  color: Color
-  text: string
+  color: 'error' | 'info' | 'warning' | 'success'
+  title: string
+  message: string
   timeout?: number
 }
