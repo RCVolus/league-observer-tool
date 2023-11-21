@@ -73,7 +73,7 @@
     "@types/uniqid": "^5.3.4",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.9.0",
-    "electron": "^27.0.4",
+    "electron": "^27.1.0",
     "electron-builder": "^24.6.4",
     "eslint": "^8.54.0",
     "rollup": "^3.29.4",
