@@ -125,8 +125,6 @@ export class InGameApi {
       if ((e as FetchError).code && (e as FetchError).code === "ECONNREFUSED") {
         Sender.emit(this.id, 1)
       } else {
-        this.disconnect()
-
         this.logger.error(e)
         Sender.emit('error', {
           color: "danger",
