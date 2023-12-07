@@ -295,16 +295,22 @@ export class ReplayModule {
 
   private async handleSandingPlayback() {
     const fetchUri = ReplayModule.replayUrl + "playback"
+    const fetchUriRender = ReplayModule.replayUrl + "render"
 
     try {
       const res = await fetch(fetchUri, {
         agent: httpsAgent,
         useElectronNet: false
       })
+      const resRender = await fetch(fetchUriRender, {
+        agent: httpsAgent,
+        useElectronNet: false
+      })
 
-      if (!res.ok) return
+      if (!res.ok || !resRender.ok) return
 
       const json = await res.json()
+      const jsonRender = await resRender.json()
       const savedAt = new Date().getTime() + this.server.prodTimeOffset
       const time = Math.round(json.time)
       const newData = {
@@ -320,7 +326,8 @@ export class ReplayModule {
           version: 1
         },
         savedAt,
-        time
+        time,
+        data: jsonRender
       })
 
       this.isSynced = true
