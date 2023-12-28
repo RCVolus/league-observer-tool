@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 /node_modules/
 /public/build/
 /.svelte-kit
-=======
->>>>>>> fba7dd8 (add start to new frontend)
 .DS_Store
 node_modules
 /build
