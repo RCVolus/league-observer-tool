@@ -1,5 +1,15 @@
 <script lang="ts">
   import { alert } from "$lib/store";
+  import Fa from "svelte-fa";
+  import {
+    faPlay,
+    faCheckSquare,
+    faSave,
+    faFileImport,
+    faFileExport,
+    faUndo,
+    faRemove,
+  } from "@fortawesome/free-solid-svg-icons";
 
   let uiState: string[] = [];
 
@@ -39,7 +49,7 @@
   let actionName = "";
 
   function addAction(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
     if (actionName === "") return;
     actions.set(actionName, uiState);
     actions = actions;
@@ -49,7 +59,7 @@
   function deleteAction(action: string) {
     actions.delete(action);
     actions = actions;
-    uiState = []
+    uiState = [];
   }
 
   function updateAction(action: string) {
@@ -89,92 +99,136 @@
 <form on:submit={addAction}>
   <div class="grid grid-cols-2 gap-4">
     <div class="col-span-1">
-      <select class="select" required size={20} multiple bind:value={uiState}>
+      <select class="select" required size={14} multiple bind:value={uiState}>
         {#each uiOptions as uiOption}
           <option value={uiOption}>{uiOption}</option>
         {/each}
       </select>
     </div>
     <div class="col-span-1">
-      <button
-        type="button"
-        class="btn w-full variant-filled-primary rounded-none"
-        on:click={() => execAction("selection")}>Setup using Selected</button
-      >
+      <h3 class="h3 mb-3">Observer UI</h3>
+      <div class="flex w-full justify-stretch">
+        <button
+          class="btn w-full variant-filled-primary rounded-none"
+          on:click={() => execAction("Observer")}
+        >
+          <span><Fa icon={faPlay} /></span>
+          <span>Setup for Observer</span>
+        </button>
+        <button
+          class="btn w-full variant-filled-surface rounded-none"
+          on:click={() => showSelection("Observer")}
+        >
+          <span><Fa icon={faCheckSquare} /></span>
+          <span>Show selection</span>
+        </button>
+        <button
+          class="btn w-full variant-filled-surface rounded-none"
+          on:click={() => updateAction("Observer")}
+        >
+          <span><Fa icon={faSave} /></span>
+          <span>Save selection</span>
+        </button>
+      </div>
+      <div class="flex w-full justify-stretch">
+        <button class="btn w-full variant-filled-surface rounded-none">
+          <span><Fa icon={faFileImport} /></span>
+          <span>Import selection</span>
+        </button>
+        <button class="btn w-full variant-filled-surface rounded-none">
+          <span><Fa icon={faFileExport} /></span>
+          <span>Export selection</span>
+        </button>
+        <button class="btn w-full variant-filled-error rounded-none">
+          <span><Fa icon={faUndo} /></span>
+          <span>Restore Default</span>
+        </button>
+      </div>
 
       <hr class="my-3 !border-t-2" />
 
-      <button
-        type="button"
-        class="btn variant-ghost-primary w-full rounded-none"
-        on:click={() => execAction("Observer")}>Setup for Observer</button
-      >
-      <button
-        type="button"
-        class="btn variant-ghost-surface w-full rounded-none"
-        on:click={() => showSelection("Observer")}
-        >Show selection for Observer</button
-      >
-      <button
-        type="button"
-        class="btn variant-ghost-warning w-full rounded-none"
-        on:click={() => updateAction("Observers")}
-        >Save selection for Observer</button
-      >
-      <button type="button" class="btn variant-ghost-error w-full rounded-none"
-        >Restore Observer</button
-      >
-
-      <hr class="my-3 !border-t-2" />
-
-      <button
-        type="button"
-        class="btn variant-ghost-primary w-full rounded-none"
-        on:click={() => execAction("Cinematics")}>Setup for Cinematics</button
-      >
-      <button
-        type="button"
-        class="btn variant-ghost-surface w-full rounded-none"
-        on:click={() => showSelection("Cinematics")}
-        >Show selection for Cinematics</button
-      >
-      <button
-        type="button"
-        class="btn variant-ghost-warning w-full rounded-none"
-        on:click={() => updateAction("Cinematics")}
-        >Save selection for Cinematics</button
-      >
-      <button type="button" class="btn variant-ghost-error w-full rounded-none"
-        >Restore Cinematics</button
-      >
+      <h3 class="h3 mb-3">Cinematic UI</h3>
+      <div class="flex w-full justify-stretch">
+        <button
+          class="btn w-full variant-filled-primary rounded-none"
+          on:click={() => execAction("Cinematics")}
+        >
+          <span><Fa icon={faPlay} /></span>
+          <span>Setup for Cinematics</span>
+        </button>
+        <button
+          class="btn w-full variant-filled-surface rounded-none"
+          on:click={() => showSelection("Cinematics")}
+        >
+          <span><Fa icon={faCheckSquare} /></span>
+          <span>Show selection</span>
+        </button>
+        <button
+          class="btn w-full variant-filled-surface rounded-none"
+          on:click={() => updateAction("Cinematics")}
+        >
+          <span><Fa icon={faSave} /></span>
+          <span>Save selection</span>
+        </button>
+      </div>
+      <div class="flex w-full justify-stretch">
+        <button class="btn w-full variant-filled-surface rounded-none">
+          <span><Fa icon={faFileImport} /></span>
+          <span>Import selection</span>
+        </button>
+        <button class="btn w-full variant-filled-surface rounded-none">
+          <span><Fa icon={faFileExport} /></span>
+          <span>Export selection</span>
+        </button>
+        <button class="btn w-full variant-filled-error rounded-none">
+          <span><Fa icon={faUndo} /></span>
+          <span>Restore Default</span>
+        </button>
+      </div>
 
       <hr class="my-3 !border-t-2" />
 
       {#if actions.size > 0}
         {#each actions as [action]}
           {#if action !== "Observer" && action !== "Cinematics"}
-            <button
-              type="button"
-              class="btn variant-ghost-primary w-full rounded-none"
-              on:click={() => execAction(action)}>Setup for {action}</button
-            >
-            <button
-              type="button"
-              class="btn variant-ghost-surface w-full rounded-none"
-              on:click={() => showSelection(action)}
-              >Show selection for {action}</button
-            >
-            <button
-              type="button"
-              class="btn variant-ghost-warning w-full rounded-none"
-              on:click={() => updateAction(action)}
-              >Save selection for {action}</button
-            >
-            <button
-              type="button"
-              class="btn variant-ghost-error w-full rounded-none"
-              on:click={() => deleteAction(action)}>Delete {action}</button
-            >
+            <h3 class="h3 mb-3">{action} UI</h3>
+            <div class="flex w-full justify-stretch">
+              <button
+                class="btn w-full variant-filled-primary rounded-none"
+                on:click={() => execAction(action)}
+              >
+                <span><Fa icon={faPlay} /></span>
+                <span>Setup for {action}</span>
+              </button>
+              <button
+                class="btn w-full variant-filled-surface rounded-none"
+                on:click={() => showSelection(action)}
+              >
+                <span><Fa icon={faCheckSquare} /></span>
+                <span>Show selection</span>
+              </button>
+              <button
+                class="btn w-full variant-filled-surface rounded-none"
+                on:click={() => updateAction(action)}
+              >
+                <span><Fa icon={faSave} /></span>
+                <span>Save selection</span>
+              </button>
+            </div>
+            <div class="flex w-full justify-stretch">
+              <button class="btn w-full variant-filled-surface rounded-none">
+                <span><Fa icon={faFileExport} /></span>
+                <span>Export selection</span>
+              </button>
+              <button
+                class="btn w-full variant-filled-error rounded-none"
+                on:click={() => deleteAction(action)}
+              >
+                <span><Fa icon={faRemove} /></span>
+                <span>Delete {action}</span>
+              </button>
+            </div>
+
             <hr class="my-3 !border-t-2" />
           {/if}
         {/each}
@@ -190,10 +244,26 @@
           placeholder="Action..."
         />
       </label>
+      <div class="flex w-full justify-stretch">
+        <button
+          type="submit"
+          class="btn w-full variant-filled-primary rounded-none"
+        >
+          <span><Fa icon={faSave} /></span>
+          <span>New Actions</span>
+        </button>
+        <button class="btn w-full variant-filled-surface rounded-none">
+          <span><Fa icon={faFileImport} /></span>
+          <span>Import selection</span>
+        </button>
+      </div>
+
+      <hr class="my-3 !border-t-2" />
+
       <button
-        type="submit"
-        class="btn variant-ghost-warning w-full rounded-none"
-        >Save selection for new Actions</button
+        type="button"
+        class="btn w-full variant-filled-primary rounded-none"
+        on:click={() => execAction("selection")}>Setup using Selected</button
       >
     </div>
   </div>
