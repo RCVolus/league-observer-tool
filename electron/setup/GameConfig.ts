@@ -81,12 +81,18 @@ export class GameConfig extends Setup {
     const config = ini.parse(file)
 
     for (const group in this.config) {
+      if (config[group] === undefined) {
+        config[group] = this.config[group]
+        continue
+      }
+
       for (const option in this.config[group]) {
         config[group][option] = this.config[group][option]
       }
     }
 
     try {
+      console.log(config)
       await writeFile(configPath, ini.stringify(config))
       this.setupComplete = true
     } catch (error) {

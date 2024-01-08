@@ -23,6 +23,7 @@ export class LiveEventsConfig extends Setup {
     const exists = await fileExists(configPath)
     if (!exists) {
       this.emitErrorMessage('Live Events', 'missing')
+      return this.setupComplete
     }
 
     const file = await readFile(configPath, 'utf-8')
@@ -42,13 +43,13 @@ export class LiveEventsConfig extends Setup {
   public async setupConfig(): Promise<void> {
     const configPath = join(this.configFolderPath, 'LiveEvents.ini')
 
-    const exists = await fileExists(configPath)
-    if (!exists) {
-      this.emitErrorMessage('Live Events', 'missing')
-    }
+    let fileLines : string[] = []
 
-    const file = await readFile(configPath, 'utf-8')
-    const fileLines = file.split('\r\n')
+    const exists = await fileExists(configPath)
+    if (exists) {
+      const file = await readFile(configPath, 'utf-8')
+      fileLines = file.split('\r\n')
+    }
 
     for (const line of LiveEventsConfig.lines) {
       if (fileLines.includes(line)) continue
