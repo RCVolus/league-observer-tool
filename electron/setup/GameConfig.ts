@@ -92,7 +92,6 @@ export class GameConfig extends Setup {
     }
 
     try {
-      console.log(config)
       await writeFile(configPath, ini.stringify(config))
       this.setupComplete = true
     } catch (error) {
