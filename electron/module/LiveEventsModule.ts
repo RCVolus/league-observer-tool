@@ -118,13 +118,11 @@ export class LiveEventsModule {
 
     try {
       const dataString = data.toString()
-      this.logger.info(dataString)
 
       let newDataSting = dataString.replace(/(\\r\\n\\t|\n|\r|\\|\r\n|\t)/gm, "")
       newDataSting = newDataSting.replace(/(}{)/gm, "},{")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parsedData: Array<any> = JSON.parse(`[${newDataSting}]`)
-      this.logger.info(parsedData)
 
       const obj: LPTEvent = {
         meta: {
