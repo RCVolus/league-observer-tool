@@ -62,7 +62,8 @@
       "assets/**/*"
     ],
     "fileAssociations": {
-      "ext": "rofl"
+      "ext": "rofl",
+      "name": "League Observer Tool"
     }
   },
   "devDependencies": {
