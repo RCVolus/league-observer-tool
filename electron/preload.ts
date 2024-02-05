@@ -69,3 +69,7 @@ contextBridge.exposeInMainWorld('modules', {
     ipcRenderer.invoke(`${moduleID}-stop`)
   }
 })
+
+contextBridge.exposeInMainWorld('rofl', {
+  findAndStart: (): Promise<string> => ipcRenderer.invoke('rofl-start')
+})

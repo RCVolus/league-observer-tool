@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray } from "elect
 import { createJumpLists } from "./jumpList";
 import { Sender } from "./helper/Sender";
 import { join } from "path";
+import { existsSync } from "fs";
 import { LCU } from "./connector/LCU";
 import { Server } from "./connector/Server";
 import { MainMenu } from "./Menu";
@@ -17,6 +18,7 @@ import Store from 'electron-store'
 import createStore from "./store";
 import { LiveEventsConfig } from "./setup/LiveEventsConfig";
 import { GameConfig } from "./setup/GameConfig";
+import { Rofl } from "./rofl/Rofl";
 
 app.setAppUserModelId('gg.rcv.league-observer-tool')
 
@@ -31,6 +33,7 @@ let gameConfig: GameConfig
 let liveEventConfig: LiveEventsConfig
 let lcu: LCU
 let server: Server
+let roflPlayer: Rofl
 export let store: Store<Config>
 
 if (process.platform == "win32") {
@@ -45,6 +48,12 @@ if (!gotTheLock) {
     if (commandLine.includes('--quit-app')) {
       app.quit()
       return;
+    }
+
+    log.info(commandLine)
+    if (commandLine[2] !== undefined && commandLine[2] !== '', existsSync(commandLine[2])) {
+      roflPlayer.roflPath = commandLine[2]
+      roflPlayer.execRofl()
     }
 
     if (mainWindow.isMinimized()) {
@@ -141,6 +150,12 @@ function openMainWindow() {
   server = new Server()
   const menu = new MainMenu(lcu, server)
   const modules = new Modules(lcu, server, menu.mainMenu)
+  roflPlayer = new Rofl()
+
+  if (process.argv[1] !== undefined && process.argv[1] !== '', existsSync(process.argv[1])) {
+    roflPlayer.roflPath = process.argv[1]
+    roflPlayer.execRofl()
+  }
 
   api.listen(8572, () => {
     console.log('api is running on port 8572')

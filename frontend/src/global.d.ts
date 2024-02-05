@@ -33,6 +33,10 @@ export interface Config {
   setupConfig: () => Promise<void>;
 }
 
+export interface Rofl {
+  findAndStart: () => Promise<string>;
+}
+
 declare global {
   interface Window {
     connector: Connector
@@ -40,5 +44,6 @@ declare global {
     modules: Modules
     store: Store
     config: Config
+    rofl: Rofl
   }
 }

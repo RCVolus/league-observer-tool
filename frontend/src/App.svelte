@@ -6,6 +6,7 @@
   import Navigation from "./components/nav/Navigation.svelte";
   import Game from "./components/Game.svelte";
   import Settings from "./components/Settings.svelte";
+  import RoflPlayer from "./components/RoflPlayer.svelte";
 
   window.sender.on("console", (_event, args) => {
     console.log(...args);
@@ -39,6 +40,8 @@
     <Game />
   {:else if $currentPage == "settings"}
     <Settings />
+  {:else if $currentPage == "rofl"}
+    <RoflPlayer />
   {/if}
 </main>
 
