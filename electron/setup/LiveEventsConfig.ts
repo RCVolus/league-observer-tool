@@ -29,8 +29,7 @@ export class LiveEventsConfig extends Setup {
     const file = await readFile(configPath, 'utf-8')
     const fileLines = file.split('\r\n')
 
-    if (LiveEventsConfig.lines.length === fileLines.length
-      && LiveEventsConfig.lines.every((u) => fileLines.includes(u))) {
+    if (LiveEventsConfig.lines.every((u) => fileLines.includes(u))) {
       this.setupComplete = true
     } else {
       this.emitErrorMessage('Live Events', 'incomplete')
