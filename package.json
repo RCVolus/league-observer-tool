@@ -71,7 +71,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@tsconfig/svelte": "^5.0.3",
+    "@tsconfig/svelte": "^5.0.4",
     "@types/express": "^4.17.21",
     "@types/ini": "^4.1.0",
     "@types/uniqid": "^5.3.4",
