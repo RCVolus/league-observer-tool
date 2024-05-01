@@ -1,3 +1,6 @@
+# IMPORTANT
+With the release of Vanguard, using the memory reading functionality **could result in a ban**. We'll be disabling the feature for now, the rest of the observer tool should continue working as before. There will be news on the future at some point soon-ish.
+
 # league-observer-tool
 The observer tool is part of our [lol-prod-toolkit](https://github.com/RCVolus/league-prod-toolkit).
 The tool is used to query local client APIs (LCU, ingame) and send the data to a local or remote instance of prod-toolkit.
