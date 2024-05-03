@@ -98,7 +98,7 @@
     "@hurdlegroup/robotjs": "^0.11.5",
     "electron-fetch": "^1.9.1",
     "electron-log": "^4.4.8",
-    "electron-store": "^8.1.0",
+    "electron-store": "^9.0.0",
     "electron-updater": "^6.1.8",
     "express": "^4.19.2",
     "ini": "^4.1.2",
