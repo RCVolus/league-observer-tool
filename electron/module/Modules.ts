@@ -7,6 +7,7 @@ import { LCU } from '../connector/LCU'
 import { InGameApi } from './InGameApi'
 import { Lobby } from './Lobby';
 import { Farsight } from './Farsight';
+import { store } from '../index'
 
 export class Modules {
   public modules: Map<string, LCUModule | ReplayModule | LiveEventsModule | InGameApi | Lobby | Farsight> = new Map()
@@ -76,15 +77,18 @@ export class Modules {
       this.menu
     ))
 
-    this.modules.set("farsight", new Farsight(
-      "in-game-farsight",
-      "Farsight",
-      "module-league-in-game",
-      this.lcu,
-      this.server,
-      this.menu
-    ))
+    if (store.get("enable-farsight") === true) {
+      this.modules.set("farsight", new Farsight(
+        "in-game-farsight",
+        "Farsight",
+        "module-league-in-game",
+        this.lcu,
+        this.server,
+        this.menu
+      ));
+    }
 
+    
     ipcMain.handle('modules-ready', async () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       return [...this.modules].map(([k, m]) => {

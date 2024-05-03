@@ -32,6 +32,10 @@ const schema: Schema<Config> = {
   },
   'league-install-path': {
     type: 'string'
+  },
+  'enable-farsight': {
+    type: 'boolean',
+    default: false
   }
 }
 

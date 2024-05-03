@@ -16,7 +16,7 @@
   "scripts": {
     "watch": "tsc -w -p ./tsconfig.e.json",
     "lint": "eslint -c .eslintrc --ext .ts ./electron",
-    "start": "npm run build:backend && electron --trace-warnings ./build/index.js",
+    "start": "npm run build:backend && npm run build:frontend && electron --trace-warnings ./build/index.js",
     "svelte-build": "rollup -c",
     "dev": "rollup -c -w",
     "svelte-start": "sirv public",
@@ -76,7 +76,7 @@
     "@types/ini": "^4.1.0",
     "@types/uniqid": "^5.3.4",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^6.19.1",
+    "@typescript-eslint/parser": "^7.0.0",
     "electron": "^29.2.0",
     "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
@@ -95,7 +95,7 @@
   },
   "dependencies": {
     "@floh22/farsight": "github:floh22/native-farsight-module",
-    "@nut-tree/nut-js": "^3.1.2",
+    "@hurdlegroup/robotjs": "^0.11.5",
     "electron-fetch": "^1.9.1",
     "electron-log": "^4.4.8",
     "electron-store": "^8.1.0",

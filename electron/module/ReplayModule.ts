@@ -9,8 +9,7 @@ import fetch, { FetchError } from 'electron-fetch'
 import { Agent } from "https";
 import type { DisplayError } from '../../types/DisplayError';
 import { store } from '../index'
-import { keyboard } from '@nut-tree/nut-js'
-import { Key } from '@nut-tree/nut-js/dist/lib/key.enum';
+import robotjs from '@hurdlegroup/robotjs';
 import api from '../api';
 import log from 'electron-log';
 
@@ -268,7 +267,8 @@ export class ReplayModule {
         this.sendPlayback()
       }, 0)
       this.server.subscribe('module-league-caster-cockpit', 'show-gold', () => {
-        keyboard.type(Key.X)
+        // TODO: this is broken currently (it works outside of league but not inside)
+        robotjs.unicodeTap('x'.charCodeAt(0))
       })
     }
 

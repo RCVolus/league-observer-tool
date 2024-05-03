@@ -6,4 +6,5 @@ export default interface Config {
   'replay-send-information': boolean
   'window-bounds': Electron.Rectangle
   'league-install-path': string
+  'enable-farsight': boolean
 }
