@@ -95,7 +95,7 @@
   },
   "dependencies": {
     "@floh22/farsight": "github:floh22/native-farsight-module",
-    "@hurdlegroup/robotjs": "^0.11.5",
+    "@hurdlegroup/robotjs": "^0.11.7",
     "electron-fetch": "^1.9.1",
     "electron-log": "^4.4.8",
     "electron-store": "^8.1.0",
