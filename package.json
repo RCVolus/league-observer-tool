@@ -91,7 +91,7 @@
     "svelte-preprocess": "^5.1.3",
     "sveltestrap": "^5.11.3",
     "tslib": "^2.6.3",
-    "typescript": "^5.3"
+    "typescript": "^5.5"
   },
   "dependencies": {
     "@floh22/farsight": "github:floh22/native-farsight-module",
