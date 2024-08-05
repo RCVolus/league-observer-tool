@@ -83,7 +83,7 @@
     "rollup": "^4.19.1",
     "rollup-plugin-css-only": "^4.5.2",
     "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-svelte": "^7.2.0",
+    "rollup-plugin-svelte": "^7.2.2",
     "sass": "^1.77.8",
     "sirv-cli": "^2.0.2",
     "svelte": "^3.59.2",
