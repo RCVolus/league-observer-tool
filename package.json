@@ -90,7 +90,7 @@
     "svelte-check": "^3.8.5",
     "svelte-preprocess": "^5.1.3",
     "sveltestrap": "^5.11.3",
-    "tslib": "^2.6.3",
+    "tslib": "^2.7.0",
     "typescript": "^5.5"
   },
   "dependencies": {
