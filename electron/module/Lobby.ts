@@ -9,7 +9,7 @@ export class Lobby extends LCUModule {
    * @param puuid string
    * @param elo tier: string, division: string
   */
-  private players: Map<string, { tier: string, division: string }> = new Map()
+  private players: Map<string, { tier: string, division: string, summonerName: string }> = new Map()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async handleData(data: any, event: any): Promise<void> {
@@ -20,13 +20,20 @@ export class Lobby extends LCUModule {
     /* this.data.push({data, event}) */
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const selectedData: { [n: string]: any } = data
+    let selectedData: { [n: string]: any } = {}
 
-    if (data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await Promise.all(data.gameConfig.customTeam100.map((m: any) => this.getPlayerElo(m)))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await Promise.all(data.gameConfig.customTeam200.map((m: any) => this.getPlayerElo(m)))
+    if (!this.dataPoints) selectedData = data
+    else {
+      for (const key of this.dataPoints) {
+        selectedData[key] = data[key]
+      }
+    }
+
+    if (data) {   
+      const members = await Promise.all(data.members.map((m: any) => this.getPlayer(m)))
+
+      data.gameConfig.customTeam100 = data.gameConfig.customTeam100.map((p: any) => members.find(m => m.puuid === p.puuid))
+      data.gameConfig.customTeam200 = data.gameConfig.customTeam200.map((p: any) => members.find(m => m.puuid === p.puuid))
     }
 
     try {
@@ -55,13 +62,20 @@ export class Lobby extends LCUModule {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getPlayerElo(m: any): Promise<any> {
+  async getPlayer(m: any): Promise<any> {
     if (!this.players.has(m.puuid)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const elo = await this.lcu.request<any>({
         method: 'GET',
         url: `/lol-ranked/v1/ranked-stats/${m.puuid}`
       })
+
+      const player = await this.lcu.request<any>({
+        method: 'GET',
+        url: `lol-summoner/v2/summoners/puuid/${m.puuid}`
+      })
+
+      m.summonerName = player.gameName
 
       if (elo === undefined) {
         m.elo = {
@@ -82,17 +96,18 @@ export class Lobby extends LCUModule {
         }
         this.players.set(m.puuid, {
           tier: soloQueue.tier,
-          division: soloQueue.division
+          division: soloQueue.division,
+          summonerName: player.gameName
         })
       } else if (flexQueue.tier !== 'NONE') {
         m.elo = {
           tier: flexQueue.tier,
           division: flexQueue.division
         }
-        this
         this.players.set(m.puuid, {
           tier: flexQueue.tier,
-          division: flexQueue.division
+          division: flexQueue.division,
+          summonerName: player.gameName
         })
       } else {
         m.elo = {
@@ -101,7 +116,8 @@ export class Lobby extends LCUModule {
         }
         this.players.set(m.puuid, {
           tier: 'NONE',
-          division: 'NA'
+          division: 'NA',
+          summonerName: player.gameName
         })
       }
 

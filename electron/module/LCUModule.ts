@@ -26,7 +26,7 @@ export class LCUModule {
     protected lcu: LCU,
     protected server: Server,
     private menu: Menu,
-    private dataPoints?: Array<string>
+    protected dataPoints?: Array<string>
   ) {
     this.logger = log.scope(id)
 
