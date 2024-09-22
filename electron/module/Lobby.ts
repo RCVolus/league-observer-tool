@@ -30,9 +30,12 @@ export class Lobby extends LCUModule {
     }
 
     if (data) {   
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const members = await Promise.all(data.members.map((m: any) => this.getPlayer(m)))
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.gameConfig.customTeam100 = data.gameConfig.customTeam100.map((p: any) => members.find(m => m.puuid === p.puuid))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.gameConfig.customTeam200 = data.gameConfig.customTeam200.map((p: any) => members.find(m => m.puuid === p.puuid))
     }
 
@@ -70,6 +73,7 @@ export class Lobby extends LCUModule {
         url: `/lol-ranked/v1/ranked-stats/${m.puuid}`
       })
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const player = await this.lcu.request<any>({
         method: 'GET',
         url: `lol-summoner/v2/summoners/puuid/${m.puuid}`
