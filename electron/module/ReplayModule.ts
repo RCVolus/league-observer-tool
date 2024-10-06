@@ -289,7 +289,7 @@ export class ReplayModule {
     this.server.unsubscribe(this.namespace, this.type)
     this.playbackInterval = setInterval(() => {
       this.handleSandingPlayback()
-    }, 5000)
+    }, 500)
     this.handleSandingPlayback()
   }
 
