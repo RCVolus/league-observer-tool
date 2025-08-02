@@ -1,4 +1,4 @@
-import { ipcMain, /* dialog, app, */ MenuItem, Menu } from 'electron';
+import { ipcMain, /* dialog, app, */ MenuItem, Menu, BrowserWindow } from 'electron';
 import { join } from "path";
 import { readFileSync } from "fs";
 /* import { writeFile } from "fs/promises"; */
@@ -10,6 +10,7 @@ import type { DisplayError } from '../../types/DisplayError';
 import { Agent } from 'https';
 import { Action } from '../../types/Action';
 import log from 'electron-log';
+import createOverlayWindow from '../window/overlay';
 
 const cert = readFileSync(join(__dirname, '..', '..', 'riotgames.pem'))
 
@@ -20,12 +21,19 @@ const httpsAgent = new Agent({
 export class InGameApi {
   static url = "https://127.0.0.1:2999/liveclientdata/"
   //private data: Array<any> = []
-  public actions: [string, Action][] = []
+  public actions: [string, Action][] = [
+    ["show-overlay", {
+      title: "Show Overlay on screen",
+      type: 'button'
+    }]
+  ]
   private interval?: NodeJS.Timeout
   private subMenu: MenuItem | null
   private menuItem: MenuItem
   private isSynced = false
   private logger: log.LogFunctions
+
+  private overlayWindow?: BrowserWindow
 
   constructor(
     public id: string,
@@ -45,6 +53,10 @@ export class InGameApi {
     /* ipcMain.handle(`${id}-save`, () => {
       this.saveData()
     }) */
+
+    ipcMain.handle(`${id}-show-overlay`, () => {
+      this.showOverlay()
+    })
 
     this.subMenu = this.menu.getMenuItemById('tools')
     this.menuItem = new MenuItem({
@@ -146,6 +158,18 @@ export class InGameApi {
 
     if (this.interval) {
       clearInterval(this.interval)
+    }
+  }
+
+  private showOverlay() {
+    if (this.overlayWindow !== undefined && this.overlayWindow.isVisible()) return
+
+    console.log('show-overlay')
+    
+    if (this.overlayWindow === undefined) {
+      this.overlayWindow = createOverlayWindow()
+    } else {
+      this.overlayWindow.show()
     }
   }
 
