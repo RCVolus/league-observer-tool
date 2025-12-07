@@ -16,10 +16,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Install windows build tools
+        run: npm install -g windows-build-tools
+        shell: cmd
+
       - name: Setup NodeJS
         uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
       
       - name: install dependencies
         run: npm i
