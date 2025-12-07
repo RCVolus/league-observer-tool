@@ -34,9 +34,9 @@ export class Lobby extends LCUModule {
       const members = await Promise.all(data.members.map((m: any) => this.getPlayer(m)))
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data.gameConfig.customTeam100 = data.gameConfig.customTeam100.map((p: any) => members.find(m => m.puuid === p.puuid))
+      selectedData.gameConfig.customTeam100 = data.gameConfig.customTeam100.map((p: any) => members.find(m => m.puuid === p.puuid))
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data.gameConfig.customTeam200 = data.gameConfig.customTeam200.map((p: any) => members.find(m => m.puuid === p.puuid))
+      selectedData.gameConfig.customTeam200 = data.gameConfig.customTeam200.map((p: any) => members.find(m => m.puuid === p.puuid))
     }
 
     try {
@@ -46,7 +46,7 @@ export class Lobby extends LCUModule {
           type: `${this.id}-${event.eventType.toLowerCase()}`,
           timestamp: new Date().getTime() + this.server.prodTimeOffset
         },
-        data: event.eventType != "Delete" ? selectedData : undefined
+        data: event.eventType !== "Delete" ? selectedData : undefined
       }
       this.server.send(obj)
     } catch (e) {
@@ -76,7 +76,7 @@ export class Lobby extends LCUModule {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const player = await this.lcu.request<any>({
         method: 'GET',
-        url: `lol-summoner/v2/summoners/puuid/${m.puuid}`
+        url: `/lol-summoner/v2/summoners/puuid/${m.puuid}`
       })
 
       m.summonerName = player.gameName

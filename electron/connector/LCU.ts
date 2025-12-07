@@ -42,6 +42,7 @@ export class LCU {
         color: "danger",
         text: (e as Error).message
       } as DisplayError)
+      return undefined
     }
   }
 
