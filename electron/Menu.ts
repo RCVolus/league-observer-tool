@@ -136,7 +136,7 @@ export class MainMenu {
             visible: !app.isPackaged,
             label: 'Toggle Developer Tools',
             click(item, focusedWindow) {
-              if (focusedWindow) focusedWindow.webContents.toggleDevTools();
+              //if (focusedWindow) focusedWindow.dev;
             }
           }
         ],
