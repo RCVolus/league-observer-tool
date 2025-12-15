@@ -14,7 +14,7 @@ jobs:
     name: 'Build'
     runs-on: 'windows-latest'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install windows build tools
         run: npm install -g windows-build-tools
