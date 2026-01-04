@@ -31,12 +31,12 @@ export class Lobby extends LCUModule {
 
     if (data) {   
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const members = await Promise.all(data.members.map((m: any) => this.getPlayer(m)))
+      selectedData.members = await Promise.all(data.members.map((m: any) => this.getPlayer(m)))
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      selectedData.gameConfig.customTeam100 = data.gameConfig.customTeam100.map((p: any) => members.find(m => m.puuid === p.puuid))
+      selectedData.gameConfig.customTeam100 = data.gameConfig.customTeam100.map((p: any) => selectedData.members.find((m: any) => m.puuid === p.puuid))
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      selectedData.gameConfig.customTeam200 = data.gameConfig.customTeam200.map((p: any) => members.find(m => m.puuid === p.puuid))
+      selectedData.gameConfig.customTeam200 = data.gameConfig.customTeam200.map((p: any) => selectedData.members.find((m: any) => m.puuid === p.puuid))
     }
 
     try {
