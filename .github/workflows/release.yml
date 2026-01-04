@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Install windows build tools
-        run: choco install python visualcpp-build-tools -y && npm config set msvs_version 2017
+        run: choco install python visualcpp-build-tools -y
         shell: cmd
 
       - name: Setup NodeJS
