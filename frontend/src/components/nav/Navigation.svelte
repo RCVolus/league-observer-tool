@@ -8,8 +8,8 @@
     <NavItem icon="window" name="Client" href="client" />
     <NavItem icon="controller" name="In Game" href="in-game" />
     <NavItem type="timer" />
-    <NavItem icon="play" name="ROFL-Player" href="rofl" />
-    <NavItem icon="gear" name="Settings" href="settings" />
+    <!-- <NavItem icon="play" name="ROFL-Player" href="rofl" /> -->
+    <NavItem icon="gear" name="Settings" href="settings" width={2} />
   </ul>
   <NavConnect />
 </div>

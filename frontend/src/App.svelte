@@ -40,8 +40,8 @@
     <Game />
   {:else if $currentPage == "settings"}
     <Settings />
-  {:else if $currentPage == "rofl"}
-    <RoflPlayer />
+  <!-- {:else if $currentPage == "rofl"}
+    <RoflPlayer /> -->
   {/if}
 </main>
 

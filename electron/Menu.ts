@@ -1,7 +1,7 @@
 import { app, Menu, shell } from "electron";
 import { LCU } from './connector/LCU'
 import { Server } from './connector/Server'
-import { store } from './index'
+import { mainWindow, store } from './index'
 
 export class MainMenu {
   public mainMenu: Menu
@@ -135,8 +135,10 @@ export class MainMenu {
           {
             visible: !app.isPackaged,
             label: 'Toggle Developer Tools',
-            click(item, focusedWindow) {
-              //if (focusedWindow) focusedWindow.dev;
+            click() {
+              mainWindow.webContents.openDevTools({
+                mode: 'detach'
+              })
             }
           }
         ],

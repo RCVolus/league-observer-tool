@@ -16,7 +16,7 @@ import api from "./api";
 import Config from "../types/Config";
 import Store from 'electron-store'
 import createStore from "./store";
-import { LiveEventsConfig } from "./setup/LiveEventsConfig";
+//import { LiveEventsConfig } from "./setup/LiveEventsConfig";
 import { GameConfig } from "./setup/GameConfig";
 import { Rofl } from "./rofl/Rofl";
 
@@ -25,12 +25,12 @@ app.setAppUserModelId('gg.rcv.league-observer-tool')
 autoUpdater.logger = log.scope('updater');
 autoUpdater.autoDownload = false
 
-let mainWindow: BrowserWindow
+export let mainWindow: BrowserWindow
 let initWindow: BrowserWindow
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 let tray: Tray
 let gameConfig: GameConfig
-let liveEventConfig: LiveEventsConfig
+//let liveEventConfig: LiveEventsConfig
 let lcu: LCU
 let server: Server
 let roflPlayer: Rofl
@@ -189,6 +189,7 @@ function openMainWindow() {
       store.set('window-bounds', mainWindow.getBounds())
       await modules.disconnect()
       globalShortcut.unregisterAll()
+      app.exit()
       return
     }
   })
@@ -205,22 +206,23 @@ async function config() {
     lcu.onConnected(() => {
       setTimeout(async () => {
         gameConfig = new GameConfig()
-        liveEventConfig = new LiveEventsConfig()
+        //liveEventConfig = new LiveEventsConfig()
         await checkConfigs()
       }, 2500)
     })
   } else {
     gameConfig = new GameConfig()
-    liveEventConfig = new LiveEventsConfig()
+    //liveEventConfig = new LiveEventsConfig()
     await checkConfigs()
   }
 }
 
 async function checkConfigs() {
   const game = await gameConfig.checkConfig()
-  const live = await liveEventConfig.checkConfig()
+  //const live = await liveEventConfig.checkConfig()
 
-  if (game && live) return
+  //if (game && live) return
+  if (game) return
 
   const choice = dialog.showMessageBoxSync({
     type: "question",
@@ -233,7 +235,7 @@ async function checkConfigs() {
     return
   } else {
     await gameConfig.setupConfig()
-    await liveEventConfig.setupConfig()
+    //await liveEventConfig.setupConfig()
   }
 }
 

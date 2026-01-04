@@ -1,4 +1,4 @@
-import { screen, BrowserWindow } from "electron";
+import { BrowserWindow } from "electron";
 import { store } from '../index'
 
 export default function createOverlayWindow(): BrowserWindow {
@@ -29,11 +29,9 @@ export default function createOverlayWindow(): BrowserWindow {
   overlayWindow.loadURL(url)
   overlayWindow.webContents.insertCSS(`html { width: 1920px; height: 1080px; transform: scale(0.8) translateX(-241px); transform-origin: top center; overflow: hidden; }`)
 
-  overlayWindow.webContents.openDevTools({
+  /* overlayWindow.webContents.openDevTools({
     mode: 'detach'
-  })
-
-  console.log(screen.getPrimaryDisplay())
+  }) */
 
   return overlayWindow
 }

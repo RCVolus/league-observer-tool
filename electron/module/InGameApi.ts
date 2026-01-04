@@ -25,6 +25,10 @@ export class InGameApi {
     ["show-overlay", {
       title: "Show Overlay on screen",
       type: 'button'
+    }],
+    ["hide-overlay", {
+      title: "Hide Overlay on screen",
+      type: 'button'
     }]
   ]
   private interval?: NodeJS.Timeout
@@ -56,6 +60,9 @@ export class InGameApi {
 
     ipcMain.handle(`${id}-show-overlay`, () => {
       this.showOverlay()
+    })
+    ipcMain.handle(`${id}-hide-overlay`, () => {
+      this.hideOverlay()
     })
 
     this.subMenu = this.menu.getMenuItemById('tools')
@@ -163,14 +170,18 @@ export class InGameApi {
 
   private showOverlay() {
     if (this.overlayWindow !== undefined && this.overlayWindow.isVisible()) return
-
-    console.log('show-overlay')
     
     if (this.overlayWindow === undefined) {
       this.overlayWindow = createOverlayWindow()
     } else {
       this.overlayWindow.show()
     }
+  }
+
+  private hideOverlay() {
+    if (this.overlayWindow === undefined || !this.overlayWindow.isVisible()) return
+
+    this.overlayWindow.hide()
   }
 
 /*   private async saveData() {

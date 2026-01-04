@@ -2,7 +2,7 @@ import { join } from 'path'
 import { readFile, writeFile } from 'fs/promises'
 import ini from 'ini'
 import { Setup } from "./Setup";
-import { store } from '../index'
+//import { store } from '../index'
 import fileExists from '../helper/fileExists';
 import { DisplayError } from '../../types/DisplayError';
 import { Sender } from '../helper/Sender';
@@ -19,10 +19,10 @@ export class GameConfig extends Setup {
       'General': {
         'EnableReplayApi': '1'
       },
-      'LiveEvents': {
+      /* 'LiveEvents': {
         'Enable': '1',
         'Port': store.get('live-events-port').toString()
-      },
+      }, */
       'Replay': {
         'MouseHighlightEnable': '0',
         'SelectedHighlightEnable': '0',
