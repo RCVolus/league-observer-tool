@@ -80,7 +80,7 @@
     "electron": "^32.0.1",
     "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
-    "rollup": "^4.52.0",
+    "rollup": "^4.52.5",
     "rollup-plugin-css-only": "^4.5.2",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-svelte": "^7.2.3",
@@ -101,7 +101,7 @@
     "electron-store": "^8.1.0",
     "electron-updater": "^6.6.2",
     "express": "^5.1.0",
-    "ini": "^5.0.0",
+    "ini": "^6.0.0",
     "league-connect": "^5.5.0",
     "uniqid": "^5.4.0",
     "ws": "^8.18.3"
