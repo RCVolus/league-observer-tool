@@ -15,7 +15,8 @@ import createOverlayWindow from '../window/overlay';
 const cert = readFileSync(join(__dirname, '..', '..', 'riotgames.pem'))
 
 const httpsAgent = new Agent({
-  ca: cert
+  //ca: cert,
+  rejectUnauthorized: false,
 });
 
 export class InGameApi {

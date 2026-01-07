@@ -16,7 +16,8 @@ import log from 'electron-log';
 const cert = readFileSync(join(__dirname, '..', '..', 'riotgames.pem'))
 
 const httpsAgent = new Agent({
-  ca: cert
+  //ca: cert
+  rejectUnauthorized: false,
 });
 
 export class ReplayModule {
